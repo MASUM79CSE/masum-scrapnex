@@ -1,3 +1,4 @@
+import { PickerPanel, type PickerView } from "./picker-panel";
 import {
   LiveCandidates,
   LivePreview,
@@ -460,12 +461,14 @@ export function Workspace({
   connection = "loading",
   retry,
   detection,
+  picker,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
   connection?: Connection;
   retry?: () => void;
   detection?: DetectionView;
+  picker?: PickerView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
@@ -473,7 +476,8 @@ export function Workspace({
   );
   const [candidate, setCandidate] = useState<Candidate>(candidates[0]);
   const [selectedId, setSelectedId] = useState<string>();
-  const live = !sample ? detection : undefined;
+  const manual = picker && picker.status !== "idle" ? picker : undefined;
+  const live = !sample && !manual ? detection : undefined;
   const liveChoice =
     live?.report?.candidates.find((item) => item.id === selectedId) ??
     live?.report?.candidates[0];
@@ -485,6 +489,7 @@ export function Workspace({
   const isSettings = section === "settings";
   function navigate(next: Section) {
     if (next === section) return;
+    manual?.close();
     setSection(next);
     requestAnimationFrame(() => {
       heading.current?.focus();
@@ -494,16 +499,18 @@ export function Workspace({
     setSample((current) => !current);
     setCandidate(candidates[0]);
   }
-  const title =
-    section === "workspace"
+  const title = manual
+    ? "Manual selection"
+    : section === "workspace"
       ? "Extraction workspace"
       : section === "candidates"
         ? "Candidate structures"
         : section === "preview"
           ? "Data preview"
           : "Settings";
-  const short =
-    section === "workspace"
+  const short = manual
+    ? "Pick an element on the page and review matching rows here."
+    : section === "workspace"
       ? "Turn structured information on the web into data you can use."
       : section === "candidates"
         ? "Compare similar collections and choose which structure to preview."
@@ -595,7 +602,11 @@ export function Workspace({
             <div className="hero-content">
               <p className="eyebrow">
                 <span aria-hidden="true" />{" "}
-                {isSettings ? "PREFERENCES" : "LOCAL-FIRST EXTRACTION"}
+                {manual
+                  ? "POINT AND CLICK"
+                  : isSettings
+                    ? "PREFERENCES"
+                    : "LOCAL-FIRST EXTRACTION"}
               </p>
               <h1 ref={heading} tabIndex={-1} id="page-heading">
                 {title}
@@ -609,7 +620,9 @@ export function Workspace({
                     <strong>
                       {sample
                         ? "fieldwork.example/catalog"
-                        : (live?.origin ?? "No webpage connected for analysis")}
+                        : (live?.origin ??
+                          detection?.origin ??
+                          "No webpage connected for analysis")}
                     </strong>
                   </div>
                 </div>
@@ -618,6 +631,16 @@ export function Workspace({
             {!isSettings && (
               <div className="hero-actions">
                 {sample && <SampleBadge />}
+                {picker && !sample && !manual && live?.origin && (
+                  <button
+                    type="button"
+                    className="button button--outline"
+                    disabled={live.state === "running"}
+                    onClick={picker.start}
+                  >
+                    Pick elements
+                  </button>
+                )}
                 {live?.origin && (
                   <button
                     className="button button--primary"
@@ -632,18 +655,20 @@ export function Workspace({
                     {live.state === "running" ? "Analyzing…" : "Analyze page"}
                   </button>
                 )}
-                <button
-                  className={`button ${sample || live?.origin ? "button--outline" : "button--primary"}`}
-                  type="button"
-                  onClick={toggleSample}
-                >
-                  {sample ? (
-                    <ArrowLeft size={16} aria-hidden="true" />
-                  ) : (
-                    <FlaskConical size={16} aria-hidden="true" />
-                  )}
-                  {sample ? "Exit sample" : "Try sample data"}
-                </button>
+                {!manual && (
+                  <button
+                    className={`button ${sample || live?.origin ? "button--outline" : "button--primary"}`}
+                    type="button"
+                    onClick={toggleSample}
+                  >
+                    {sample ? (
+                      <ArrowLeft size={16} aria-hidden="true" />
+                    ) : (
+                      <FlaskConical size={16} aria-hidden="true" />
+                    )}
+                    {sample ? "Exit sample" : "Try sample data"}
+                  </button>
+                )}
               </div>
             )}
           </section>
@@ -669,7 +694,8 @@ export function Workspace({
               ) : null}
             </div>
           )}
-          {section === "workspace" && (
+          {manual && <PickerPanel picker={manual} />}
+          {!manual && section === "workspace" && (
             <>
               <ol className="workflow" aria-label="Extraction workflow">
                 {workflow.map((step, index) => (
@@ -714,7 +740,7 @@ export function Workspace({
               </div>
             </>
           )}
-          {section === "candidates" && (
+          {!manual && section === "candidates" && (
             <div className="focused-panel">
               {candidatePanel}
               {(sample || liveChoice) && (
@@ -729,8 +755,8 @@ export function Workspace({
               )}
             </div>
           )}
-          {section === "preview" && dataPanel}
-          {isSettings && <SettingsScreen appearance={appearance} />}
+          {!manual && section === "preview" && dataPanel}
+          {!manual && isSettings && <SettingsScreen appearance={appearance} />}
           <footer className="workspace-foot">
             <span>
               <ShieldCheck size={15} aria-hidden="true" /> Processed locally.

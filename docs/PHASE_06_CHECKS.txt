@@ -1,0 +1,102 @@
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/masum-scrapnex
+
+ ✓ tests/unit/ui.test.tsx (5 tests) 34ms
+ ✓ tests/unit/browser.test.ts (9 tests) 7ms
+ ✓ tests/unit/detector-contracts.test.ts (3 tests) 8ms
+ ✓ tests/unit/analyzer-shape.test.ts (4 tests) 5ms
+ ✓ tests/unit/picker-contracts.test.ts (2 tests) 4ms
+
+ Test Files  5 passed (5)
+      Tests  23 passed (23)
+   Start at  15:52:51
+   Duration  938ms (import 59%, transform 19%, tests 15%, worker 6%)
+
+    Isolate  5 workers spawned · ~105ms startup each (spawn + environment, per file)
+             at least ~422ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+
+WXT 0.21.5
+ℹ Building chrome-mv3 for production with Vite 8.3.8
+
+
+✔ Built extension in 921 ms
+  ├─ .output/chrome-mv3/manifest.json                                  555 B    
+  ├─ .output/chrome-mv3/options.html                                   552 B    
+  ├─ .output/chrome-mv3/popup.html                                     547 B    
+  ├─ .output/chrome-mv3/sidepanel.html                                 631 B    
+  ├─ .output/chrome-mv3/background.js                                  1.12 kB  
+  ├─ .output/chrome-mv3/chunks/brand-BDu1Se9s.js                       227.80 kB
+  ├─ .output/chrome-mv3/chunks/chrome-BhYFeO_0.js                      1.44 kB  
+  ├─ .output/chrome-mv3/chunks/options-BDJ48VVm.js                     154 B    
+  ├─ .output/chrome-mv3/chunks/popup-metd22Y6.js                       2.04 kB  
+  ├─ .output/chrome-mv3/chunks/sidepanel-DI4ojuKw.js                   5.11 kB  
+  ├─ .output/chrome-mv3/chunks/workspace-BukCC75T.js                   29.86 kB 
+  ├─ .output/chrome-mv3/page-agent.js                                  16.11 kB 
+  ├─ .output/chrome-mv3/picker.js                                      13.07 kB 
+  ├─ .output/chrome-mv3/assets/brand-DV9-KOd6.css                      29.26 kB 
+  ├─ .output/chrome-mv3/assets/inter-latin-wght-normal-Dx4kXJAl.woff2  48.26 kB 
+  ├─ .output/chrome-mv3/icons/128.png                                  8.54 kB  
+  ├─ .output/chrome-mv3/icons/16.png                                   843 B    
+  ├─ .output/chrome-mv3/icons/32.png                                   2.02 kB  
+  ├─ .output/chrome-mv3/icons/48.png                                   3.07 kB  
+  ├─ .output/chrome-mv3/licenses/Inter-OFL.txt                         4.48 kB  
+  └─ .output/chrome-mv3/licenses/Lucide.txt                            3.21 kB  
+Σ Total size: 398.65 kB                                              
+✔ Finished in 1.220 s
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/e2e/analyzer.spec.ts:51:1 › nested meaningful content outranks navigation and retains deterministic explanations (261ms)
+  ✓   2 tests/e2e/analyzer.spec.ts:81:1 › groups irregular cards, ignores unstable classes, and rediscovers updated rows on a fresh scan (99ms)
+  ✓   3 tests/e2e/analyzer.spec.ts:108:1 › uses rendered visibility signals, excludes sensitive subtrees, and returns no source text (102ms)
+  ✓   4 tests/e2e/analyzer.spec.ts:127:1 › cancellation and mid-scan mutation discard stale conclusions (97ms)
+  ✓   5 tests/e2e/analyzer.spec.ts:174:1 › enforces node, depth, time, sibling sample, and result caps (107ms)
+BASELINE rows=100 nodes=302 first_ms=9.3 warm_ms=1.5,2,1.7 warm_median_ms=1.7
+BASELINE rows=1000 nodes=3002 first_ms=21.4 warm_ms=9.8,9.1,8.6 warm_median_ms=9.1
+BASELINE rows=10000 nodes=30002 first_ms=171 warm_ms=92.7,122.7,78.5 warm_median_ms=92.7
+  ✓   6 tests/e2e/analyzer.spec.ts:223:1 › records Chromium timing baselines for flat 100, 1,000 and 10,000 row DOMs (637ms)
+  ✓   7 tests/e2e/detector.spec.ts:114:1 › packaged detector previews merged, headerless and sparse native HTML tables (238ms)
+  ✓   8 tests/e2e/detector.spec.ts:143:1 › recognizes product, article, directory, list and card structures and infers recurring fields (177ms)
+  ✓   9 tests/e2e/detector.spec.ts:190:1 › navigation, controls and empty repeated containers do not produce candidates (96ms)
+  ✓  10 tests/e2e/detector.spec.ts:197:1 › workspace scans only after explicit action, presents real candidates and clears stale previews (271ms)
+  ✓  11 tests/e2e/extension.spec.ts:11:1 › production manifest exposes only the planned permissions and entrypoints (5ms)
+  ✓  12 tests/e2e/extension.spec.ts:101:1 › packaged popup and side panel render, connect and do not request external resources (1.3s)
+  ✓  13 tests/e2e/extension.spec.ts:133:1 › sample candidates, navigation, search, sorting and row selection work (958ms)
+  ✓  14 tests/e2e/extension.spec.ts:175:1 › themes persist in extension storage and reflect system color scheme (2.3s)
+  ✓  15 tests/e2e/extension.spec.ts:199:1 › narrow side panel does not overflow, and the table scroll is keyboard reachable (1.6s)
+  ✓  16 tests/e2e/extension.spec.ts:230:1 › production build has no loopback host grant and offers no scan before authorization (698ms)
+  ✓  17 tests/e2e/picker.spec.ts:127:1 › picks repeated catalog cards, blocks link navigation, and confirms selected URL, alt and price fields (823ms)
+  ✓  18 tests/e2e/picker.spec.ts:173:1 › supports parent/child correction, field-relative columns and keyboard Escape on table rows (343ms)
+  ✓  19 tests/e2e/picker.spec.ts:200:1 › refreshes same-document rows, invalidates removed selections, and removes the overlay on navigation (681ms)
+  ✓  20 tests/e2e/picker.spec.ts:224:1 › keyboard arrows can pick a row and panel cancellation cleans an unchanged page (204ms)
+  ✓  21 tests/e2e/picker.spec.ts:245:1 › strict page CSP leaves the isolated overlay usable; closing the panel disconnects and restores the page (373ms)
+
+  21 passed (15.3s)
+found 0 vulnerabilities

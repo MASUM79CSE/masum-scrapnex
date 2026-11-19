@@ -1,3 +1,4 @@
+import { usePicker } from "../../src/browser/use-picker";
 import { useDetection } from "../../src/browser/use-detection";
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
@@ -9,6 +10,7 @@ import { Workspace, type Connection } from "../../src/ui/workspace";
 
 function SidePanel() {
   const detection = useDetection();
+  const picker = usePicker(detection.authorizedTarget);
   const [connection, setConnection] = useState<Connection>("loading");
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -37,6 +39,7 @@ function SidePanel() {
       connection={connection}
       themeStore={extensionThemeStore}
       detection={detection}
+      picker={picker}
       retry={() => {
         setConnection("loading");
         setAttempt((n) => n + 1);

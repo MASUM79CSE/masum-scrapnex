@@ -7,7 +7,9 @@ import type { WorkspaceTab } from "./ports";
 
 type Target = Extract<WorkspaceTab, { state: "available" }>;
 
-export function useDetection(): DetectionView {
+export function useDetection(): DetectionView & {
+  authorizedTarget: Target | null;
+} {
   const [target, setTarget] = useState<Target | null>(null);
   const ref = useRef<Target | null>(null);
   const epoch = useRef(0);
@@ -82,5 +84,11 @@ export function useDetection(): DetectionView {
       },
     );
   }
-  return { origin: target?.origin ?? null, state, report, scan };
+  return {
+    origin: target?.origin ?? null,
+    state,
+    report,
+    scan,
+    authorizedTarget: target,
+  };
 }

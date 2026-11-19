@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>Fieldwork picker · Catalog</title>
+  <style>
+    body {
+      font: 16px system-ui;
+      margin: 35px;
+      color: #132a35;
+      background: #eaf4f1;
+    }
+    main {
+      max-width: 820px;
+    }
+    article {
+      background: white;
+      border: 1px solid #94b8ad;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 14px 0;
+    }
+    h2 {
+      margin: 0;
+    }
+    a {
+      color: #106753;
+    }
+    p {
+      margin: 8px 0;
+    }
+    .price {
+      font-weight: 700;
+    }
+  </style>
+  <main>
+    <h1>Fieldwork Supply</h1>
+    <section aria-label="Catalog cards">
+      <article id="lamp">
+        <h2><a href="#details">Trail lamp</a></h2>
+        <p class="price" data-price="42.00">$42.00</p>
+        <p>Lightweight and rechargeable</p>
+        <img
+          width="40"
+          height="20"
+          alt="Trail lamp thumbnail"
+          src="/photo.svg"
+        />
+      </article>
+      <article id="stove">
+        <h2><a href="#details">Camp stove</a></h2>
+        <p class="price" data-price="85.00">$85.00</p>
+        <p>Stainless steel burner</p>
+        <img
+          width="40"
+          height="20"
+          alt="Camp stove thumbnail"
+          src="/photo.svg"
+        />
+      </article>
+      <article id="pack">
+        <h2><a href="#details">Ridge pack</a></h2>
+        <p class="price" data-price="64.00">$64.00</p>
+        <p>Recycled canvas</p>
+        <img
+          width="40"
+          height="20"
+          alt="Ridge pack thumbnail"
+          src="/photo.svg"
+        />
+      </article>
+    </section>
+    <p id="details">End of the catalog.</p>
+    <form>
+      <label>Private form <input value="private-picker-sentinel" /></label>
+    </form>
+    <div contenteditable="true">private-editable-sentinel</div>
+  </main>
+</html>

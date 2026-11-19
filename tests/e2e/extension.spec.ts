@@ -41,6 +41,7 @@ test("production manifest exposes only the planned permissions and entrypoints",
     expect(manifest[key], key).toBeUndefined();
   }
   expect((await stat(join(build, "page-agent.js"))).isFile()).toBe(true);
+  expect((await stat(join(build, "picker.js"))).isFile()).toBe(true);
 });
 
 const smoke = test.extend<{
@@ -251,6 +252,9 @@ smoke(
       ).toBeVisible();
       await expect(
         page.getByRole("button", { name: "Analyze page" }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("button", { name: "Pick elements" }),
       ).toHaveCount(0);
       const authority = await page.evaluate(async () => {
         const chrome = (window as unknown as { chrome: typeof BrowserApi })

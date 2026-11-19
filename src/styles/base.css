@@ -1200,3 +1200,68 @@ th[aria-sort] .sort-button {
   color: var(--muted);
   font-size: 12px;
 }
+.picker-panel {
+  margin-top: 16px;
+}
+.picker-hint {
+  margin: 0 16px 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+}
+.picker-hint[role="alert"] {
+  color: var(--error);
+}
+.picker-tools,
+.picker-fields {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+.picker-panel footer.picker-tools {
+  padding-top: 12px;
+}
+.picker-selector {
+  display: grid;
+  gap: 5px;
+  margin: 0 16px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.picker-selector code,
+.picker-panel details code {
+  overflow-wrap: anywhere;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 4px 7px;
+  border-radius: 5px;
+}
+.picker-fields label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.picker-fields select {
+  min-height: 35px;
+  border: 1px solid var(--border-2);
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.picker-panel details ol {
+  padding-inline-start: 18px;
+  margin-top: 6px;
+}
+.picker-panel details li {
+  margin-bottom: 5px;
+}
+.picker-panel details li button {
+  margin-left: 6px;
+}

@@ -30,6 +30,7 @@ export function inspectVisibility(
     excludedTags.has(tag) ||
     element.hasAttribute("hidden") ||
     element.hasAttribute("inert") ||
+    element.hasAttribute("contenteditable") ||
     element.getAttribute("aria-hidden")?.toLowerCase() === "true"
   )
     return "prune";
