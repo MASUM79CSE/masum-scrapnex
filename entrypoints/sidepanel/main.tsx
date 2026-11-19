@@ -1,45 +1,44 @@
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
+import { extensionThemeStore } from "../../src/browser/preferences";
 import { isShellStatus, type ShellRequest } from "../../src/browser/protocol";
-import { PRODUCT_NAME, SCHEMA_VERSION } from "../../src/data/contracts";
+import { SCHEMA_VERSION } from "../../src/data/contracts";
 import { mount } from "../../src/styles/mount";
+import { Workspace, type Connection } from "../../src/ui/workspace";
 
 function SidePanel() {
-  const [status, setStatus] = useState("Checking extension connection…");
+  const [connection, setConnection] = useState<Connection>("loading");
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let current = true;
     void browser.runtime
       .sendMessage({
-        version: SCHEMA_VERSION,
         kind: "shell/status",
+        version: SCHEMA_VERSION,
       } satisfies ShellRequest)
       .then(
         (result: unknown) => {
           if (current)
-            setStatus(
-              isShellStatus(result)
-                ? "Extension connected."
-                : "Unexpected extension response.",
-            );
+            setConnection(isShellStatus(result) ? "connected" : "error");
         },
         () => {
-          if (current)
-            setStatus("Could not connect. Reopen the side panel to retry.");
+          if (current) setConnection("error");
         },
       );
     return () => {
       current = false;
     };
-  }, []);
-
+  }, [attempt]);
   return (
-    <main className="space-y-3 p-4 text-sm">
-      <h1 className="text-lg font-semibold">{PRODUCT_NAME}</h1>
-      <p role="status">{status}</p>
-      <p>
-        Development foundation. Webpage analysis is not available in this build.
-      </p>
-    </main>
+    <Workspace
+      mode="extension"
+      connection={connection}
+      themeStore={extensionThemeStore}
+      retry={() => {
+        setConnection("loading");
+        setAttempt((n) => n + 1);
+      }}
+    />
   );
 }
 

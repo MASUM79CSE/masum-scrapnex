@@ -1,6 +1,6 @@
 # MASUM SCRAPNEX
 
-An independent, local-first Chrome extension for collecting structured web data. `instant-scraper` is the engineering/package identifier. This is the **Phase 02 development scaffold (`0.1.0`)**, not a working scraper or a release build for publication. The popup, side-panel page, options page, and background service worker load; webpage analysis, collection, storage, and export are not enabled.
+An independent, local-first Chrome extension for collecting structured web data. `instant-scraper` is the engineering/package identifier. This is the **Phase 03 UI foundation (`0.1.0`)**, not a working scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. Live webpage analysis, collection, dataset storage, and export are not enabled.
 
 ## Build and load locally
 
@@ -13,7 +13,15 @@ npm run build
 
 Open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose `.output/chrome-mv3`. Open an ordinary HTTPS page and invoke the toolbar popup; then try **Open side panel**. The automated check loads the underlying extension pages in Chromium; the manual process above is how to verify the real toolbar interaction. Browser version `116` is a provisional manifest minimum, not a tested compatibility guarantee.
 
-The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged page agent does not collect or read webpage data in Phase 02. The options page contains no editable settings yet.
+The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged page agent does not collect or read webpage data in Phase 02. The extension stores only the appearance preference in `storage.local`.
+
+## Try the standalone UI preview
+
+```sh
+npm run preview:ui
+```
+
+The preview starts in sample mode and exercises the same workspace UI without Chrome extension APIs. Its theme preference is isolated to preview-origin local storage.
 
 ## Verify
 
@@ -32,10 +40,11 @@ On a fresh Debian/Linux environment with missing shared libraries, use `npx play
 | -------------- | ---------------------------------------------------------------- |
 | `entrypoints/` | WXT extension worker, popup, side panel, options, and page agent |
 | `src/browser/` | Browser ports, Chrome adapter, and validated shell messages      |
+| `src/ui/`      | Workbench, settings, brand components, and sample data           |
 | `src/data/`    | Initial typed extraction contracts                               |
-| `src/styles/`  | Minimal React mounting and Tailwind wiring                       |
+| `src/styles/`  | Shared design tokens, responsive CSS, and React mounting         |
 | `tests/unit/`  | URL/context handling and message boundary tests                  |
 | `tests/e2e/`   | Generated manifest and Chromium extension smoke tests            |
-| `docs/`        | Phase 01 design baseline and Phase 02 verification               |
+| `docs/`        | Design baseline and phase verification                           |
 
-See [Phase 02 verification](docs/PHASE_02_VERIFICATION.md) for exact scope, evidence, and limitations. Development follows explicit approval gates. Phase 03 has not begun.
+See [Phase 03 verification](docs/PHASE_03_VERIFICATION.md) for scope, evidence, and limitations. Development follows explicit approval gates. Phase 04 has not begun.

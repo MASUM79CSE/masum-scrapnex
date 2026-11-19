@@ -1,0 +1,75 @@
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/instant-scraper
+
+ ✓ tests/unit/ui.test.tsx (5 tests) 40ms
+ ✓ tests/unit/browser.test.ts (9 tests) 7ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  15:21:55
+   Duration  702ms (import 53%, transform 31%, tests 12%, worker 3%)
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+
+WXT 0.21.5
+ℹ Building chrome-mv3 for production with Vite 8.3.8
+
+
+✔ Built extension in 1.018 s
+  ├─ .output/chrome-mv3/manifest.json                                  553 B    
+  ├─ .output/chrome-mv3/options.html                                   551 B    
+  ├─ .output/chrome-mv3/popup.html                                     469 B    
+  ├─ .output/chrome-mv3/sidepanel.html                                 553 B    
+  ├─ .output/chrome-mv3/background.js                                  1.12 kB  
+  ├─ .output/chrome-mv3/chunks/brand-CW9TyP9c.js                       226.27 kB
+  ├─ .output/chrome-mv3/chunks/options-DYa1LP2J.js                     154 B    
+  ├─ .output/chrome-mv3/chunks/popup-pzsvMFy0.js                       2.57 kB  
+  ├─ .output/chrome-mv3/chunks/sidepanel-qxdAj_ZJ.js                   723 B    
+  ├─ .output/chrome-mv3/chunks/workspace-BgNjwaM8.js                   18.60 kB 
+  ├─ .output/chrome-mv3/page-agent.js                                  458 B    
+  ├─ .output/chrome-mv3/assets/brand-ChRL0LtX.css                      26.40 kB 
+  ├─ .output/chrome-mv3/assets/inter-latin-wght-normal-Dx4kXJAl.woff2  48.26 kB 
+  ├─ .output/chrome-mv3/icons/128.png                                  8.54 kB  
+  ├─ .output/chrome-mv3/icons/16.png                                   843 B    
+  ├─ .output/chrome-mv3/icons/32.png                                   2.02 kB  
+  ├─ .output/chrome-mv3/icons/48.png                                   3.07 kB  
+  ├─ .output/chrome-mv3/licenses/Inter-OFL.txt                         4.48 kB  
+  └─ .output/chrome-mv3/licenses/Lucide.txt                            3.21 kB  
+Σ Total size: 348.84 kB                                              
+✔ Finished in 1.376 s
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/e2e/extension.spec.ts:9:1 › production manifest exposes only the planned permissions and entrypoints (12ms)
+  ✓  2 tests/e2e/extension.spec.ts:98:1 › packaged popup and side panel render, connect and do not request external resources (1.6s)
+  ✓  3 tests/e2e/extension.spec.ts:130:1 › sample candidates, navigation, search, sorting and row selection work (952ms)
+  ✓  4 tests/e2e/extension.spec.ts:172:1 › themes persist in extension storage and reflect system color scheme (2.3s)
+  ✓  5 tests/e2e/extension.spec.ts:196:1 › narrow side panel does not overflow, and the table scroll is keyboard reachable (1.6s)
+
+  5 passed (7.4s)
+found 0 vulnerabilities
