@@ -1466,3 +1466,83 @@ th[aria-sort] .sort-button {
   min-width: 0;
   max-width: 100%;
 }
+.export-panel {
+  margin: 3px 16px 16px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 7px;
+}
+.export-panel summary {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+}
+.export-panel form {
+  display: grid;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+.export-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.export-options label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+}
+.export-options select,
+.export-options input {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-height: 35px;
+  padding: 4px 8px;
+  max-width: 100%;
+}
+.export-panel fieldset {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.export-panel legend,
+.export-columns label,
+.export-check,
+.export-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.export-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.export-columns label,
+.export-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.export-panel input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+.export-note {
+  overflow-wrap: anywhere;
+}
+.export-note.export-ok {
+  color: var(--accent);
+}
+.export-note.export-error {
+  color: var(--warning);
+}

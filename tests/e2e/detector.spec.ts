@@ -53,6 +53,14 @@ test.beforeAll(async () => {
         );
       return;
     }
+    if (req.url === "/export") {
+      res
+        .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+        .end(
+          `<!doctype html><html lang="en"><title>Export fixture</title><main><h1>Fieldwork inventory</h1><table><thead><tr><th>Item</th><th>Stock</th><th>Notes</th></tr></thead><tbody><tr><td>Trail lamp</td><td>0042</td><td>&lt;gear&gt; &amp; tags</td></tr><tr><td>=1+1</td><td></td><td></td></tr><tr><td>ক্যাম্প প্যাক</td><td>15</td></tr></tbody></table></main></html>`,
+        );
+      return;
+    }
     if (req.url === "/edit") {
       res
         .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
@@ -674,6 +682,220 @@ test("pagination does not retry a Load More button when no content appears", asy
       { timeout: 14000 },
     );
     await expect(page.getByRole("button")).toHaveAttribute("data-clicks", "1");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+const exportForm = () => panel.locator(".export-panel");
+async function exportDownload(format: "csv" | "xlsx" | "json", stem: string) {
+  await exportForm().getByLabel("File format").selectOption(format);
+  await exportForm().getByLabel("File name").fill(stem);
+  const [item] = await Promise.all([
+    panel.waitForEvent("download"),
+    exportForm()
+      .getByRole("button", { name: `Download ${format.toUpperCase()}` })
+      .click(),
+  ]);
+  expect(item.suggestedFilename()).toBe(`${stem}.${format}`);
+  expect(await item.failure()).toBeNull();
+  const bytes = await readFile(await item.path());
+  await expect(exportForm().getByRole("status")).toContainText(
+    `Download requested for ${stem}.${format}.`,
+  );
+  return bytes;
+}
+
+test("export downloads real Unicode CSV, XLSX and JSON with formula-safe spreadsheet output", async () => {
+  const page = await liveTab("/export");
+  try {
+    await startCapture();
+    await panel.bringToFront();
+    await captured()
+      .getByRole("button", { name: "Edit Notes in row 1", exact: true })
+      .click();
+    const editor = panel.getByRole("form", { name: "Edit cell" });
+    await editor
+      .getByRole("textbox")
+      .fill('Lamp, "large"\nবাংলা <gear> & tags');
+    await editor.getByRole("button", { name: "Save cell" }).click();
+    await panel.getByText("Export and copy records", { exact: true }).click();
+    await expect(exportForm()).toContainText("3 records · 3 columns");
+    const csv = await exportDownload("csv", "scrapnexs-phase-09-fixture");
+    expect([...csv.subarray(0, 3)]).toEqual([239, 187, 191]);
+    expect(csv.toString("utf8")).toContain(
+      `"Trail lamp","0042","Lamp, ""large""\nবাংলা <gear> & tags"\r\n"'=1+1","",""\r\n"ক্যাম্প প্যাক","15",\r\n`,
+    );
+    const xlsx = await exportDownload("xlsx", "scrapnexs-phase-09-fixture");
+    expect(xlsx.readUInt32LE(0)).toBe(0x04034b50);
+    expect(xlsx.toString("utf8")).toContain('t="inlineStr"');
+    expect(xlsx.toString("utf8")).not.toContain("<f>");
+    const json = await exportDownload("json", "scrapnexs-phase-09-fixture");
+    const document = JSON.parse(json.toString());
+    expect(document.records).toMatchObject([
+      {
+        id: "r1",
+        values: {
+          Item: "Trail lamp",
+          Stock: "0042",
+          Notes: 'Lamp, "large"\nবাংলা <gear> & tags',
+        },
+      },
+      { id: "r2", values: { Item: "=1+1", Stock: "", Notes: "" } },
+      { id: "r3", values: { Item: "ক্যাম্প প্যাক", Stock: "15", Notes: null } },
+    ]);
+    if (process.env.PHASE9_ARTIFACTS) {
+      for (const [format, bytes] of [
+        ["csv", csv],
+        ["xlsx", xlsx],
+        ["json", json],
+      ] as const)
+        await writeFile(
+          join(
+            process.env.PHASE9_ARTIFACTS,
+            `scrapnexs-phase-09-fixture.${format}`,
+          ),
+          bytes,
+        );
+    }
+    if (process.env.PHASE9_SCREENSHOT) {
+      await panel.setViewportSize({ width: 1060, height: 950 });
+      await panel.emulateMedia({ colorScheme: "dark" });
+      await panel.evaluate(() => window.scrollTo(0, 0));
+      await panel.screenshot({
+        path: process.env.PHASE9_SCREENSHOT,
+        fullPage: true,
+      });
+      await panel.setViewportSize({ width: 1280, height: 720 });
+    }
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("export applies selected rows and columns and preserves selection across a filter", async () => {
+  const page = await liveTab("/export");
+  try {
+    await startCapture();
+    await panel.bringToFront();
+    await captured()
+      .getByRole("checkbox", { name: "Select row 2", exact: true })
+      .check();
+    await captured()
+      .getByRole("checkbox", { name: "Select row 3", exact: true })
+      .check();
+    await panel
+      .getByRole("searchbox", { name: "Search dataset" })
+      .fill("nonexistent result");
+    await panel.getByText("Export and copy records", { exact: true }).click();
+    await exportForm().getByLabel("Records to include").selectOption("visible");
+    await expect(
+      exportForm().getByRole("button", { name: "Download CSV" }),
+    ).toBeDisabled();
+    await exportForm()
+      .getByLabel("Records to include")
+      .selectOption("selected");
+    await exportForm()
+      .getByRole("checkbox", { name: "Stock", exact: true })
+      .uncheck();
+    await expect(exportForm()).toContainText("2 records · 2 columns");
+    const selected = await exportDownload("json", "selected-records");
+    expect(JSON.parse(selected.toString()).records).toEqual([
+      { id: "r2", values: { Item: "=1+1", Notes: "" } },
+      { id: "r3", values: { Item: "ক্যাম্প প্যাক", Notes: null } },
+    ]);
+    const result = await new AxeBuilder({ page: panel })
+      .include(".export-panel")
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(result.violations.map(({ id }) => id)).toEqual([]);
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("export clipboard copies all or selected tab-separated text using a trusted click", async () => {
+  const page = await liveTab("/export");
+  try {
+    await startCapture();
+    await panel.bringToFront();
+    await context.grantPermissions(["clipboard-read"], { origin });
+    await panel.getByText("Export and copy records", { exact: true }).click();
+    await exportForm()
+      .getByRole("button", { name: "Copy all records" })
+      .click();
+    await expect(exportForm().getByRole("status")).toHaveText(
+      "Copied 3 records to the clipboard.",
+    );
+    await page.bringToFront();
+    const all = await page.evaluate(() => navigator.clipboard.readText());
+    await panel.bringToFront();
+    expect(all).toContain(`"'=1+1"\t""\t""`);
+    expect(all).toContain("ক্যাম্প প্যাক");
+    await captured()
+      .getByRole("checkbox", { name: "Select row 2", exact: true })
+      .check();
+    await exportForm()
+      .getByLabel("Records to include")
+      .selectOption("selected");
+    await exportForm()
+      .getByRole("checkbox", { name: "Stock", exact: true })
+      .uncheck();
+    await exportForm()
+      .getByRole("button", { name: "Copy selected records" })
+      .click();
+    await expect(exportForm().getByRole("status")).toHaveText(
+      "Copied 1 record to the clipboard.",
+    );
+    await page.bringToFront();
+    const selected = await page.evaluate(() => navigator.clipboard.readText());
+    expect(selected.replaceAll("\r", "")).toBe(
+      `"Item"\t"Notes"\n"'=1+1"\t""\n`,
+    );
+  } finally {
+    await context.clearPermissions();
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("export reports a save destination failure and offers a working browser-download retry", async () => {
+  const page = await liveTab("/export");
+  try {
+    await panel.evaluate(() => {
+      // Deterministic error injection for a path the runner cannot reach via the system dialog.
+      Object.defineProperty(window, "showSaveFilePicker", {
+        configurable: true,
+        value: async () => ({
+          createWritable: async () => ({
+            write: async () => {
+              throw new DOMException("Test disk refusal", "QuotaExceededError");
+            },
+            close: async () => {},
+            abort: async () => {},
+          }),
+        }),
+      });
+    });
+    await startCapture();
+    await panel.bringToFront();
+    await panel.getByText("Export and copy records", { exact: true }).click();
+    await exportForm().getByLabel("Choose save location").check();
+    await exportForm()
+      .getByRole("button", { name: "Save CSV", exact: true })
+      .click();
+    await expect(exportForm().getByRole("alert")).toContainText(
+      "The file could not be saved.",
+    );
+    await expect(exportForm().getByRole("status")).toHaveCount(0);
+    await exportForm().getByLabel("Choose save location").uncheck();
+    expect(
+      (await exportDownload("csv", "retry-records")).toString("utf8"),
+    ).toContain("Trail lamp");
+    await expect(exportForm().getByRole("alert")).toHaveCount(0);
   } finally {
     await page.close();
     await panel.reload();

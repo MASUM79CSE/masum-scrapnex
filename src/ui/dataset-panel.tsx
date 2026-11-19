@@ -1,3 +1,4 @@
+import { ExportPanel } from "./export-panel";
 import {
   ArrowDown,
   ArrowLeft,
@@ -561,6 +562,7 @@ function Grid({ dataset, view }: { dataset: Dataset; view: DatasetView }) {
           </p>
         )}
       </footer>
+      <ExportPanel data={dataset} view={viewRows} selected={selection} />
     </section>
   );
 }
