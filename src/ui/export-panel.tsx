@@ -18,13 +18,16 @@ export function ExportPanel({
   data,
   view,
   selected,
+  defaultFormat = "csv",
 }: {
   data: Dataset;
   view: RecordRow[];
   selected: ReadonlySet<string>;
+  defaultFormat?: Format | undefined;
 }) {
   const [scope, setScope] = useState<RowScope>("all");
-  const [format, setFormat] = useState<Format>("csv");
+  const [chosenFormat, setFormat] = useState<Format | null>(null);
+  const format = chosenFormat ?? defaultFormat;
   const [stem, setStem] = useState(() => defaultStem());
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set());
   const [choose, setChoose] = useState(false);

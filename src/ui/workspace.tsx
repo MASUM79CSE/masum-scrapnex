@@ -1,3 +1,11 @@
+import {
+  HistoryPanel,
+  LibraryFeedback,
+  SaveRecipe,
+  StorageControls,
+  WorkflowSettings,
+} from "./library-panel";
+import type { LibraryView } from "../browser/use-library";
 import { PaginationPanel } from "./pagination-panel";
 import type { PaginationView } from "../browser/use-pagination";
 import { DatasetPanel } from "./dataset-panel";
@@ -10,6 +18,7 @@ import {
 } from "./live-detection";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  Archive,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
@@ -17,7 +26,6 @@ import {
   ArrowUpDown,
   CircleAlert,
   CircleCheck,
-  Database,
   FlaskConical,
   Globe2,
   LayoutDashboard,
@@ -44,18 +52,19 @@ import {
 import { useTheme, type ThemeStore } from "./theme";
 
 export type Connection = "loading" | "connected" | "error";
-type Section = "workspace" | "candidates" | "preview" | "settings";
+type Section = "workspace" | "candidates" | "preview" | "history" | "settings";
 const navigation = [
   { id: "workspace", label: "Workspace", icon: LayoutDashboard },
   { id: "candidates", label: "Candidates", icon: ScanLine },
   { id: "preview", label: "Data preview", icon: Table2 },
+  { id: "history", label: "Local history", icon: Archive },
   { id: "settings", label: "Settings", icon: Settings2 },
 ] as const;
 const workflow = [
   { title: "Source", detail: "Select a webpage" },
   { title: "Candidates", detail: "Choose a structure" },
   { title: "Preview", detail: "Review the records" },
-  { title: "Export", detail: "Available in a later phase" },
+  { title: "Export", detail: "Download or copy records" },
 ];
 
 function Status({
@@ -376,8 +385,10 @@ export function DataPreview({ candidate }: { candidate?: Candidate }) {
 
 function SettingsScreen({
   appearance,
+  library,
 }: {
   appearance: ReturnType<typeof useTheme>;
+  library?: LibraryView | undefined;
 }) {
   return (
     <div className="settings-stack">
@@ -437,24 +448,17 @@ function SettingsScreen({
           hint="Local by design"
         />
         <p className="settings-copy">
-          The appearance preference is saved locally. Page detection runs only
-          on request; previews are not saved as history or uploaded.
+          Page detection runs only on request. Captures are not uploaded or
+          automatically saved. History contains only explicitly saved snapshots
+          and configurations.
         </p>
       </section>
-      <section
-        className="panel settings-card"
-        aria-label="Collection and export"
-      >
-        <SectionTitle
-          icon={<Database size={19} />}
-          title="Collection & export"
-          hint="Not available in this build"
-        />
-        <p className="settings-copy">
-          Export defaults, request delays, page limits, and duplicate handling
-          will be available as those features are implemented.
-        </p>
-      </section>
+      {library && (
+        <>
+          <WorkflowSettings library={library} />
+          <StorageControls library={library} />
+        </>
+      )}
     </div>
   );
 }
@@ -468,6 +472,7 @@ export function Workspace({
   picker,
   datasetView,
   pagination,
+  library,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
@@ -477,6 +482,7 @@ export function Workspace({
   picker?: PickerView;
   datasetView?: DatasetView;
   pagination?: PaginationView;
+  library?: LibraryView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
@@ -484,7 +490,8 @@ export function Workspace({
   );
   const [candidate, setCandidate] = useState<Candidate>(candidates[0]);
   const [selectedId, setSelectedId] = useState<string>();
-  const paginationLocked = !!pagination?.busy || !!pagination?.review;
+  const paginationLocked =
+    !!pagination?.busy || !!pagination?.review || !!library?.busy;
   const datasetOpen = !!datasetView?.open && !!datasetView.dataset;
   const manual = picker && picker.status !== "idle" ? picker : undefined;
   const live = !sample && !manual ? detection : undefined;
@@ -497,11 +504,12 @@ export function Workspace({
     mode === "preview" ? "dark" : "system",
   );
   const isSettings = section === "settings";
+  const isHistory = section === "history";
   useEffect(() => {
     if (datasetOpen) heading.current?.focus();
   }, [datasetOpen]);
   function navigate(next: Section) {
-    if (next === section) return;
+    if (next === section && !datasetOpen) return;
     manual?.close();
     datasetView?.back();
     setSection(next);
@@ -523,7 +531,9 @@ export function Workspace({
           ? "Candidate structures"
           : section === "preview"
             ? "Data preview"
-            : "Settings";
+            : isHistory
+              ? "Local history"
+              : "Settings";
   const short = datasetOpen
     ? "Review and clean a local working copy without changing the page."
     : manual
@@ -536,7 +546,9 @@ export function Workspace({
             ? live
               ? "Review a read-only preview of the detected structure."
               : "Review, search, and sort records in a spreadsheet-style view."
-            : "Manage appearance and see what SCRAPNEXS stores on this device.";
+            : isHistory
+              ? "Restore saved snapshots and reuse configurations without visiting a new page."
+              : "Manage appearance and see what SCRAPNEXS stores on this device.";
 
   const candidatePanel = live ? (
     <LiveCandidates
@@ -574,6 +586,18 @@ export function Workspace({
           Inspect pagination controls
         </button>
       )}
+      {library &&
+        liveChoice &&
+        live.origin &&
+        !pagination?.busy &&
+        !pagination?.review && (
+          <SaveRecipe
+            key={`save-recipe-${liveChoice.id}`}
+            library={library}
+            candidate={liveChoice}
+            origin={live.origin}
+          />
+        )}
     </div>
   ) : (
     <DataPreview
@@ -604,21 +628,23 @@ export function Workspace({
             <div>
               <p className="nav-caption">WORKSPACE</p>
               <nav aria-label="Workspace navigation">
-                {navigation.map(({ id, label, icon: Icon }) => (
-                  <button
-                    type="button"
-                    className="nav-link"
-                    key={id}
-                    aria-current={section === id ? "page" : undefined}
-                    onClick={() => navigate(id)}
-                  >
-                    <Icon size={18} aria-hidden="true" />
-                    <span>{label}</span>
-                    {section === id && (
-                      <span className="nav-active-dot" aria-hidden="true" />
-                    )}
-                  </button>
-                ))}
+                {navigation
+                  .filter(({ id }) => id !== "history" || !!library)
+                  .map(({ id, label, icon: Icon }) => (
+                    <button
+                      type="button"
+                      className="nav-link"
+                      key={id}
+                      aria-current={section === id ? "page" : undefined}
+                      onClick={() => navigate(id)}
+                    >
+                      <Icon size={18} aria-hidden="true" />
+                      <span>{label}</span>
+                      {section === id && (
+                        <span className="nav-active-dot" aria-hidden="true" />
+                      )}
+                    </button>
+                  ))}
               </nav>
             </div>
             <div className="sidebar-foot">
@@ -654,7 +680,7 @@ export function Workspace({
                 {title}
               </h1>
               <p className="hero-description">{short}</p>
-              {!datasetOpen && !isSettings && (
+              {!datasetOpen && !isSettings && !isHistory && (
                 <div className="source-chip">
                   <Globe2 size={17} aria-hidden="true" />
                   <div>
@@ -670,7 +696,7 @@ export function Workspace({
                 </div>
               )}
             </div>
-            {!isSettings && !datasetOpen && (
+            {!isSettings && !isHistory && !datasetOpen && (
               <div className="hero-actions">
                 {datasetView?.dataset && (
                   <button
@@ -737,25 +763,29 @@ export function Workspace({
           {mode === "extension" && (
             <Status connection={connection} retry={retry} />
           )}
-          {!datasetOpen && live && !isSettings && live.state !== "idle" && (
-            <div
-              className="detection-notes"
-              role={live.state === "error" ? "alert" : "status"}
-            >
-              {live.state === "error"
-                ? "Could not analyze this page. Reopen the toolbar popup on the target tab and try again."
-                : live.state === "running"
-                  ? "Looking for tables and listings…"
-                  : `${live.report?.candidates.length ?? 0} candidate structures found.`}
-              {live.report?.notes.length ? (
-                <ul>
-                  {live.report.notes.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          )}
+          {!datasetOpen &&
+            live &&
+            !isSettings &&
+            !isHistory &&
+            live.state !== "idle" && (
+              <div
+                className="detection-notes"
+                role={live.state === "error" ? "alert" : "status"}
+              >
+                {live.state === "error"
+                  ? "Could not analyze this page. Reopen the toolbar popup on the target tab and try again."
+                  : live.state === "running"
+                    ? "Looking for tables and listings…"
+                    : `${live.report?.candidates.length ?? 0} candidate structures found.`}
+                {live.report?.notes.length ? (
+                  <ul>
+                    {live.report.notes.map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            )}
           {datasetView?.error && !datasetOpen && (
             <p role="alert" className="detection-notes">
               {datasetView.error}
@@ -764,12 +794,47 @@ export function Workspace({
           {pagination && (
             <PaginationPanel
               view={pagination}
+              defaults={library?.settings}
               blocked={
                 !!datasetView?.dataset || !!datasetView?.busy || !!manual
               }
             />
           )}
-          {datasetOpen && datasetView && <DatasetPanel view={datasetView} />}
+          {library && <LibraryFeedback library={library} />}
+          {datasetOpen && datasetView && (
+            <DatasetPanel view={datasetView} library={library} />
+          )}
+          {!datasetOpen && isHistory && library && (
+            <HistoryPanel
+              library={library}
+              blocked={
+                !datasetView ||
+                !!datasetView.dataset ||
+                datasetView.busy ||
+                paginationLocked ||
+                !!manual
+              }
+              origin={!sample ? (detection?.origin ?? null) : null}
+              report={!sample ? (detection?.report ?? null) : null}
+              useCandidate={(item) => {
+                setSelectedId(item.id);
+                navigate("preview");
+              }}
+              restore={(item) => {
+                const done = datasetView?.restore({
+                  version: 1,
+                  status: item.partial ? "partial" : "complete",
+                  dataset: item.dataset,
+                  note: `Restored local snapshot “${item.name}”. Edits are in memory until saved again.`,
+                });
+                if (done) {
+                  setSample(false);
+                  setSection("workspace");
+                }
+                return !!done;
+              }}
+            />
+          )}
           {!datasetOpen && manual && (
             <PickerPanel
               picker={manual}
@@ -840,14 +905,14 @@ export function Workspace({
           )}
           {!datasetOpen && !manual && section === "preview" && dataPanel}
           {!datasetOpen && !manual && isSettings && (
-            <SettingsScreen appearance={appearance} />
+            <SettingsScreen appearance={appearance} library={library} />
           )}
           <footer className="workspace-foot">
             <span>
               <ShieldCheck size={15} aria-hidden="true" /> Processed locally.
               Always under your control.
             </span>
-            {sample && !datasetOpen && !isSettings && (
+            {sample && !datasetOpen && !isSettings && !isHistory && (
               <span>Illustrative data · no site was scanned</span>
             )}
           </footer>

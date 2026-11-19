@@ -1,3 +1,5 @@
+import { SaveSnapshot } from "./library-panel";
+import type { LibraryView } from "../browser/use-library";
 import { ExportPanel } from "./export-panel";
 import {
   ArrowDown,
@@ -30,10 +32,26 @@ import { maxCellChars } from "../core/detector/contracts";
 const rowHeight = 40;
 type Editor = { row: string; column: string; label: string; value: string };
 
-export function DatasetPanel({ view }: { view: DatasetView }) {
-  return view.dataset ? <Grid dataset={view.dataset} view={view} /> : null;
+export function DatasetPanel({
+  view,
+  library,
+}: {
+  view: DatasetView;
+  library?: LibraryView | undefined;
+}) {
+  return view.dataset ? (
+    <Grid dataset={view.dataset} view={view} library={library} />
+  ) : null;
 }
-function Grid({ dataset, view }: { dataset: Dataset; view: DatasetView }) {
+function Grid({
+  dataset,
+  view,
+  library,
+}: {
+  dataset: Dataset;
+  view: DatasetView;
+  library?: LibraryView | undefined;
+}) {
   const [query, setQuery] = useState("");
   const [filterColumn, setFilterColumn] = useState("");
   const [filter, setFilter] = useState<RowFilter>("all");
@@ -562,7 +580,15 @@ function Grid({ dataset, view }: { dataset: Dataset; view: DatasetView }) {
           </p>
         )}
       </footer>
-      <ExportPanel data={dataset} view={viewRows} selected={selection} />
+      {library && (
+        <SaveSnapshot library={library} data={dataset} partial={view.partial} />
+      )}
+      <ExportPanel
+        defaultFormat={library?.settings.exportFormat}
+        data={dataset}
+        view={viewRows}
+        selected={selection}
+      />
     </section>
   );
 }

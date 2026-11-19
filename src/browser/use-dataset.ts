@@ -1,3 +1,4 @@
+import { duplicateIds, removeRows } from "../core/extraction/edit";
 import { useRef, useState } from "react";
 import type { DetectedCandidate } from "../core/detector/contracts";
 import type { CollectionResult, Dataset } from "../core/extraction/contracts";
@@ -13,7 +14,8 @@ export interface DatasetView {
   note: string;
   partial: boolean;
   collect: (candidate: DetectedCandidate) => void;
-  accept: (capture: CollectionResult) => void;
+  accept: (capture: CollectionResult) => boolean;
+  restore: (capture: CollectionResult) => boolean;
   save: (update: (dataset: Dataset) => Dataset) => void;
   show: () => void;
   back: () => void;
@@ -21,6 +23,7 @@ export interface DatasetView {
 }
 export function useDataset(
   context: () => { binding: ScanBinding; current: () => boolean } | null,
+  deduplicate = false,
 ): DatasetView {
   const current = useRef<Dataset | null>(null);
   const capture = useRef(false);
@@ -34,22 +37,33 @@ export function useDataset(
     current.current = next;
     setDataset(next);
   }
-  function accept(result: CollectionResult) {
+  function accept(result: CollectionResult, applyDefaults = true) {
     if (!("dataset" in result)) {
       setError(result.note);
-      return;
+      return false;
     }
     if (current.current) {
       setError(
         "A dataset is already open. Discard it before collecting another.",
       );
-      return;
+      return false;
     }
     setError("");
-    setNote(result.note);
+    const duplicate =
+      deduplicate && applyDefaults
+        ? duplicateIds(result.dataset.rows)
+        : new Set<string>();
+    setNote(
+      duplicate.size
+        ? `${result.note} Skipped ${duplicate.size} exact ${duplicate.size === 1 ? "duplicate" : "duplicates"}.`
+        : result.note,
+    );
     setPartial(result.status === "partial");
-    update(result.dataset);
+    update(
+      duplicate.size ? removeRows(result.dataset, duplicate) : result.dataset,
+    );
     setOpen(true);
+    return true;
   }
   function collect(candidate: DetectedCandidate) {
     if (capture.current || current.current) return;
@@ -83,6 +97,9 @@ export function useDataset(
     partial,
     collect,
     accept,
+    restore(result) {
+      return !capture.current && !current.current && accept(result, false);
+    },
     save(updater) {
       if (current.current) update(updater(current.current));
     },

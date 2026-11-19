@@ -228,10 +228,8 @@ test("navigation, controls and empty repeated containers do not produce candidat
 });
 
 test("workspace scans only after explicit action, presents real candidates and clears stale previews", async () => {
-  const page = await context.newPage();
+  const page = await liveTab("/tables");
   try {
-    await page.goto(`${origin}/tables`);
-    await page.bringToFront();
     await expect(
       panel.getByRole("button", { name: "Analyze page" }),
     ).toBeVisible();
@@ -259,6 +257,7 @@ test("workspace scans only after explicit action, presents real candidates and c
         fullPage: true,
       });
     }
+    await page.bringToFront();
     await page.goto(`${origin}/no-results`);
     await expect(panel.getByRole("table")).toHaveCount(0);
     await expect(panel.getByText("No candidates yet")).toBeVisible();
@@ -688,7 +687,10 @@ test("pagination does not retry a Load More button when no content appears", asy
   }
 });
 
-const exportForm = () => panel.locator(".export-panel");
+const exportForm = () =>
+  panel.locator("details").filter({
+    has: panel.getByText("Export and copy records", { exact: true }),
+  });
 async function exportDownload(format: "csv" | "xlsx" | "json", stem: string) {
   await exportForm().getByLabel("File format").selectOption(format);
   await exportForm().getByLabel("File name").fill(stem);

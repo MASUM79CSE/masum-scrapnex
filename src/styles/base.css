@@ -1546,3 +1546,74 @@ th[aria-sort] .sort-button {
 .export-note.export-error {
   color: var(--warning);
 }
+.library-panel {
+  margin-top: 16px;
+}
+.library-feedback {
+  margin-block: 12px;
+  padding: 9px 11px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.library-usage {
+  font-variant-numeric: tabular-nums;
+}
+.library-tools {
+  padding: 8px 16px;
+}
+.library-list {
+  padding: 10px 16px 15px;
+  min-width: 0;
+}
+.library-list h3 {
+  font-size: 15px;
+  margin: 0 0 6px;
+}
+.library-list ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+.library-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 7px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+.library-list li > div {
+  min-width: 0;
+  max-width: 100%;
+}
+.library-list li strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.library-list li p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.recipe-save {
+  margin: 0;
+}
+.library-pref {
+  margin: 10px 0;
+}

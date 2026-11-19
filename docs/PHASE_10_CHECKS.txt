@@ -1,0 +1,176 @@
+MASUM SCRAPNEXS — Phase 10 final verification
+Chrome for Testing 159.0.8154.6 (Chromium Playwright runtime)
+Node and npm versions below.
+
+v24.22.3
+10.8.2
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/masum-scrapnex
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 100 bounded fixture rows into all formats
+PHASE09_SCALE rows=100 format=csv bytes=4526 plan_ms=0.04 serialize_ms=3.49
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 100 bounded fixture rows into all formats
+PHASE09_SCALE rows=100 format=xlsx bytes=27926 plan_ms=0.04 serialize_ms=0.93
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 100 bounded fixture rows into all formats
+PHASE09_SCALE rows=100 format=json bytes=16274 plan_ms=0.04 serialize_ms=0.22
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 1000 bounded fixture rows into all formats
+PHASE09_SCALE rows=1000 format=csv bytes=45927 plan_ms=0.41 serialize_ms=2.40
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 1000 bounded fixture rows into all formats
+PHASE09_SCALE rows=1000 format=xlsx bytes=261936 plan_ms=0.41 serialize_ms=12.77
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 1000 bounded fixture rows into all formats
+PHASE09_SCALE rows=1000 format=json bytes=162076 plan_ms=0.41 serialize_ms=2.05
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 10000 bounded fixture rows into all formats
+PHASE09_SCALE rows=10000 format=csv bytes=468928 plan_ms=1.62 serialize_ms=30.61
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 10000 bounded fixture rows into all formats
+PHASE09_SCALE rows=10000 format=xlsx bytes=2646946 plan_ms=1.62 serialize_ms=57.83
+
+stdout | tests/unit/export.test.ts > export plan and serialization > serializes 10000 bounded fixture rows into all formats
+PHASE09_SCALE rows=10000 format=json bytes=1638078 plan_ms=1.62 serialize_ms=22.37
+
+ ✓ tests/unit/export.test.ts (13 tests) 199ms
+ ✓ tests/unit/pagination.test.ts (8 tests) 69ms
+ ✓ tests/unit/ui.test.tsx (5 tests) 38ms
+ ✓ tests/unit/extraction.test.ts (6 tests) 31ms
+ ✓ tests/unit/library.test.ts (4 tests) 16ms
+ ✓ tests/unit/browser.test.ts (9 tests) 10ms
+ ✓ tests/unit/detector-contracts.test.ts (3 tests) 5ms
+ ✓ tests/unit/picker-contracts.test.ts (2 tests) 5ms
+ ✓ tests/unit/analyzer-shape.test.ts (4 tests) 5ms
+
+ Test Files  9 passed (9)
+      Tests  54 passed (54)
+   Start at  16:46:35
+   Duration  2.22s (tests 38%, import 36%, transform 21%, worker 5%)
+
+    Isolate  9 workers spawned · ~129ms startup each (spawn + environment, per file)
+             at least ~1.03s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+[log]
+WXT 0.21.5
+[info] Building chrome-mv3 for production with Vite 8.3.8
+
+
+[success] Built extension in 1.538 s
+  ├─ .output/chrome-mv3/manifest.json                                  555 B
+  ├─ .output/chrome-mv3/options.html                                   552 B
+  ├─ .output/chrome-mv3/popup.html                                     547 B
+  ├─ .output/chrome-mv3/sidepanel.html                                 631 B
+  ├─ .output/chrome-mv3/background.js                                  1.12 kB
+  ├─ .output/chrome-mv3/chunks/brand-Bbyhjz11.js                       235.59 kB
+  ├─ .output/chrome-mv3/chunks/chrome-BDgzGBP9.js                      1.58 kB
+  ├─ .output/chrome-mv3/chunks/options-DEIM8UR_.js                     216 B
+  ├─ .output/chrome-mv3/chunks/popup-DgqIGasO.js                       2.03 kB
+  ├─ .output/chrome-mv3/chunks/sidepanel-DxCcEirG.js                   17.24 kB
+  ├─ .output/chrome-mv3/chunks/workspace-CrDjGogN.js                   76.35 kB
+  ├─ .output/chrome-mv3/collector.js                                   19.69 kB
+  ├─ .output/chrome-mv3/page-agent.js                                  17.43 kB
+  ├─ .output/chrome-mv3/paginator.js                                   26.29 kB
+  ├─ .output/chrome-mv3/picker.js                                      15.66 kB
+  ├─ .output/chrome-mv3/assets/brand-DC8cuoEr.css                      34.45 kB
+  ├─ .output/chrome-mv3/assets/inter-latin-wght-normal-Dx4kXJAl.woff2  48.26 kB
+  ├─ .output/chrome-mv3/icons/128.png                                  8.54 kB
+  ├─ .output/chrome-mv3/icons/16.png                                   843 B
+  ├─ .output/chrome-mv3/icons/32.png                                   2.02 kB
+  ├─ .output/chrome-mv3/icons/48.png                                   3.07 kB
+  ├─ .output/chrome-mv3/licenses/Inter-OFL.txt                         4.48 kB
+  └─ .output/chrome-mv3/licenses/Lucide.txt                            3.21 kB
+Σ Total size: 520.35 kB
+[success] Finished in 1.844 s
+
+Running 46 tests using 1 worker
+
+(node:68070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/analyzer.spec.ts:51:1 › nested meaningful content outranks navigation and retains deterministic explanations (194ms)
+  ✓   2 tests/e2e/analyzer.spec.ts:81:1 › groups irregular cards, ignores unstable classes, and rediscovers updated rows on a fresh scan (101ms)
+  ✓   3 tests/e2e/analyzer.spec.ts:108:1 › uses rendered visibility signals, excludes sensitive subtrees, and returns no source text (106ms)
+  ✓   4 tests/e2e/analyzer.spec.ts:127:1 › cancellation and mid-scan mutation discard stale conclusions (133ms)
+  ✓   5 tests/e2e/analyzer.spec.ts:174:1 › enforces node, depth, time, sibling sample, and result caps (144ms)
+BASELINE rows=100 nodes=302 first_ms=11.8 warm_ms=7,1.7,3.6 warm_median_ms=3.6
+BASELINE rows=1000 nodes=3002 first_ms=31.4 warm_ms=13,16.7,14.1 warm_median_ms=14.1
+BASELINE rows=10000 nodes=30002 first_ms=181.6 warm_ms=114.2,110.2,87 warm_median_ms=110.2
+  ✓   6 tests/e2e/analyzer.spec.ts:223:1 › records Chromium timing baselines for flat 100, 1,000 and 10,000 row DOMs (711ms)
+  ✓   7 tests/e2e/analyzer.spec.ts:260:1 › collection discards all records on an in-flight DOM change or abort and enforces row and field-data caps (125ms)
+  ✓   8 tests/e2e/detector.spec.ts:147:1 › packaged detector previews merged, headerless and sparse native HTML tables (241ms)
+  ✓   9 tests/e2e/detector.spec.ts:176:1 › recognizes product, article, directory, list and card structures and infers recurring fields (129ms)
+  ✓  10 tests/e2e/detector.spec.ts:223:1 › navigation, controls and empty repeated containers do not produce candidates (95ms)
+  ✓  11 tests/e2e/detector.spec.ts:230:1 › workspace scans only after explicit action, presents real candidates and clears stale previews (503ms)
+  ✓  12 tests/e2e/detector.spec.ts:310:1 › edits a real snapshot with keyboard, sorts, filters and manages columns and exact duplicates (22.9s)
+  ✓  13 tests/e2e/detector.spec.ts:399:1 › automatic collection refuses a stale sampled structure after page DOM changes (453ms)
+  ✓  14 tests/e2e/detector.spec.ts:422:1 › captures repeated cards and keeps their image and link values inert (480ms)
+PHASE07_SCALE input=100 captured=100 initial_dom_rows=23 capture_to_grid_ms=132.1 keyboard_jump_ms=868.9
+  ✓  15 tests/e2e/detector.spec.ts:444:3 › bounded table capture and virtual scrolling at 100 source records (1.4s)
+PHASE07_SCALE input=1000 captured=1000 initial_dom_rows=23 capture_to_grid_ms=119.9 keyboard_jump_ms=796.6
+  ✓  16 tests/e2e/detector.spec.ts:444:3 › bounded table capture and virtual scrolling at 1000 source records (1.5s)
+PHASE07_SCALE input=10000 captured=10000 initial_dom_rows=23 capture_to_grid_ms=877.6 keyboard_jump_ms=725.8
+  ✓  17 tests/e2e/detector.spec.ts:444:3 › bounded table capture and virtual scrolling at 10000 source records (3.2s)
+  ✓  18 tests/e2e/detector.spec.ts:541:3 › pagination authorizes and verifies three pages using next evidence (2.5s)
+  ✓  19 tests/e2e/detector.spec.ts:541:3 › pagination authorizes and verifies three pages using numbered evidence (2.3s)
+  ✓  20 tests/e2e/detector.spec.ts:541:3 › pagination authorizes and verifies three pages using url evidence (2.4s)
+  ✓  21 tests/e2e/detector.spec.ts:575:1 › pagination Load More waits for busy content and adds only new records (2.8s)
+  ✓  22 tests/e2e/detector.spec.ts:593:1 › pagination scroll captures new rows from a bounded viewport run (1.8s)
+  ✓  23 tests/e2e/detector.spec.ts:611:1 › pagination refuses generic Next, off-origin links and submit controls (423ms)
+  ✓  24 tests/e2e/detector.spec.ts:630:1 › pagination stops at an unexpected redirect without capturing the redirected page (756ms)
+  ✓  25 tests/e2e/detector.spec.ts:647:1 › pagination pause, resume and stop retain verified records and prevent later actions (2.5s)
+  ✓  26 tests/e2e/detector.spec.ts:674:1 › pagination does not retry a Load More button when no content appears (4.8s)
+  ✓  27 tests/e2e/detector.spec.ts:712:1 › export downloads real Unicode CSV, XLSX and JSON with formula-safe spreadsheet output (875ms)
+  ✓  28 tests/e2e/detector.spec.ts:780:1 › export applies selected rows and columns and preserves selection across a filter (1.4s)
+  ✓  29 tests/e2e/detector.spec.ts:822:1 › export clipboard copies all or selected tab-separated text using a trusted click (748ms)
+  ✓  30 tests/e2e/detector.spec.ts:867:1 › export reports a save destination failure and offers a working browser-download retry (779ms)
+  ✓  31 tests/e2e/extension.spec.ts:11:1 › production manifest exposes only the planned permissions and entrypoints (5ms)
+  ✓  32 tests/e2e/extension.spec.ts:103:1 › packaged popup and side panel render, connect and do not request external resources (1.6s)
+  ✓  33 tests/e2e/extension.spec.ts:135:1 › sample candidates, navigation, search, sorting and row selection work (1.2s)
+  ✓  34 tests/e2e/extension.spec.ts:177:1 › themes persist in extension storage and reflect system color scheme (2.7s)
+  ✓  35 tests/e2e/extension.spec.ts:201:1 › narrow side panel does not overflow, and the table scroll is keyboard reachable (2.0s)
+  ✓  36 tests/e2e/extension.spec.ts:232:1 › production build has no loopback host grant and offers no scan before authorization (692ms)
+PHASE10_RESTART first Chromium process closed, relaunching the same user-data directory
+  ✓  37 tests/e2e/library.spec.ts:180:1 › library saves actual edits and a recipe, restores after Chromium exits and restarts, and deletes both (28.8s)
+  ✓  38 tests/e2e/library.spec.ts:389:1 › library migrates legacy snapshots and settings, retains recent records during cleanup, and clears on request (1.3s)
+  ✓  39 tests/e2e/library.spec.ts:447:1 › library fails closed on invalid migration data and leaves the original version intact (876ms)
+PHASE10_SCALE rows=100 bytes=5400 save_ms=18.5 restore_ms=2.3
+PHASE10_SCALE rows=1000 bytes=54902 save_ms=13.7 restore_ms=7.1
+PHASE10_SCALE rows=10000 bytes=567904 save_ms=87.0 restore_ms=36.2
+  ✓  40 tests/e2e/library.spec.ts:487:1 › library transaction scale and concurrent capacity checks use the actual Chromium IndexedDB implementation (633ms)
+  ✓  41 tests/e2e/picker.spec.ts:127:1 › picks repeated catalog cards, blocks link navigation, and confirms selected URL, alt and price fields (816ms)
+  ✓  42 tests/e2e/picker.spec.ts:173:1 › supports parent/child correction, field-relative columns and keyboard Escape on table rows (361ms)
+  ✓  43 tests/e2e/picker.spec.ts:200:1 › refreshes same-document rows, invalidates removed selections, and removes the overlay on navigation (734ms)
+  ✓  44 tests/e2e/picker.spec.ts:224:1 › keyboard arrows can pick a row and panel cancellation cleans an unchanged page (235ms)
+  ✓  45 tests/e2e/picker.spec.ts:245:1 › strict page CSP leaves the isolated overlay usable; closing the panel disconnects and restores the page (423ms)
+  ✓  46 tests/e2e/picker.spec.ts:270:1 › collects all matching manual cards beyond the preview, including image URLs and picked attributes (905ms)
+
+  46 passed (1.7m)
+found 0 vulnerabilities
+ALL_CHECKS_PASSED

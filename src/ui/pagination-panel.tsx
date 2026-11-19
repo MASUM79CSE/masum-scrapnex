@@ -1,3 +1,4 @@
+import type { WorkflowDefaults } from "../core/library/contracts";
 import { ArrowRight, Layers, Pause, Play, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PaginationView } from "../browser/use-pagination";
@@ -19,13 +20,15 @@ const labels: Record<Mode, string> = {
 export function PaginationPanel({
   view,
   blocked,
+  defaults,
 }: {
   view: PaginationView;
   blocked: boolean;
+  defaults?: WorkflowDefaults | undefined;
 }) {
   const [selected, setSelected] = useState("0"),
-    [steps, setSteps] = useState("3"),
-    [delay, setDelay] = useState("1000");
+    [steps, setSteps] = useState<string | null>(null),
+    [delay, setDelay] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const review = view.review;
   const showing = !!review;
@@ -33,7 +36,10 @@ export function PaginationPanel({
     if (showing) heading.current?.focus();
   }, [showing]);
   const action = review?.actions[Number(selected)];
-  const options = { steps: Number(steps), delay: Number(delay) };
+  const options = {
+    steps: Number(steps ?? defaults?.pageSteps ?? 3),
+    delay: Number(delay ?? defaults?.pageDelay ?? 1000),
+  };
   if (!review && !view.progress && !view.error && !view.busy) return null;
   return (
     <section
@@ -59,6 +65,8 @@ export function PaginationPanel({
             onClick={() => {
               view.close();
               setSelected("0");
+              setSteps(null);
+              setDelay(null);
             }}
           >
             <X size={14} aria-hidden="true" />
@@ -83,6 +91,8 @@ export function PaginationPanel({
             event.preventDefault();
             if (!blocked && action && isSettings(options)) {
               setSelected("0");
+              setSteps(null);
+              setDelay(null);
               view.start(action, options);
             }
           }}
@@ -125,7 +135,7 @@ export function PaginationPanel({
                     min={1}
                     max={maxSteps}
                     required
-                    value={steps}
+                    value={steps ?? defaults?.pageSteps ?? 3}
                     onChange={(event) => setSteps(event.target.value)}
                   />
                 </label>
@@ -137,7 +147,7 @@ export function PaginationPanel({
                     max={maxDelay}
                     step={1}
                     required
-                    value={delay}
+                    value={delay ?? defaults?.pageDelay ?? 1000}
                     onChange={(event) => setDelay(event.target.value)}
                   />
                 </label>
