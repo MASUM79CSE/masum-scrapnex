@@ -1,0 +1,117 @@
+v24.22.3
+10.8.2
+
+> instant-scraper@0.1.0 postinstall
+> wxt prepare
+
+[log] 
+WXT 0.21.5
+[info] Generating types...
+[success] Finished in 569 ms
+
+added 258 packages, and audited 265 packages in 12s
+
+78 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/instant-scraper
+
+ ✓ tests/unit/browser.test.ts (9 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  15:14:17
+   Duration  207ms (transform 60%, import 21%, tests 11%, worker 7%)
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+[log] 
+WXT 0.21.5
+[info] Building chrome-mv3 for production with Vite 8.3.8
+
+
+[success] Built extension in 485 ms
+  ├─ .output/chrome-mv3/manifest.json                 461 B    
+  ├─ .output/chrome-mv3/options.html                  471 B    
+  ├─ .output/chrome-mv3/popup.html                    547 B    
+  ├─ .output/chrome-mv3/sidepanel.html                551 B    
+  ├─ .output/chrome-mv3/background.js                 1.12 kB  
+  ├─ .output/chrome-mv3/chunks/browser-XAJauffa.js    90 B     
+  ├─ .output/chrome-mv3/chunks/mount-vNcKia0C.js      219.61 kB
+  ├─ .output/chrome-mv3/chunks/options-DmPUi6e_.js    310 B    
+  ├─ .output/chrome-mv3/chunks/popup-GKSihMSa.js      1.75 kB  
+  ├─ .output/chrome-mv3/chunks/sidepanel-BWGNnE-l.js  974 B    
+  ├─ .output/chrome-mv3/page-agent.js                 458 B    
+  └─ .output/chrome-mv3/assets/mount-BiTH-z3p.css     9.59 kB  
+Σ Total size: 235.94 kB                             
+[success] Finished in 752 ms
+
+Running 2 tests using 1 worker
+
+(node:4176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/extension.spec.ts:8:1 › production manifest exposes only the planned permissions and entrypoints (18ms)
+Loaded unpacked extension in Chromium 159.0.0.0 (headless).
+  ✓  2 tests/e2e/extension.spec.ts:37:1 › unpacked MV3 extension loads and the shell pages communicate with the worker (900ms)
+
+  2 passed (1.6s)
+found 0 vulnerabilities
+
+> instant-scraper@0.1.0 zip
+> wxt zip --browser chrome --mv3
+
+[log] 
+WXT 0.21.5
+[info] Building chrome-mv3 for production with Vite 8.3.8
+
+
+[success] Built extension in 483 ms
+  ├─ .output/chrome-mv3/manifest.json                 461 B    
+  ├─ .output/chrome-mv3/options.html                  471 B    
+  ├─ .output/chrome-mv3/popup.html                    547 B    
+  ├─ .output/chrome-mv3/sidepanel.html                551 B    
+  ├─ .output/chrome-mv3/background.js                 1.12 kB  
+  ├─ .output/chrome-mv3/chunks/browser-XAJauffa.js    90 B     
+  ├─ .output/chrome-mv3/chunks/mount-vNcKia0C.js      219.61 kB
+  ├─ .output/chrome-mv3/chunks/options-DmPUi6e_.js    310 B    
+  ├─ .output/chrome-mv3/chunks/popup-GKSihMSa.js      1.75 kB  
+  ├─ .output/chrome-mv3/chunks/sidepanel-BWGNnE-l.js  974 B    
+  ├─ .output/chrome-mv3/page-agent.js                 458 B    
+  └─ .output/chrome-mv3/assets/mount-BiTH-z3p.css     9.59 kB  
+Σ Total size: 235.94 kB                             
+[info] Zipping extension...
+[success] Zipped extension in 31 ms
+  └─ .output/instant-scraper-0.1.0-chrome.zip  75.48 kB
+Σ Total size: 75.48 kB                       
+[success] Finished in 791 ms
+
+$ chrome --version
+Google Chrome for Testing 159.0.8154.6
+$ unzip -t .output/instant-scraper-0.1.0-chrome.zip (summary)
+No errors detected in compressed data of .output/instant-scraper-0.1.0-chrome.zip.
