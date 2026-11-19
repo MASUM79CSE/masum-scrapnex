@@ -10,9 +10,19 @@ export interface WorkspacePort {
   openSidePanel(windowId: number): Promise<void>;
 }
 
+export interface ScanBinding {
+  tabId: number;
+  windowId: number;
+  documentId: string;
+  href: string;
+}
+
 export interface AgentPort {
   /** Caller is responsible for explicit user consent and bound tab/document context. */
-  detectTopFrame(tabId: number, origin: string): Promise<PageDetection>;
+  detectTopFrame(
+    tabId: number,
+    origin: string,
+  ): Promise<{ report: PageDetection; binding: ScanBinding | null }>;
 }
 
 export function describeTab(tab?: {

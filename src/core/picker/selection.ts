@@ -1,3 +1,4 @@
+import type { RowPlan } from "../extraction/collect";
 import { similarity, type Shape } from "../analyzer/shape";
 import { inspectVisibility } from "../analyzer/visibility";
 import { maxCellChars } from "../detector/contracts";
@@ -258,5 +259,45 @@ export function previewSelection(
       ),
     ),
     explicitFields: fields.length > 0,
+  };
+}
+
+export function manualPlan(
+  row: Element,
+  fields: readonly PickedField[],
+  view: Window,
+  host?: Element,
+): RowPlan {
+  const rules: readonly PickedField[] = fields.length
+    ? fields
+    : [{ anchor: row, path: [], rule: { kind: "text" } }];
+  const names = uniqueLabels(rules.map(({ rule }) => label(rule)));
+  const shape = fingerprint(row, view);
+  return {
+    columns: rules.map(({ rule }, index) => ({
+      id: `c${index + 1}`,
+      label: names[index] ?? `Field ${index + 1}`,
+      kind:
+        rule.kind === "link" ? "url" : rule.kind === "image" ? "image" : "text",
+    })),
+    rows: (function* () {
+      // Yield every sibling (including nonmatches) so the capture budget counts all visits.
+      const tuple = (element: Element) =>
+        rules.map(({ path, rule }) =>
+          readField(resolve(element, path), rule, view, host),
+        );
+      yield tuple(row);
+      let peer = row.parentElement?.firstElementChild ?? null;
+      while (peer) {
+        const current = peer;
+        peer = peer.nextElementSibling;
+        yield current !== row &&
+        current.localName === row.localName &&
+        selectable(current, view, host) &&
+        similarity(shape, fingerprint(current, view)) >= 0.64
+          ? tuple(current)
+          : null;
+      }
+    })(),
   };
 }

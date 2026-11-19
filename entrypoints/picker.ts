@@ -45,7 +45,8 @@ export default defineUnlistedScript(() => {
       } catch {
         queueMicrotask(dispose);
       }
-      if (message.type === "ended") window.setTimeout(dispose, 120);
+      if (message.type === "ended" || message.type === "collected")
+        window.setTimeout(dispose, 120);
     });
     closeActive = () => {
       session.cleanup();

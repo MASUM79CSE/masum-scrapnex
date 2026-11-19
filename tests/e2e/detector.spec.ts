@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
@@ -36,6 +37,28 @@ test.beforeAll(async () => {
     JSON.stringify({ ...manifest, host_permissions: ["http://127.0.0.1/*"] }),
   );
   server = createServer((req, res) => {
+    const scale = req.url?.match(/^\/records\/(100|1000|10000)$/)?.[1];
+    if (scale) {
+      const rows = Array.from(
+        { length: Number(scale) },
+        (_, index) =>
+          `<tr><td>Record ${index + 1}</td><td>${index + 1}</td></tr>`,
+      ).join("");
+      res
+        .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+        .end(
+          `<!doctype html><html lang="en"><title>Table scale fixture</title><main><table><thead><tr><th>Record</th><th>Quantity</th></tr></thead><tbody>${rows}</tbody></table></main></html>`,
+        );
+      return;
+    }
+    if (req.url === "/edit") {
+      res
+        .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+        .end(
+          `<!doctype html><html lang="en"><title>Editable fixture</title><main><table><thead><tr><th>Item</th><th>Stock</th></tr></thead><tbody><tr><td>Lamp</td><td>10</td></tr><tr><td>Pack</td><td>2</td></tr><tr><td>Pack</td><td>2</td></tr><tr><td>সরঞ্জাম</td><td></td></tr><tr><td></td></tr><tr><td></td><td></td></tr></tbody></table></main></html>`,
+        );
+      return;
+    }
     const route = req.url?.match(/^\/(tables|collections|no-results)$/)?.[1];
     if (!route) {
       res.writeHead(404).end();
@@ -233,3 +256,235 @@ test("workspace scans only after explicit action, presents real candidates and c
     await page.close();
   }
 });
+
+async function liveTab(path: string) {
+  const source = await context.newPage();
+  await source.goto(`${origin}${path}`);
+  await panel.reload();
+  await source.bringToFront();
+  await expect(
+    panel.getByRole("button", { name: "Analyze page", exact: true }),
+  ).toBeEnabled();
+  return source;
+}
+async function panelClick(name: string) {
+  await panel
+    .getByRole("button", { name, exact: true })
+    .evaluate((button) => (button as HTMLButtonElement).click());
+}
+async function startCapture() {
+  await panelClick("Analyze page");
+  await expect(
+    panel.getByRole("button", { name: "Collect records", exact: true }),
+  ).toBeVisible();
+  await panelClick("Collect records");
+  await expect(
+    panel.getByRole("heading", { name: "Working dataset" }),
+  ).toBeVisible({ timeout: 15000 });
+}
+
+test("edits a real snapshot with keyboard, sorts, filters and manages columns and exact duplicates", async () => {
+  test.setTimeout(50_000);
+  await panel.setViewportSize({ width: 320, height: 900 });
+  const page = await liveTab("/edit");
+  try {
+    await startCapture();
+    await expect(
+      panel.getByRole("heading", { name: "Captured records" }),
+    ).toBeFocused();
+    expect(
+      await panel.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(320);
+    const table = panel.getByRole("table", { name: "Captured records" });
+    await expect(table).toHaveAttribute("aria-rowcount", "7");
+    await expect(table.getByRole("row").nth(5)).toContainText("—");
+    await expect(table.getByRole("row").nth(6)).not.toContainText("—");
+    await table.getByRole("button", { name: "Edit Item in row 1" }).focus();
+    await panel.keyboard.press("Enter");
+    const editor = panel.getByRole("form", { name: "Edit cell" });
+    await expect(editor.getByRole("textbox")).toBeFocused();
+    await editor.getByRole("textbox").fill("  ক্যাম্প ল্যাম্প  ");
+    await editor.getByRole("button", { name: "Save cell" }).click();
+    await expect(table).toContainText("ক্যাম্প ল্যাম্প");
+    await expect(page.locator("tbody tr").first()).toContainText("Lamp");
+    await panel.getByRole("button", { name: "Sort by Stock" }).click();
+    await expect(
+      table.getByRole("columnheader", { name: "Sort by Stock" }),
+    ).toHaveAttribute("aria-sort", "ascending");
+    await expect(table.getByRole("row").nth(4)).toContainText("Pack");
+    await expect(table.getByRole("row").nth(5)).toContainText("ক্যাম্প ল্যাম্প");
+    await panel
+      .getByRole("combobox", { name: "Search column" })
+      .selectOption({ label: "Item" });
+    await panel.getByRole("searchbox", { name: "Search dataset" }).fill("pack");
+    await expect(table).toHaveAttribute("aria-rowcount", "3");
+    panel.once("dialog", (dialog) => void dialog.accept());
+    await panel.getByRole("button", { name: "Remove duplicates" }).click();
+    await expect(table).toHaveAttribute("aria-rowcount", "2");
+    await panel.getByRole("searchbox", { name: "Search dataset" }).fill("");
+    await panel
+      .getByRole("combobox", { name: "Show rows" })
+      .selectOption("empty");
+    await expect(table).toHaveAttribute("aria-rowcount", "3");
+    await panel
+      .getByRole("combobox", { name: "Show rows" })
+      .selectOption("all");
+    await panel.getByText("Manage columns", { exact: true }).click();
+    await panel
+      .getByRole("combobox", { name: "Column", exact: true })
+      .selectOption({ label: "Stock" });
+    await panel.getByLabel("New column name").fill("Quantity");
+    await panel.getByRole("button", { name: "Rename column" }).click();
+    await panel.getByRole("button", { name: "Move left" }).click();
+    await expect(table.getByRole("columnheader").nth(2)).toContainText(
+      "Quantity",
+    );
+    panel.once("dialog", (dialog) => void dialog.accept());
+    await panel
+      .getByRole("button", { name: "Remove column", exact: true })
+      .click();
+    await expect(table.getByRole("columnheader")).toHaveCount(3);
+    await panel
+      .getByRole("checkbox", { name: "Select row 2", exact: true })
+      .check();
+    panel.once("dialog", (dialog) => void dialog.accept());
+    await panel.getByRole("button", { name: "Delete selected rows" }).click();
+    await expect(table).not.toContainText("Pack");
+    const violations = (
+      await new AxeBuilder({ page: panel })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations.map(({ id, nodes }) => ({
+      id,
+      targets: nodes.map((n) => n.target),
+    }));
+    expect(violations).toEqual([]);
+    await panel.getByRole("button", { name: "Back to workspace" }).click();
+    await panel.getByRole("button", { name: "Open working dataset" }).click();
+    await expect(table).toContainText("ক্যাম্প ল্যাম্প");
+    await panel.reload();
+    await expect(
+      panel.getByRole("heading", { name: "Working dataset" }),
+    ).toHaveCount(0);
+  } finally {
+    await page.close();
+    await panel.setViewportSize({ width: 1280, height: 720 });
+  }
+});
+
+test("automatic collection refuses a stale sampled structure after page DOM changes", async () => {
+  const page = await liveTab("/edit");
+  try {
+    await panelClick("Analyze page");
+    await expect(
+      panel.getByRole("button", { name: "Collect records", exact: true }),
+    ).toBeVisible();
+    await page
+      .locator("td")
+      .first()
+      .evaluate((node) => {
+        node.textContent = "Changed product";
+      });
+    await panelClick("Collect records");
+    await expect(panel.getByRole("alert")).toContainText("Analyze or pick");
+    await expect(
+      panel.getByRole("heading", { name: "Working dataset" }),
+    ).toHaveCount(0);
+  } finally {
+    await page.close();
+  }
+});
+
+test("captures repeated cards and keeps their image and link values inert", async () => {
+  const page = await liveTab("/collections");
+  try {
+    await panelClick("Analyze page");
+    await expect(panel.getByRole("radio", { name: /Product/ })).toBeVisible();
+    await panel
+      .getByRole("radio", { name: /Product/ })
+      .first()
+      .evaluate((el) => (el as HTMLInputElement).click());
+    await panelClick("Collect records");
+    const table = panel.getByRole("table", { name: "Captured records" });
+    await expect(table).toContainText("৳8500");
+    await expect(table).toContainText("/photos/lamp.png");
+    await expect(table.getByRole("img")).toHaveCount(0);
+    await expect(table.getByRole("link")).toHaveCount(0);
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+for (const count of [100, 1000, 10000])
+  test(`bounded table capture and virtual scrolling at ${count} source records`, async () => {
+    const page = await liveTab(`/records/${count}`);
+    try {
+      const displayed = Math.min(count, 10000);
+      const table = panel.getByRole("table", { name: "Captured records" });
+      const grid = panel.getByRole("region", {
+        name: "Virtualized dataset table",
+      });
+      await panelClick("Analyze page");
+      await expect(
+        panel.getByRole("button", { name: "Collect records", exact: true }),
+      ).toBeVisible();
+      const start = performance.now();
+      await panelClick("Collect records");
+      await expect(table).toHaveAttribute(
+        "aria-rowcount",
+        String(displayed + 1),
+        { timeout: 16000 },
+      );
+      const capture = performance.now() - start;
+      const initial = await table.locator("tbody tr[aria-rowindex]").count();
+      expect(initial).toBeGreaterThan(0);
+      expect(initial).toBeLessThanOrEqual(25);
+      const jump = panel.getByLabel("Jump to row");
+      await jump.fill(String(displayed));
+      const jumpStart = performance.now();
+      await jump.press("Enter");
+      await expect(
+        table.getByRole("button", {
+          name: `Edit Record in row ${displayed}`,
+          exact: true,
+        }),
+      ).toBeInViewport();
+      const jumpMs = performance.now() - jumpStart;
+      expect(
+        await table.locator("tbody tr[aria-rowindex]").count(),
+      ).toBeLessThanOrEqual(25);
+      await expect(grid).toBeFocused();
+      console.log(
+        `PHASE07_SCALE input=${count} captured=${displayed} initial_dom_rows=${initial} capture_to_grid_ms=${capture.toFixed(1)} keyboard_jump_ms=${jumpMs.toFixed(1)}`,
+      );
+      if (count === 1000 && process.env.PHASE7_SCREENSHOT) {
+        await panel.setViewportSize({ width: 1120, height: 950 });
+        await panel.emulateMedia({ colorScheme: "dark" });
+        await panel.evaluate(() => document.fonts.ready);
+        await jump.fill("988");
+        await jump.press("Enter");
+        await expect(
+          table.getByRole("button", {
+            name: "Edit Record in row 988",
+            exact: true,
+          }),
+        ).toBeInViewport();
+        await table
+          .getByRole("button", { name: "Edit Record in row 988", exact: true })
+          .click();
+        await panel
+          .getByRole("form", { name: "Edit cell" })
+          .getByRole("textbox")
+          .fill("Verified field record");
+        await panel.screenshot({
+          path: process.env.PHASE7_SCREENSHOT,
+          fullPage: true,
+        });
+        await panel.setViewportSize({ width: 1280, height: 720 });
+      }
+    } finally {
+      await page.close();
+      await panel.reload();
+    }
+  });

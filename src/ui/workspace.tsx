@@ -1,10 +1,12 @@
+import { DatasetPanel } from "./dataset-panel";
+import type { DatasetView } from "../browser/use-dataset";
 import { PickerPanel, type PickerView } from "./picker-panel";
 import {
   LiveCandidates,
   LivePreview,
   type DetectionView,
 } from "./live-detection";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowDown,
   ArrowLeft,
@@ -462,6 +464,7 @@ export function Workspace({
   retry,
   detection,
   picker,
+  datasetView,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
@@ -469,6 +472,7 @@ export function Workspace({
   retry?: () => void;
   detection?: DetectionView;
   picker?: PickerView;
+  datasetView?: DatasetView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
@@ -476,6 +480,7 @@ export function Workspace({
   );
   const [candidate, setCandidate] = useState<Candidate>(candidates[0]);
   const [selectedId, setSelectedId] = useState<string>();
+  const datasetOpen = !!datasetView?.open && !!datasetView.dataset;
   const manual = picker && picker.status !== "idle" ? picker : undefined;
   const live = !sample && !manual ? detection : undefined;
   const liveChoice =
@@ -487,9 +492,13 @@ export function Workspace({
     mode === "preview" ? "dark" : "system",
   );
   const isSettings = section === "settings";
+  useEffect(() => {
+    if (datasetOpen) heading.current?.focus();
+  }, [datasetOpen]);
   function navigate(next: Section) {
     if (next === section) return;
     manual?.close();
+    datasetView?.back();
     setSection(next);
     requestAnimationFrame(() => {
       heading.current?.focus();
@@ -499,26 +508,30 @@ export function Workspace({
     setSample((current) => !current);
     setCandidate(candidates[0]);
   }
-  const title = manual
-    ? "Manual selection"
-    : section === "workspace"
-      ? "Extraction workspace"
-      : section === "candidates"
-        ? "Candidate structures"
-        : section === "preview"
-          ? "Data preview"
-          : "Settings";
-  const short = manual
-    ? "Pick an element on the page and review matching rows here."
-    : section === "workspace"
-      ? "Turn structured information on the web into data you can use."
-      : section === "candidates"
-        ? "Compare similar collections and choose which structure to preview."
-        : section === "preview"
-          ? live
-            ? "Review a read-only preview of the detected structure."
-            : "Review, search, and sort records in a spreadsheet-style view."
-          : "Manage appearance and see what SCRAPNEXS stores on this device.";
+  const title = datasetOpen
+    ? "Captured records"
+    : manual
+      ? "Manual selection"
+      : section === "workspace"
+        ? "Extraction workspace"
+        : section === "candidates"
+          ? "Candidate structures"
+          : section === "preview"
+            ? "Data preview"
+            : "Settings";
+  const short = datasetOpen
+    ? "Review and clean a local working copy without changing the page."
+    : manual
+      ? "Pick an element on the page and review matching rows here."
+      : section === "workspace"
+        ? "Turn structured information on the web into data you can use."
+        : section === "candidates"
+          ? "Compare similar collections and choose which structure to preview."
+          : section === "preview"
+            ? live
+              ? "Review a read-only preview of the detected structure."
+              : "Review, search, and sort records in a spreadsheet-style view."
+            : "Manage appearance and see what SCRAPNEXS stores on this device.";
 
   const candidatePanel = live ? (
     <LiveCandidates
@@ -534,7 +547,19 @@ export function Workspace({
     />
   );
   const dataPanel = live ? (
-    <LivePreview key={liveChoice?.id} candidate={liveChoice} />
+    <div className="live-preview-stack">
+      <LivePreview key={liveChoice?.id} candidate={liveChoice} />
+      {datasetView && liveChoice && live.origin && !datasetView.dataset && (
+        <button
+          type="button"
+          className="button button--primary"
+          disabled={datasetView.busy}
+          onClick={() => datasetView.collect(liveChoice)}
+        >
+          {datasetView.busy ? "Collecting…" : "Collect records"}
+        </button>
+      )}
+    </div>
   ) : (
     <DataPreview
       key={`${sample}-${candidate.id}`}
@@ -602,17 +627,19 @@ export function Workspace({
             <div className="hero-content">
               <p className="eyebrow">
                 <span aria-hidden="true" />{" "}
-                {manual
-                  ? "POINT AND CLICK"
-                  : isSettings
-                    ? "PREFERENCES"
-                    : "LOCAL-FIRST EXTRACTION"}
+                {datasetOpen
+                  ? "LOCAL WORKING COPY"
+                  : manual
+                    ? "POINT AND CLICK"
+                    : isSettings
+                      ? "PREFERENCES"
+                      : "LOCAL-FIRST EXTRACTION"}
               </p>
               <h1 ref={heading} tabIndex={-1} id="page-heading">
                 {title}
               </h1>
               <p className="hero-description">{short}</p>
-              {!isSettings && (
+              {!datasetOpen && !isSettings && (
                 <div className="source-chip">
                   <Globe2 size={17} aria-hidden="true" />
                   <div>
@@ -628,14 +655,26 @@ export function Workspace({
                 </div>
               )}
             </div>
-            {!isSettings && (
+            {!isSettings && !datasetOpen && (
               <div className="hero-actions">
+                {datasetView?.dataset && (
+                  <button
+                    type="button"
+                    className="button button--outline"
+                    onClick={() => {
+                      manual?.close();
+                      datasetView.show();
+                    }}
+                  >
+                    Open working dataset
+                  </button>
+                )}
                 {sample && <SampleBadge />}
                 {picker && !sample && !manual && live?.origin && (
                   <button
                     type="button"
                     className="button button--outline"
-                    disabled={live.state === "running"}
+                    disabled={live.state === "running" || !!datasetView?.busy}
                     onClick={picker.start}
                   >
                     Pick elements
@@ -649,7 +688,7 @@ export function Workspace({
                       setSelectedId(undefined);
                       live.scan();
                     }}
-                    disabled={live.state === "running"}
+                    disabled={live.state === "running" || !!datasetView?.busy}
                   >
                     <ScanLine size={16} aria-hidden="true" />
                     {live.state === "running" ? "Analyzing…" : "Analyze page"}
@@ -675,7 +714,7 @@ export function Workspace({
           {mode === "extension" && (
             <Status connection={connection} retry={retry} />
           )}
-          {live && !isSettings && live.state !== "idle" && (
+          {!datasetOpen && live && !isSettings && live.state !== "idle" && (
             <div
               className="detection-notes"
               role={live.state === "error" ? "alert" : "status"}
@@ -694,8 +733,21 @@ export function Workspace({
               ) : null}
             </div>
           )}
-          {manual && <PickerPanel picker={manual} />}
-          {!manual && section === "workspace" && (
+          {datasetView?.error && !datasetOpen && (
+            <p role="alert" className="detection-notes">
+              {datasetView.error}
+            </p>
+          )}
+          {datasetOpen && datasetView && <DatasetPanel view={datasetView} />}
+          {!datasetOpen && manual && (
+            <PickerPanel
+              picker={manual}
+              canCollect={
+                !!datasetView && !datasetView.dataset && !datasetView.busy
+              }
+            />
+          )}
+          {!datasetOpen && !manual && section === "workspace" && (
             <>
               <ol className="workflow" aria-label="Extraction workflow">
                 {workflow.map((step, index) => (
@@ -740,7 +792,7 @@ export function Workspace({
               </div>
             </>
           )}
-          {!manual && section === "candidates" && (
+          {!datasetOpen && !manual && section === "candidates" && (
             <div className="focused-panel">
               {candidatePanel}
               {(sample || liveChoice) && (
@@ -755,14 +807,16 @@ export function Workspace({
               )}
             </div>
           )}
-          {!manual && section === "preview" && dataPanel}
-          {!manual && isSettings && <SettingsScreen appearance={appearance} />}
+          {!datasetOpen && !manual && section === "preview" && dataPanel}
+          {!datasetOpen && !manual && isSettings && (
+            <SettingsScreen appearance={appearance} />
+          )}
           <footer className="workspace-foot">
             <span>
               <ShieldCheck size={15} aria-hidden="true" /> Processed locally.
               Always under your control.
             </span>
-            {sample && !isSettings && (
+            {sample && !datasetOpen && !isSettings && (
               <span>Illustrative data · no site was scanned</span>
             )}
           </footer>

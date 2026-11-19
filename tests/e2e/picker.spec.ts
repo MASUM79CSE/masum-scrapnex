@@ -266,3 +266,54 @@ test("strict page CSP leaves the isolated overlay usable; closing the panel disc
     await panel.goto(`${extension}/sidepanel.html`);
   }
 });
+
+test("collects all matching manual cards beyond the preview, including image URLs and picked attributes", async () => {
+  const page = await open("cards");
+  try {
+    await page
+      .locator("article")
+      .last()
+      .evaluate((card) => {
+        const parent = card.parentElement!;
+        for (let i = 4; i <= 12; i++) {
+          const row = card.cloneNode(true) as HTMLElement;
+          row.id = `card-${i}`;
+          row.querySelector("a")!.textContent = `Custom product ${i}`;
+          row
+            .querySelector(".price")!
+            .setAttribute("data-price", String(i * 10));
+          parent.append(row);
+        }
+      });
+    const link = page.getByRole("link", { name: "Trail lamp" });
+    await link.click();
+    await expect(picker().getByText(/12 similar rows/)).toBeVisible();
+    await field("text");
+    await link.click();
+    await field("link");
+    await link.click();
+    const img = page.getByRole("img", { name: "Trail lamp thumbnail" });
+    await field("image");
+    await img.click();
+    await field("attribute");
+    await page.locator("#lamp .price").click();
+    await expect(preview().getByRole("row")).toHaveCount(7);
+    await button("Collect selected rows");
+    const table = panel.getByRole("table", { name: "Captured records" });
+    await expect(table).toHaveAttribute("aria-rowcount", "13");
+    await expect(table).toContainText("Custom product 12");
+    await expect(table).toContainText(`${origin}/cards#details`);
+    await expect(table).toContainText(`${origin}/photo.svg`);
+    await expect(
+      table.getByRole("button", { name: "Edit data-price in row 12" }),
+    ).toHaveText("120");
+    await expect(page.locator(overlay)).toHaveCount(0);
+    await expect(page).toHaveURL(`${origin}/cards`);
+    await link.click();
+    await expect(page).toHaveURL(`${origin}/cards#details`);
+    await expect(table).toContainText("Custom product 12");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});

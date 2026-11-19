@@ -1,3 +1,7 @@
+import {
+  isCollectionResult,
+  type CollectionResult,
+} from "../extraction/contracts";
 import { maxCellChars } from "../detector/contracts";
 
 export const pickerPortName = "scrapnex/manual-picker/v1";
@@ -25,7 +29,10 @@ export type FieldRule =
 export const maxFields = 8;
 export const maxRows = 6;
 export type PickerCommand =
-  | { v: 1; action: "pick-row" | "parent" | "child" | "confirm" | "stop" }
+  | {
+      v: 1;
+      action: "pick-row" | "parent" | "child" | "confirm" | "collect" | "stop";
+    }
   | { v: 1; action: "pick-field"; rule: FieldRule }
   | { v: 1; action: "remove-field"; index: number };
 export type PickerPhase = "pick-row" | "pick-field" | "review";
@@ -45,6 +52,7 @@ export interface PickerState {
   preview: PickerPreview | null;
 }
 export type PickerEvent =
+  | { v: 1; type: "collected"; result: CollectionResult }
   | { v: 1; type: "state"; state: PickerState }
   | {
       v: 1;
@@ -81,7 +89,7 @@ export function isPickerCommand(value: unknown): value is PickerCommand {
     );
   return (
     Object.keys(value).length === 2 &&
-    ["pick-row", "parent", "child", "confirm", "stop"].some(
+    ["pick-row", "parent", "child", "confirm", "collect", "stop"].some(
       (action) => action === value.action,
     )
   );
@@ -124,6 +132,7 @@ function isPreview(value: unknown): value is PickerPreview {
 }
 export function isPickerEvent(value: unknown): value is PickerEvent {
   if (!object(value) || value.v !== 1) return false;
+  if (value.type === "collected") return isCollectionResult(value.result);
   if (value.type === "state") {
     const state = value.state;
     return (

@@ -135,7 +135,7 @@ svg {
   left: 10px;
   top: 8px;
   z-index: 5;
-  transform: translateY(-145%);
+  clip-path: inset(50%);
   padding: 10px 16px;
   background: var(--surface);
   border: 1px solid var(--accent);
@@ -143,7 +143,7 @@ svg {
   color: var(--text);
 }
 .skip-link:focus {
-  transform: none;
+  clip-path: none;
 }
 .app-top {
   height: 73px;
@@ -213,7 +213,7 @@ svg {
   white-space: nowrap;
 }
 .build-tag span {
-  border-left: 1px solid var(--border-2);
+  border-left: 1px solid var(--border);
   padding-left: 7px;
   color: var(--muted);
   letter-spacing: 0.075em;
@@ -233,7 +233,7 @@ svg {
 }
 .badge--sample {
   color: var(--info);
-  border-color: var(--border-2);
+  border-color: var(--border);
   background: var(--surface-2);
 }
 .app-grid {
@@ -342,7 +342,7 @@ svg {
     var(--hero-base) 32%,
     var(--hero-edge) 100%
   );
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--border);
   border-radius: 17px;
   box-shadow: 0 10px 28px var(--shadow);
 }
@@ -395,7 +395,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
   padding: 7px 10px;
@@ -450,7 +450,7 @@ h1 {
 .button--quiet {
   background: var(--surface);
   color: var(--text);
-  border-color: var(--border-2);
+  border-color: var(--border);
 }
 .button--outline:hover,
 .button--quiet:hover {
@@ -667,7 +667,7 @@ h1 {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--border);
   flex: none;
 }
 .candidate:has(input:checked) .radio-dot {
@@ -734,7 +734,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--border);
   border-radius: 7px;
   color: var(--dim);
   background: var(--surface-2);
@@ -1249,7 +1249,7 @@ th[aria-sort] .sort-button {
 }
 .picker-fields select {
   min-height: 35px;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--border);
   padding: 5px 8px;
   border-radius: 6px;
   background: var(--surface-2);
@@ -1264,4 +1264,158 @@ th[aria-sort] .sort-button {
 }
 .picker-panel details li button {
   margin-left: 6px;
+}
+.dataset-panel {
+  margin-top: 16px;
+}
+.dataset-tools,
+.dataset-inline {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dataset-tools {
+  padding: 0 16px 12px;
+}
+.dataset-tools label,
+.cell-editor label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  min-width: 0;
+}
+.dataset-tools select,
+.dataset-tools input:not([type="search"]),
+.cell-editor textarea {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  min-height: 35px;
+  padding: 5px 8px;
+  max-width: 100%;
+}
+.dataset-filters .search-box {
+  display: inline-flex;
+  width: min(260px, 100%);
+}
+.dataset-manage {
+  margin: 0 16px 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-2);
+}
+.dataset-manage summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+.dataset-manage .dataset-tools {
+  padding: 8px 0 0;
+}
+.cell-editor {
+  margin: 0 16px 12px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--accent-line);
+  border-radius: 7px;
+  background: var(--surface-2);
+}
+.cell-editor textarea {
+  width: 100%;
+}
+.dataset-grid {
+  height: min(420px, 65vh);
+}
+.dataset-grid table {
+  min-width: 450px;
+}
+.dataset-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.dataset-grid tbody tr:not(.grid-spacer),
+.dataset-grid thead tr {
+  height: 40px;
+}
+.dataset-grid tbody td,
+.dataset-grid tbody th {
+  padding-block: 0;
+}
+.dataset-grid tr.grid-spacer {
+  border: 0;
+  background: transparent;
+}
+.dataset-grid .grid-spacer td {
+  padding: 0;
+  border: 0;
+}
+.dataset-grid .grid-cell {
+  min-width: 80px;
+  max-width: 250px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  text-align: left;
+  padding: 5px 0;
+}
+.dataset-grid .grid-cell:hover {
+  color: var(--accent);
+}
+.dataset-grid input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+.dataset-footer {
+  padding-top: 12px;
+  align-items: center;
+}
+.dataset-footer > p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.dataset-footer .dataset-notice {
+  color: var(--accent);
+}
+.dataset-jump input {
+  width: 88px;
+}
+.dataset-partial {
+  color: var(--warning);
+}
+.live-preview-stack {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
+}
+.live-preview-stack > .button {
+  justify-self: start;
+}
+.app-main > .live-preview-stack {
+  margin-top: 17px;
+}
+.dataset-grid table {
+  table-layout: fixed;
+  width: max(100%, calc(102px + 175px * var(--dataset-columns, 2)));
+}
+.dataset-grid th:nth-child(1) {
+  width: 42px;
+}
+.dataset-grid th:nth-child(2) {
+  width: 60px;
+}
+.dataset-grid .sort-button {
+  white-space: normal;
+  line-height: 1.15;
+  text-align: left;
+}
+.dataset-grid thead th {
+  padding-block: 3px;
 }

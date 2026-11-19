@@ -137,6 +137,7 @@ interface Group {
 interface Ranked extends StructureCandidate {
   samples: readonly Element[];
   firstOrdinal: number;
+  enumerate?: () => Iterable<Element | null>;
 }
 
 function limitsFor(input?: Partial<AnalysisLimits>): AnalysisLimits {
@@ -332,6 +333,7 @@ export function scanForDetection(doc: Document) {
 interface Snapshot {
   analysis: AnalysisResult;
   members: ReadonlyMap<string, readonly Element[]>;
+  enumerators: ReadonlyMap<string, () => Iterable<Element | null>>;
   tables: readonly HTMLTableElement[];
   tableLimitReached: boolean;
 }
@@ -366,7 +368,8 @@ async function scan(
       stats: { ...stats, elapsedMs: performance.now() - start },
       candidates: discard
         ? []
-        : best.map(({ firstOrdinal, samples, ...candidate }) => {
+        : best.map(({ firstOrdinal, samples, enumerate, ...candidate }) => {
+            void enumerate;
             void firstOrdinal;
             void samples;
             return candidate;
@@ -375,6 +378,15 @@ async function scan(
     members: new Map(
       capture && !discard
         ? best.map((candidate) => [candidate.id, candidate.samples] as const)
+        : [],
+    ),
+    enumerators: new Map(
+      capture && !discard
+        ? best.flatMap((candidate) =>
+            candidate.enumerate
+              ? [[candidate.id, candidate.enumerate] as const]
+              : [],
+          )
         : [],
     ),
     tables: discard ? [] : tables,
@@ -533,6 +545,32 @@ async function scan(
           for (const group of groups) {
             const candidate = toCandidate(group, parent, seen, count);
             if (!candidate) continue;
+            if (capture)
+              candidate.enumerate = function* () {
+                for (const child of parent.children) {
+                  if (
+                    child.key !== group.exemplar.root ||
+                    !child.element?.isConnected
+                  ) {
+                    yield null;
+                    continue;
+                  }
+                  const shape = fingerprint(child);
+                  let picked: Group | undefined;
+                  let score = groupingThreshold;
+                  for (const siblingGroup of groups) {
+                    const value = similarity(shape, siblingGroup.exemplar);
+                    if (
+                      value >= groupingThreshold &&
+                      (!picked || value > score)
+                    ) {
+                      picked = siblingGroup;
+                      score = value;
+                    }
+                  }
+                  yield picked === group ? child.element : null;
+                }
+              };
             stats.rankedGroups += 1;
             best.push(candidate);
             best.sort(compareCandidates);

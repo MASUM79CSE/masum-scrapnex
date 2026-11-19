@@ -12,38 +12,43 @@ interface Occupied {
   value: string | null;
 }
 
-export function detectTable(
+type Projection =
+  | { kind: "ignored" | "footer" }
+  | {
+      kind: "header" | "record";
+      values: (string | null)[];
+      clippedColumns: boolean;
+      spanned: boolean;
+    };
+function* project(
   table: HTMLTableElement,
-  index: number,
   view: Window,
-): DetectedCandidate | undefined {
-  if (
-    !table.isConnected ||
-    /^(presentation|none)$/i.test(table.getAttribute("role") ?? "")
-  )
-    return;
-  const headers: (string | null)[][] = [];
-  const records: (string | null)[][] = [];
-  const rowTotal = table.rows.length;
-  const boundedRows = Math.min(rowTotal, rowLimit);
+  limit: number,
+): Generator<Projection> {
   let section: Element | null = null;
   let occupied = new Map<number, Occupied>();
-  let width = 0;
-  let footer = 0;
-  let skipped = 0;
-  let clippedColumns = false;
+
   let sawData = false;
-  let spanned = false;
-  for (let rowIndex = 0; rowIndex < boundedRows; rowIndex++) {
+  let headerCount = 0;
+  for (
+    let rowIndex = 0;
+    rowIndex < Math.min(table.rows.length, limit);
+    rowIndex++
+  ) {
     const row = table.rows.item(rowIndex);
-    if (!row || row.closest("table") !== table) continue;
+    if (!row || row.closest("table") !== table) {
+      yield { kind: "ignored" };
+      continue;
+    }
+    let clippedColumns = false;
+    let spanned = false;
     const nextSection = row.parentElement;
     if (section !== nextSection) {
       occupied.clear();
       section = nextSection;
     }
     if (section?.localName === "tfoot") {
-      footer += 1;
+      yield { kind: "footer" };
       continue;
     }
     if (
@@ -52,7 +57,7 @@ export function detectTable(
         section !== table &&
         inspectVisibility(section, view) === "prune")
     ) {
-      skipped += 1;
+      yield { kind: "ignored" };
       continue;
     }
     const first = row.cells.item(0);
@@ -69,7 +74,7 @@ export function detectTable(
       !header &&
       occupied.size > 0 &&
       rowIndex > 0 &&
-      headers.length > 0 &&
+      headerCount > 0 &&
       !sawData
     )
       occupied.clear();
@@ -92,8 +97,8 @@ export function detectTable(
       const span = Math.max(1, Math.min(maxColumns - column, cell.colSpan));
       const remaining =
         cell.rowSpan === 0
-          ? rowLimit
-          : Math.min(rowLimit, Math.max(0, cell.rowSpan - 1));
+          ? Number.POSITIVE_INFINITY
+          : Math.max(0, cell.rowSpan - 1);
       if (span > 1 || remaining > 0) spanned = true;
       if (cell.colSpan > span) clippedColumns = true;
       const text =
@@ -115,12 +120,66 @@ export function detectTable(
     }
     if (row.cells.length > maxColumns) clippedColumns = true;
     occupied = next;
-    width = Math.max(width, projection.length);
-    if (header) headers.push(projection);
-    else if (projection.some((value) => Boolean(value))) {
-      records.push(projection);
+
+    if (header) {
+      headerCount++;
+      yield { kind: "header", values: projection, clippedColumns, spanned };
+    } else if (projection.length) {
       sawData = true;
-    } else skipped += 1;
+      yield { kind: "record", values: projection, clippedColumns, spanned };
+    } else yield { kind: "ignored" };
+  }
+}
+export function* tableRecords(
+  table: HTMLTableElement,
+  view: Window,
+  width: number,
+  onClip: () => void,
+): Iterable<(string | null)[] | null> {
+  for (const row of project(table, view, Number.MAX_SAFE_INTEGER)) {
+    if ("values" in row && (row.values.length > width || row.clippedColumns))
+      onClip();
+    yield row.kind === "record"
+      ? Array.from({ length: width }, (_, index) => row.values[index] ?? null)
+      : null;
+  }
+}
+
+export function detectTable(
+  table: HTMLTableElement,
+  index: number,
+  view: Window,
+): DetectedCandidate | undefined {
+  if (
+    !table.isConnected ||
+    /^(presentation|none)$/i.test(table.getAttribute("role") ?? "")
+  )
+    return;
+  const headers: (string | null)[][] = [];
+  const records: (string | null)[][] = [];
+  const rowTotal = table.rows.length;
+  const boundedRows = Math.min(rowTotal, rowLimit);
+  let width = 0;
+  let footer = 0;
+  let skipped = 0;
+  let clippedColumns = false;
+  let spanned = false;
+  for (const row of project(table, view, boundedRows)) {
+    if (row.kind === "footer") {
+      footer++;
+      continue;
+    }
+    if (row.kind === "ignored") {
+      skipped++;
+      continue;
+    }
+    if (!("values" in row)) continue;
+    width = Math.max(width, row.values.length);
+    clippedColumns ||= row.clippedColumns;
+    spanned ||= row.spanned;
+    if (row.kind === "header") headers.push(row.values);
+    else if (row.values.some(Boolean)) records.push(row.values);
+    else skipped++;
   }
   if (width < 2 || !records.length || (records.length < 2 && !headers.length))
     return;

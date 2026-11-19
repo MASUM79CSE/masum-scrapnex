@@ -238,7 +238,12 @@ export function detectCollection(
   members: readonly Element[],
   view: Window,
   base: string,
-): DetectedCandidate | undefined {
+):
+  | {
+      candidate: DetectedCandidate;
+      read: (element: Element) => (string | null)[];
+    }
+  | undefined {
   const first = members[0];
   if (
     !first ||
@@ -282,7 +287,11 @@ export function detectCollection(
         : winner[0];
     }),
   );
-  return {
+  const select = ({ fields }: RowFields) =>
+    ranked.map(
+      ({ field }) => fields.find(({ key }) => key === field.key)?.value ?? null,
+    );
+  const candidate: DetectedCandidate = {
     id: group.id,
     kind,
     observed: group.observedRows,
@@ -298,11 +307,10 @@ export function detectCollection(
       label: names[index] ?? `Column ${index + 1}`,
       kind: field.kind,
     })),
-    rows: samples.map(({ fields }) =>
-      ranked.map(
-        ({ field }) =>
-          fields.find(({ key }) => key === field.key)?.value ?? null,
-      ),
-    ),
+    rows: samples.map(select),
+  };
+  return {
+    candidate,
+    read: (element) => select(rowFields(element, view, base)),
   };
 }

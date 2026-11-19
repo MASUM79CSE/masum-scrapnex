@@ -1,6 +1,6 @@
 # MASUM SCRAPNEXS
 
-An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 06 development snapshot (`0.1.0`)**, not a complete scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The extension also detects structures on the authorized tab and shows a read-only preview of up to six rows per candidate. Point-and-click selection can narrow the row scope, choose individual fields, and confirm a local preview. Full collection, dataset storage, and export are not enabled.
+An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 07 development snapshot (`0.1.0`)**, not a complete scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The extension also detects structures on the authorized tab and shows a read-only preview of up to six rows per candidate. Point-and-click selection can narrow the row scope, choose individual fields, and confirm a local preview. Collect the selected structure from the current page, then edit, sort, filter, or deduplicate the working dataset. The working copy is in memory only. Pagination, durable dataset storage, and export are not enabled.
 
 ## Build and load locally
 
@@ -13,7 +13,7 @@ npm run build
 
 Open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose `.output/chrome-mv3`. Open an ordinary HTTPS page and invoke the toolbar popup; select **Open side panel**, then click **Analyze page** for suggestions or **Pick elements** to manually select a row. Use only webpages you are authorized to analyze. Browser version `116` is a provisional manifest minimum, not a tested compatibility guarantee.
 
-The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged agents run only for a requested scan or picker session in the authorized top-frame document. No request, click, navigation, or file export is triggered by detection. The extension stores only the appearance preference in `storage.local`.
+The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged agents run only for a requested scan capture, or picker session in the authorized top-frame document. No request, click, navigation, or file export is triggered by detection. The extension stores only the appearance preference in `storage.local`.
 
 ## Try the standalone UI preview
 
@@ -49,4 +49,4 @@ On a fresh Debian/Linux environment with missing shared libraries, use `npx play
 | `tests/e2e/`         | Generated manifest and Chromium extension smoke tests            |
 | `docs/`              | Design baseline and phase verification                           |
 
-See [Phase 06 picker and verification](docs/PHASE_06_PICKER.md) and [Phase 05 detection notes](docs/PHASE_05_DETECTION.md). Development follows explicit approval gates. Phase 07 has not begun.
+See [Phase 07 extraction, editing, and verification](docs/PHASE_07_EXTRACTION.md) and [Phase 06 picker notes](docs/PHASE_06_PICKER.md). Development follows explicit approval gates. Phase 08 has not begun.

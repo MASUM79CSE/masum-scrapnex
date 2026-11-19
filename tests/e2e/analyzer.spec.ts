@@ -256,3 +256,78 @@ test("records Chromium timing baselines for flat 100, 1,000 and 10,000 row DOMs"
     );
   }
 });
+
+test("collection discards all records on an in-flight DOM change or abort and enforces row and field-data caps", async ({
+  page,
+}) => {
+  await load(page);
+  const result = await page.evaluate(async () => {
+    const columns = [{ id: "c1", label: "Note", kind: "text" as const }];
+    const change = await window.scrapnexCollect(
+      document,
+      {
+        columns,
+        rows: (function* () {
+          yield ["first"];
+          document.querySelector("main")!.textContent =
+            "Changed during capture";
+          yield ["next"];
+        })(),
+      },
+      location.href,
+    );
+    const controller = new AbortController();
+    const aborted = await window.scrapnexCollect(
+      document,
+      {
+        columns,
+        rows: (function* () {
+          yield ["first"];
+          controller.abort();
+          yield ["next"];
+        })(),
+      },
+      location.href,
+      false,
+      controller.signal,
+    );
+    const capped = await window.scrapnexCollect(
+      document,
+      {
+        columns,
+        rows: (function* () {
+          for (let i = 0; i < 4000; i++) yield ["x".repeat(640)];
+        })(),
+      },
+      location.href,
+    );
+    const rowCapped = await window.scrapnexCollect(
+      document,
+      {
+        columns,
+        rows: (function* () {
+          for (let i = 0; i < 10_001; i++) yield [String(i)];
+        })(),
+      },
+      location.href,
+    );
+    return {
+      change,
+      aborted,
+      rowStatus: rowCapped.status,
+      rowCap: "dataset" in rowCapped ? rowCapped.dataset.rows.length : 0,
+      capStatus: capped.status,
+      capRows: "dataset" in capped ? capped.dataset.rows.length : 0,
+    };
+  });
+  expect(result.change).toMatchObject({ status: "changed" });
+  expect(result.change).not.toHaveProperty("dataset");
+  expect(result.aborted).toMatchObject({ status: "changed" });
+  expect(result.aborted).not.toHaveProperty("dataset");
+  expect(result).toMatchObject({
+    capStatus: "partial",
+    capRows: 3125,
+    rowStatus: "partial",
+    rowCap: 10000,
+  });
+});

@@ -1,3 +1,4 @@
+import type { CollectionResult } from "../core/extraction/contracts";
 import { useEffect, useRef, useState } from "react";
 import { browser } from "wxt/browser";
 import {
@@ -16,7 +17,10 @@ interface Session {
   timeout?: number;
 }
 
-export function usePicker(target: PickerTarget | null): PickerView {
+export function usePicker(
+  target: PickerTarget | null,
+  onCollected: (result: CollectionResult) => void,
+): PickerView {
   const [status, setStatus] = useState<PickerView["status"]>("idle");
   const [state, setState] = useState<PickerState | null>(null);
   const [confirmation, setConfirmation] = useState<PickerPreview | null>(null);
@@ -127,6 +131,11 @@ export function usePicker(target: PickerTarget | null): PickerView {
             return;
           }
           if (value.timeout !== undefined) window.clearTimeout(value.timeout);
+          if (message.type === "collected") {
+            close();
+            onCollected(message.result);
+            return;
+          }
           if (message.type === "state") {
             setState(message.state);
             setStatus("active");
@@ -162,6 +171,15 @@ export function usePicker(target: PickerTarget | null): PickerView {
   }
   function command(message: PickerCommand) {
     try {
+      const active = session.current;
+      if (message.action === "collect" && active?.port) {
+        setStatus("collecting");
+        if (active.timeout !== undefined) window.clearTimeout(active.timeout);
+        active.timeout = window.setTimeout(() => {
+          if (session.current === active)
+            fail("The collection did not finish. Start a new picker session.");
+        }, 8_000);
+      }
       session.current?.port?.postMessage(message);
     } catch {
       fail("The picker connection was interrupted.");

@@ -1,0 +1,121 @@
+MASUM SCRAPNEXS — Phase 07 verification
+Chrome for Testing 159.0.8154.6 / Linux sandbox / pinned Node
+
+v24.22.3
+10.8.2
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/masum-scrapnex
+
+ ✓ tests/unit/ui.test.tsx (5 tests) 37ms
+ ✓ tests/unit/extraction.test.ts (6 tests) 33ms
+ ✓ tests/unit/browser.test.ts (9 tests) 8ms
+ ✓ tests/unit/picker-contracts.test.ts (2 tests) 5ms
+ ✓ tests/unit/detector-contracts.test.ts (3 tests) 6ms
+ ✓ tests/unit/analyzer-shape.test.ts (4 tests) 6ms
+
+ Test Files  6 passed (6)
+      Tests  29 passed (29)
+   Start at  16:09:58
+   Duration  1.31s (import 58%, tests 18%, transform 16%, worker 7%)
+
+    Isolate  6 workers spawned · ~121ms startup each (spawn + environment, per file)
+             at least ~606ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+[log]
+WXT 0.21.5
+[info] Building chrome-mv3 for production with Vite 8.3.8
+
+
+[success] Built extension in 1.170 s
+  ├─ .output/chrome-mv3/manifest.json                                  555 B
+  ├─ .output/chrome-mv3/options.html                                   552 B
+  ├─ .output/chrome-mv3/popup.html                                     547 B
+  ├─ .output/chrome-mv3/sidepanel.html                                 631 B
+  ├─ .output/chrome-mv3/background.js                                  1.12 kB
+  ├─ .output/chrome-mv3/chunks/brand-BS4bDEXL.js                       227.80 kB
+  ├─ .output/chrome-mv3/chunks/chrome-C95PQ4C9.js                      1.58 kB
+  ├─ .output/chrome-mv3/chunks/options-Cey2sXgt.js                     154 B
+  ├─ .output/chrome-mv3/chunks/popup-C1NZMYb5.js                       2.04 kB
+  ├─ .output/chrome-mv3/chunks/sidepanel-DA9dshBE.js                   7.92 kB
+  ├─ .output/chrome-mv3/chunks/workspace-Vwa9murp.js                   44.41 kB
+  ├─ .output/chrome-mv3/collector.js                                   19.69 kB
+  ├─ .output/chrome-mv3/page-agent.js                                  17.43 kB
+  ├─ .output/chrome-mv3/picker.js                                      15.66 kB
+  ├─ .output/chrome-mv3/assets/brand-UNqlkjtz.css                      31.59 kB
+  ├─ .output/chrome-mv3/assets/inter-latin-wght-normal-Dx4kXJAl.woff2  48.26 kB
+  ├─ .output/chrome-mv3/icons/128.png                                  8.54 kB
+  ├─ .output/chrome-mv3/icons/16.png                                   843 B
+  ├─ .output/chrome-mv3/icons/32.png                                   2.02 kB
+  ├─ .output/chrome-mv3/icons/48.png                                   3.07 kB
+  ├─ .output/chrome-mv3/licenses/Inter-OFL.txt                         4.48 kB
+  └─ .output/chrome-mv3/licenses/Lucide.txt                            3.21 kB
+Σ Total size: 442.10 kB
+[success] Finished in 1.514 s
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/e2e/analyzer.spec.ts:51:1 › nested meaningful content outranks navigation and retains deterministic explanations (426ms)
+  ✓   2 tests/e2e/analyzer.spec.ts:81:1 › groups irregular cards, ignores unstable classes, and rediscovers updated rows on a fresh scan (101ms)
+  ✓   3 tests/e2e/analyzer.spec.ts:108:1 › uses rendered visibility signals, excludes sensitive subtrees, and returns no source text (130ms)
+  ✓   4 tests/e2e/analyzer.spec.ts:127:1 › cancellation and mid-scan mutation discard stale conclusions (100ms)
+  ✓   5 tests/e2e/analyzer.spec.ts:174:1 › enforces node, depth, time, sibling sample, and result caps (128ms)
+BASELINE rows=100 nodes=302 first_ms=13.9 warm_ms=2.7,1.5,4.9 warm_median_ms=2.7
+BASELINE rows=1000 nodes=3002 first_ms=38.3 warm_ms=16.3,16.5,8.7 warm_median_ms=16.3
+BASELINE rows=10000 nodes=30002 first_ms=247.7 warm_ms=121.6,142,104.9 warm_median_ms=121.6
+  ✓   6 tests/e2e/analyzer.spec.ts:223:1 › records Chromium timing baselines for flat 100, 1,000 and 10,000 row DOMs (861ms)
+  ✓   7 tests/e2e/analyzer.spec.ts:260:1 › collection discards all records on an in-flight DOM change or abort and enforces row and field-data caps (212ms)
+  ✓   8 tests/e2e/detector.spec.ts:137:1 › packaged detector previews merged, headerless and sparse native HTML tables (285ms)
+  ✓   9 tests/e2e/detector.spec.ts:166:1 › recognizes product, article, directory, list and card structures and infers recurring fields (230ms)
+  ✓  10 tests/e2e/detector.spec.ts:213:1 › navigation, controls and empty repeated containers do not produce candidates (134ms)
+  ✓  11 tests/e2e/detector.spec.ts:220:1 › workspace scans only after explicit action, presents real candidates and clears stale previews (320ms)
+  ✓  12 tests/e2e/detector.spec.ts:286:1 › edits a real snapshot with keyboard, sorts, filters and manages columns and exact duplicates (22.4s)
+  ✓  13 tests/e2e/detector.spec.ts:375:1 › automatic collection refuses a stale sampled structure after page DOM changes (437ms)
+  ✓  14 tests/e2e/detector.spec.ts:398:1 › captures repeated cards and keeps their image and link values inert (566ms)
+PHASE07_SCALE input=100 captured=100 initial_dom_rows=23 capture_to_grid_ms=95.3 keyboard_jump_ms=795.9
+  ✓  15 tests/e2e/detector.spec.ts:420:3 › bounded table capture and virtual scrolling at 100 source records (1.5s)
+PHASE07_SCALE input=1000 captured=1000 initial_dom_rows=23 capture_to_grid_ms=123.1 keyboard_jump_ms=700.4
+  ✓  16 tests/e2e/detector.spec.ts:420:3 › bounded table capture and virtual scrolling at 1000 source records (4.9s)
+PHASE07_SCALE input=10000 captured=10000 initial_dom_rows=23 capture_to_grid_ms=868.4 keyboard_jump_ms=212.6
+  ✓  17 tests/e2e/detector.spec.ts:420:3 › bounded table capture and virtual scrolling at 10000 source records (3.4s)
+  ✓  18 tests/e2e/extension.spec.ts:11:1 › production manifest exposes only the planned permissions and entrypoints (20ms)
+  ✓  19 tests/e2e/extension.spec.ts:102:1 › packaged popup and side panel render, connect and do not request external resources (1.6s)
+  ✓  20 tests/e2e/extension.spec.ts:134:1 › sample candidates, navigation, search, sorting and row selection work (1.1s)
+  ✓  21 tests/e2e/extension.spec.ts:176:1 › themes persist in extension storage and reflect system color scheme (2.6s)
+  ✓  22 tests/e2e/extension.spec.ts:200:1 › narrow side panel does not overflow, and the table scroll is keyboard reachable (1.7s)
+  ✓  23 tests/e2e/extension.spec.ts:231:1 › production build has no loopback host grant and offers no scan before authorization (783ms)
+  ✓  24 tests/e2e/picker.spec.ts:127:1 › picks repeated catalog cards, blocks link navigation, and confirms selected URL, alt and price fields (707ms)
+  ✓  25 tests/e2e/picker.spec.ts:173:1 › supports parent/child correction, field-relative columns and keyboard Escape on table rows (369ms)
+  ✓  26 tests/e2e/picker.spec.ts:200:1 › refreshes same-document rows, invalidates removed selections, and removes the overlay on navigation (764ms)
+  ✓  27 tests/e2e/picker.spec.ts:224:1 › keyboard arrows can pick a row and panel cancellation cleans an unchanged page (237ms)
+  ✓  28 tests/e2e/picker.spec.ts:245:1 › strict page CSP leaves the isolated overlay usable; closing the panel disconnects and restores the page (437ms)
+  ✓  29 tests/e2e/picker.spec.ts:270:1 › collects all matching manual cards beyond the preview, including image URLs and picked attributes (881ms)
+
+  29 passed (51.8s)
+found 0 vulnerabilities
+ALL_CHECKS_PASSED

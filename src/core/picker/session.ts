@@ -1,4 +1,9 @@
 import {
+  changedCollection,
+  collectRows,
+  unavailableCollection,
+} from "../extraction/collect";
+import {
   isPickerCommand,
   maxFields,
   type FieldRule,
@@ -10,6 +15,7 @@ import { createOverlay } from "./overlay";
 import {
   firstChild,
   getField,
+  manualPlan,
   previewSelection,
   refreshFields,
   selectable,
@@ -27,6 +33,7 @@ export function startPicker(
   const overlay = createOverlay(doc, view);
   const route = view.location.href;
   const abort = new AbortController();
+  const captureAbort = new AbortController();
   let phase: PickerPhase = "pick-row";
   let fieldRule: FieldRule = { kind: "text" };
   let hover: Element | null = null;
@@ -266,7 +273,10 @@ export function startPicker(
   view.addEventListener("hashchange", guard, listeners);
   announce(initialHint);
   return {
-    cleanup,
+    cleanup() {
+      captureAbort.abort();
+      cleanup();
+    },
     command(message: unknown) {
       if (!guard() || !isPickerCommand(message)) return;
       switch (message.action) {
@@ -307,6 +317,37 @@ export function startPicker(
             announce("Field removed.");
           }
           break;
+        case "collect": {
+          if (!selectable(row, view, overlay.host) || phase !== "review") {
+            cleanup();
+            send({ v: 1, type: "collected", result: changedCollection() });
+            return;
+          }
+          const refreshed = refreshFields(row, fields, view, overlay.host);
+          if (refreshed.length !== fields.length) {
+            cleanup();
+            send({ v: 1, type: "collected", result: changedCollection() });
+            return;
+          }
+          fields = refreshed;
+          const plan = manualPlan(row, fields, view, overlay.host);
+          cleanup();
+          void collectRows(doc, plan, route, false, captureAbort.signal).then(
+            (result) => {
+              if (!captureAbort.signal.aborted)
+                send({ v: 1, type: "collected", result });
+            },
+            () => {
+              if (!captureAbort.signal.aborted)
+                send({
+                  v: 1,
+                  type: "collected",
+                  result: unavailableCollection(),
+                });
+            },
+          );
+          break;
+        }
         case "confirm":
           if (selectable(row, view, overlay.host) && phase === "review") {
             fields = refreshFields(row, fields, view, overlay.host);

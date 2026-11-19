@@ -41,7 +41,7 @@ export const chromeAgent: AgentPort = {
       !binding.documentId ||
       binding.result !== before.url
     )
-      return changedPage();
+      return { report: changedPage(), binding: null };
     const [injection] = await browser.scripting.executeScript({
       target: { tabId, documentIds: [binding.documentId] },
       files: ["/page-agent.js"],
@@ -55,15 +55,24 @@ export const chromeAgent: AgentPort = {
       !after ||
       before.id !== after.id ||
       before.url !== after.url ||
+      target.windowId !== after.windowId ||
       after.status !== "complete"
     )
-      return changedPage();
+      return { report: changedPage(), binding: null };
     if (
       injection?.frameId !== 0 ||
       injection.documentId !== binding.documentId ||
       !isPageDetection(injection.result)
     )
       throw new Error("Unexpected page analysis response.");
-    return injection.result;
+    return {
+      report: injection.result,
+      binding: {
+        tabId,
+        windowId: target.windowId,
+        documentId: binding.documentId,
+        href: before.url!,
+      },
+    };
   },
 };

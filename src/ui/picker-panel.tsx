@@ -11,7 +11,8 @@ import {
 } from "../core/picker/contracts";
 
 export interface PickerView {
-  status: "idle" | "connecting" | "active" | "confirmed" | "error";
+  status:
+    "idle" | "connecting" | "active" | "collecting" | "confirmed" | "error";
   state: PickerState | null;
   confirmation: PickerPreview | null;
   error: string;
@@ -27,18 +28,26 @@ const fieldOptions: readonly { id: FieldKind; label: string }[] = [
   { id: "attribute", label: "Allowed attribute" },
 ];
 
-export function PickerPanel({ picker }: { picker: PickerView }) {
+export function PickerPanel({
+  picker,
+  canCollect = false,
+}: {
+  picker: PickerView;
+  canCollect?: boolean;
+}) {
   const [kind, setKind] = useState<FieldKind>("text");
   const [attribute, setAttribute] = useState<AllowedAttribute>("data-price");
   const preview = picker.confirmation ?? picker.state?.preview;
   const working = picker.status === "active";
   const review = working && picker.state?.phase === "review";
   const hint =
-    picker.status === "confirmed"
-      ? "Selection confirmed. This preview is held in memory only."
-      : picker.status === "connecting"
-        ? "Connecting to the authorized page…"
-        : picker.state?.hint;
+    picker.status === "collecting"
+      ? "Collecting the selected rows…"
+      : picker.status === "confirmed"
+        ? "Selection confirmed. This preview is held in memory only."
+        : picker.status === "connecting"
+          ? "Connecting to the authorized page…"
+          : picker.state?.hint;
   return (
     <section className="panel picker-panel" aria-label="Point-and-click picker">
       <header className="card-head">
@@ -57,7 +66,9 @@ export function PickerPanel({ picker }: { picker: PickerView }) {
           onClick={picker.close}
         >
           <X size={15} aria-hidden="true" />
-          {working || picker.status === "connecting"
+          {working ||
+          picker.status === "connecting" ||
+          picker.status === "collecting"
             ? "Cancel picker"
             : picker.status === "confirmed"
               ? "Clear preview"
@@ -245,6 +256,16 @@ export function PickerPanel({ picker }: { picker: PickerView }) {
               >
                 Confirm selection
               </button>
+              {canCollect && (
+                <button
+                  type="button"
+                  className="button button--outline"
+                  disabled={!review}
+                  onClick={() => picker.command({ v: 1, action: "collect" })}
+                >
+                  Collect selected rows
+                </button>
+              )}
             </footer>
           )}
         </>
