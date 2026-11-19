@@ -43,6 +43,7 @@ test("production manifest exposes only the planned permissions and entrypoints",
   expect((await stat(join(build, "page-agent.js"))).isFile()).toBe(true);
   expect((await stat(join(build, "picker.js"))).isFile()).toBe(true);
   expect((await stat(join(build, "collector.js"))).isFile()).toBe(true);
+  expect((await stat(join(build, "paginator.js"))).isFile()).toBe(true);
 });
 
 const smoke = test.extend<{

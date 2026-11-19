@@ -1,3 +1,5 @@
+import { PaginationPanel } from "./pagination-panel";
+import type { PaginationView } from "../browser/use-pagination";
 import { DatasetPanel } from "./dataset-panel";
 import type { DatasetView } from "../browser/use-dataset";
 import { PickerPanel, type PickerView } from "./picker-panel";
@@ -465,6 +467,7 @@ export function Workspace({
   detection,
   picker,
   datasetView,
+  pagination,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
@@ -473,6 +476,7 @@ export function Workspace({
   detection?: DetectionView;
   picker?: PickerView;
   datasetView?: DatasetView;
+  pagination?: PaginationView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
@@ -480,6 +484,7 @@ export function Workspace({
   );
   const [candidate, setCandidate] = useState<Candidate>(candidates[0]);
   const [selectedId, setSelectedId] = useState<string>();
+  const paginationLocked = !!pagination?.busy || !!pagination?.review;
   const datasetOpen = !!datasetView?.open && !!datasetView.dataset;
   const manual = picker && picker.status !== "idle" ? picker : undefined;
   const live = !sample && !manual ? detection : undefined;
@@ -553,10 +558,20 @@ export function Workspace({
         <button
           type="button"
           className="button button--primary"
-          disabled={datasetView.busy}
+          disabled={datasetView.busy || paginationLocked}
           onClick={() => datasetView.collect(liveChoice)}
         >
           {datasetView.busy ? "Collecting…" : "Collect records"}
+        </button>
+      )}
+      {pagination && liveChoice && live.origin && !datasetView?.dataset && (
+        <button
+          type="button"
+          className="button button--outline"
+          disabled={!!datasetView?.busy || paginationLocked}
+          onClick={() => pagination.inspect(liveChoice)}
+        >
+          Inspect pagination controls
         </button>
       )}
     </div>
@@ -674,7 +689,11 @@ export function Workspace({
                   <button
                     type="button"
                     className="button button--outline"
-                    disabled={live.state === "running" || !!datasetView?.busy}
+                    disabled={
+                      live.state === "running" ||
+                      !!datasetView?.busy ||
+                      paginationLocked
+                    }
                     onClick={picker.start}
                   >
                     Pick elements
@@ -688,7 +707,11 @@ export function Workspace({
                       setSelectedId(undefined);
                       live.scan();
                     }}
-                    disabled={live.state === "running" || !!datasetView?.busy}
+                    disabled={
+                      live.state === "running" ||
+                      !!datasetView?.busy ||
+                      paginationLocked
+                    }
                   >
                     <ScanLine size={16} aria-hidden="true" />
                     {live.state === "running" ? "Analyzing…" : "Analyze page"}
@@ -737,6 +760,14 @@ export function Workspace({
             <p role="alert" className="detection-notes">
               {datasetView.error}
             </p>
+          )}
+          {pagination && (
+            <PaginationPanel
+              view={pagination}
+              blocked={
+                !!datasetView?.dataset || !!datasetView?.busy || !!manual
+              }
+            />
           )}
           {datasetOpen && datasetView && <DatasetPanel view={datasetView} />}
           {!datasetOpen && manual && (

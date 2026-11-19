@@ -1,3 +1,4 @@
+import { servePagination } from "../fixtures/pagination/pages";
 import AxeBuilder from "@axe-core/playwright";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
@@ -37,6 +38,7 @@ test.beforeAll(async () => {
     JSON.stringify({ ...manifest, host_permissions: ["http://127.0.0.1/*"] }),
   );
   server = createServer((req, res) => {
+    if (servePagination(req, res)) return;
     const scale = req.url?.match(/^\/records\/(100|1000|10000)$/)?.[1];
     if (scale) {
       const rows = Array.from(
@@ -262,6 +264,21 @@ async function liveTab(path: string) {
   await source.goto(`${origin}${path}`);
   await panel.reload();
   await source.bringToFront();
+  // Page.goto's load event can lead Chrome's extension-level tab status transition.
+  // The live adapters require a completed tab in addition to the DOM load event.
+  await expect
+    .poll(() =>
+      panel.evaluate(async (expected) => {
+        const chrome = (window as unknown as { chrome: typeof BrowserApi })
+          .chrome;
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        return tab?.url === expected && tab.status === "complete";
+      }, source.url()),
+    )
+    .toBe(true);
   await expect(
     panel.getByRole("button", { name: "Analyze page", exact: true }),
   ).toBeEnabled();
@@ -488,3 +505,177 @@ for (const count of [100, 1000, 10000])
       await panel.reload();
     }
   });
+
+const paginationPanel = () =>
+  panel.getByRole("region", { name: "Multi-page collection" });
+async function reviewPagination(control: RegExp, steps = 2, delay = 500) {
+  await panelClick("Analyze page");
+  await expect(
+    panel.getByRole("button", { name: "Inspect pagination controls" }),
+  ).toBeEnabled();
+  await panelClick("Inspect pagination controls");
+  const chooser = paginationPanel().getByLabel("Action to authorize");
+  await expect(chooser).toBeVisible();
+  const option = chooser.getByRole("option", { name: control });
+  await expect(option).toHaveCount(1);
+  await chooser.selectOption((await option.getAttribute("value")) ?? "");
+  await paginationPanel()
+    .getByLabel("Maximum additional actions")
+    .fill(String(steps));
+  await paginationPanel().getByLabel("Minimum delay (ms)").fill(String(delay));
+}
+const captured = () => panel.getByRole("table", { name: "Captured records" });
+
+for (const [path, label] of [
+  ["next", /^Next-page link/],
+  ["numbered", /^Numbered pagination/],
+  ["url", /^Incrementing page URL/],
+] as const) {
+  test(`pagination authorizes and verifies three pages using ${path} evidence`, async () => {
+    const page = await liveTab(`/paging/${path}?page=1`);
+    try {
+      await reviewPagination(label);
+      await expect(page).toHaveURL(`${origin}/paging/${path}?page=1`);
+      await expect(
+        paginationPanel().getByText(
+          `First destination: ${origin}/paging/${path}?page=2`,
+        ),
+      ).toBeVisible();
+      await panelClick("Authorize and start");
+      await expect(paginationPanel().getByRole("status")).toContainText(
+        "Complete · 2 actions · 3 verified snapshots · 4 rows · 2 duplicates skipped",
+        { timeout: 18_000 },
+      );
+      await expect(page).toHaveURL(`${origin}/paging/${path}?page=3`);
+      await expect(captured().getByText("Source record 3")).toBeVisible();
+      if (path === "numbered" && process.env.PHASE8_SCREENSHOT) {
+        await panel.setViewportSize({ width: 1040, height: 960 });
+        await panel.emulateMedia({ colorScheme: "dark" });
+        await panel.evaluate(() => document.fonts.ready);
+        await panel.screenshot({
+          path: process.env.PHASE8_SCREENSHOT,
+          fullPage: true,
+        });
+        await panel.setViewportSize({ width: 1280, height: 720 });
+      }
+    } finally {
+      await page.close();
+      await panel.reload();
+    }
+  });
+}
+
+test("pagination Load More waits for busy content and adds only new records", async () => {
+  const page = await liveTab("/paging/more");
+  try {
+    await reviewPagination(/^Load More button/);
+    await expect(page.getByRole("button")).not.toHaveAttribute("data-clicks");
+    await panelClick("Authorize and start");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Complete · 2 actions · 3 verified snapshots · 4 rows · 5 duplicates skipped",
+      { timeout: 15000 },
+    );
+    await expect(page.getByRole("button")).toHaveAttribute("data-clicks", "2");
+    await expect(captured()).toContainText("Loaded gear 2");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("pagination scroll captures new rows from a bounded viewport run", async () => {
+  const page = await liveTab("/paging/scroll");
+  try {
+    await reviewPagination(/^Incremental viewport scroll/);
+    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await panelClick("Authorize and start");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Complete · 2 actions · 3 verified snapshots · 18 rows",
+      { timeout: 15000 },
+    );
+    expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
+    await expect(captured()).toContainText("Scrolled gear 2");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("pagination refuses generic Next, off-origin links and submit controls", async () => {
+  const page = await liveTab("/paging/bad");
+  try {
+    await panelClick("Analyze page");
+    await expect(
+      panel.getByRole("button", { name: "Inspect pagination controls" }),
+    ).toBeEnabled();
+    await panelClick("Inspect pagination controls");
+    await expect(paginationPanel()).toContainText("No supported pagination");
+    await expect(
+      paginationPanel().getByRole("button", { name: "Authorize and start" }),
+    ).toHaveCount(0);
+    await expect(page).toHaveURL(`${origin}/paging/bad`);
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("pagination stops at an unexpected redirect without capturing the redirected page", async () => {
+  const page = await liveTab("/paging/redirect?page=1");
+  try {
+    await reviewPagination(/^Next-page link/);
+    await panelClick("Authorize and start");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Review needed · 1 actions · 1 verified snapshots · 2 rows",
+      { timeout: 16000 },
+    );
+    await expect(page).toHaveURL(`${origin}/paging/wrong`);
+    await expect(captured()).not.toContainText("Source record 2");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("pagination pause, resume and stop retain verified records and prevent later actions", async () => {
+  const page = await liveTab("/paging/next?page=1");
+  try {
+    await reviewPagination(/^Next-page link/, 3, 1500);
+    await panelClick("Authorize and start");
+    await expect(page).toHaveURL(`${origin}/paging/next?page=2`);
+    await panelClick("Pause run");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Paused · 1 actions · 2 verified snapshots",
+      { timeout: 10000 },
+    );
+    await expect(page).toHaveURL(`${origin}/paging/next?page=2`);
+    await panelClick("Resume run");
+    await expect(page).toHaveURL(`${origin}/paging/next?page=3`);
+    await panelClick("Stop run");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Stopped · 2 actions · 2 verified snapshots",
+      { timeout: 10000 },
+    );
+    await expect(captured()).toContainText("Source record 2");
+    await expect(captured()).not.toContainText("Source record 3");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});
+
+test("pagination does not retry a Load More button when no content appears", async () => {
+  const page = await liveTab("/paging/stuck");
+  try {
+    await reviewPagination(/^Load More button/, 4);
+    await panelClick("Authorize and start");
+    await expect(paginationPanel().getByRole("status")).toContainText(
+      "Review needed · 1 actions · 1 verified snapshots",
+      { timeout: 14000 },
+    );
+    await expect(page.getByRole("button")).toHaveAttribute("data-clicks", "1");
+  } finally {
+    await page.close();
+    await panel.reload();
+  }
+});

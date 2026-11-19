@@ -8,3 +8,10 @@ export function candidateSignature(candidate: DetectedCandidate) {
     candidate.rows,
   ]);
 }
+
+export function schemaSignature(candidate: DetectedCandidate) {
+  return JSON.stringify([
+    candidate.kind,
+    candidate.columns.map(({ id, label, kind }) => [id, label, kind]),
+  ]);
+}

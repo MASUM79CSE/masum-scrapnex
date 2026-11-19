@@ -1,3 +1,4 @@
+import { usePagination } from "../../src/browser/use-pagination";
 import { useDataset } from "../../src/browser/use-dataset";
 import { usePicker } from "../../src/browser/use-picker";
 import { useDetection } from "../../src/browser/use-detection";
@@ -12,6 +13,7 @@ import { Workspace, type Connection } from "../../src/ui/workspace";
 function SidePanel() {
   const detection = useDetection();
   const dataset = useDataset(detection.captureContext);
+  const pagination = usePagination(detection.captureContext, dataset.accept);
   const picker = usePicker(detection.authorizedTarget, dataset.accept);
   const [connection, setConnection] = useState<Connection>("loading");
   const [attempt, setAttempt] = useState(0);
@@ -43,6 +45,7 @@ function SidePanel() {
       detection={detection}
       picker={picker}
       datasetView={dataset}
+      pagination={pagination}
       retry={() => {
         setConnection("loading");
         setAttempt((n) => n + 1);
