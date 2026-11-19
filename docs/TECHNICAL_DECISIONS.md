@@ -1,4 +1,4 @@
-# MASUM SCRAPNEX — Technical decisions and evidence
+# MASUM SCRAPNEXS — Technical decisions and evidence
 
 All design decisions are proposals pending Phase 01 approval. Dependency metadata below is a dated observation, not a lockfile.
 
@@ -16,7 +16,7 @@ All design decisions are proposals pending Phase 01 approval. Dependency metadat
 
 | ID | Proposed decision and why | Alternatives/trade-off and verification |
 |---|---|---|
-| D01 | User-facing identity **MASUM SCRAPNEX**. Preserve mandated engineering repository/package slug `instant-scraper`; package `0.1.0`, release `1.0.0`. | Rename engineering IDs only on explicit change request; no reference branding in public UI. |
+| D01 | User-facing identity **MASUM SCRAPNEXS**. Use repository slug `masum-scrapnex` and preserve package slug `instant-scraper`; package `0.1.0`, release `1.0.0`. | Rename engineering IDs only on explicit change request; no reference branding in public UI. |
 | D02 | WXT/Vite build for MV3 and target adaptation; React/TypeScript for multi-surface UI and typed contracts; Tailwind semantic tokens and Lucide for consistent accessible styling; Vitest, Playwright, ESLint and Prettier. | Native DOM tools for extraction (TreeWalker, MutationObserver, URL). Do not add a backend, state framework or dependency where browser APIs suffice. Adopt reproducible Node 24 LTS tooling in Phase 02; verify the actual runtime plus pinned direct/transitive versions before committing the lockfile. If Node 24 provisioning is blocked, report and review compatible older versions or alternate dev environment; no silent bypass of engine checks. |
 | D03 | Chrome 116+ provisional API floor for gesture-driven `sidePanel.open`; narrow ports for workspace, tabs, permission, transport, settings and save. | Documented capability is not a tested version promise. Validate the oldest claimed browser and a modern release; raise tested floor explicitly if needed. Do not assume Edge Firefox UI APIs match. |
 | D04 | Deterministic DOM ranking with transparent evidence and manual fallback. Prefer semantic layout and structural repeatability over CSS-class labels. | No AI, hidden network endpoints, proprietary cloning, or guesses from weak semantic signals. Calibrate against representative local fixtures, keeping a holdout set for regression. |

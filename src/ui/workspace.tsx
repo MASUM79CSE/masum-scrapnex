@@ -375,7 +375,7 @@ function SettingsScreen({
         <SectionTitle
           icon={<Sun size={19} />}
           title="Appearance"
-          hint="Choose how SCRAPNEX looks on this device."
+          hint="Choose how SCRAPNEXS looks on this device."
         />
         <fieldset className="theme-options" disabled={appearance.busy}>
           <legend className="sr-only">Theme</legend>
@@ -497,7 +497,7 @@ export function Workspace({
         ? "Compare similar collections and choose which structure to preview."
         : section === "preview"
           ? "Review, search, and sort records in a spreadsheet-style view."
-          : "Manage appearance and see what SCRAPNEX stores on this device.";
+          : "Manage appearance and see what SCRAPNEXS stores on this device.";
 
   return (
     <div className="app-shell">

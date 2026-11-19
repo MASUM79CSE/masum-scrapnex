@@ -38,7 +38,7 @@ export function Brand() {
       <Mark />
       <div>
         <span className="brand-name">
-          MASUM <strong>SCRAPNEX</strong>
+          MASUM <strong>SCRAPNEXS</strong>
         </span>
         <span className="brand-caption">WEB DATA WORKSPACE</span>
       </div>

@@ -1,6 +1,6 @@
-# MASUM SCRAPNEX
+# MASUM SCRAPNEXS
 
-An independent, local-first Chrome extension for collecting structured web data. `instant-scraper` is the engineering/package identifier. This is the **Phase 03 UI foundation (`0.1.0`)**, not a working scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. Live webpage analysis, collection, dataset storage, and export are not enabled.
+An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 04 development snapshot (`0.1.0`)**, not a working scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The DOM analyzer runs in the browser fixture harness only. Live webpage analysis, collection, dataset storage, and export are not enabled in the extension.
 
 ## Build and load locally
 
@@ -36,15 +36,16 @@ npm run test:e2e
 
 On a fresh Debian/Linux environment with missing shared libraries, use `npx playwright install --with-deps chromium` (OS package installation may require administrator privileges). In a fresh Arena sandbox you can run npm with the pinned runtime, for example `npm exec --yes --package=node@24.22.3 -- npm ci`, and use the same prefix for the other `npm` commands.
 
-| Path           | Purpose                                                          |
-| -------------- | ---------------------------------------------------------------- |
-| `entrypoints/` | WXT extension worker, popup, side panel, options, and page agent |
-| `src/browser/` | Browser ports, Chrome adapter, and validated shell messages      |
-| `src/ui/`      | Workbench, settings, brand components, and sample data           |
-| `src/data/`    | Initial typed extraction contracts                               |
-| `src/styles/`  | Shared design tokens, responsive CSS, and React mounting         |
-| `tests/unit/`  | URL/context handling and message boundary tests                  |
-| `tests/e2e/`   | Generated manifest and Chromium extension smoke tests            |
-| `docs/`        | Design baseline and phase verification                           |
+| Path                 | Purpose                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| `entrypoints/`       | WXT extension worker, popup, side panel, options, and page agent |
+| `src/browser/`       | Browser ports, Chrome adapter, and validated shell messages      |
+| `src/ui/`            | Workbench, settings, brand components, and sample data           |
+| `src/core/analyzer/` | Bounded, deterministic DOM structure analysis                    |
+| `src/data/`          | Initial typed extraction contracts                               |
+| `src/styles/`        | Shared design tokens, responsive CSS, and React mounting         |
+| `tests/unit/`        | URL/context handling and message boundary tests                  |
+| `tests/e2e/`         | Generated manifest and Chromium extension smoke tests            |
+| `docs/`              | Design baseline and phase verification                           |
 
-See [Phase 03 verification](docs/PHASE_03_VERIFICATION.md) for scope, evidence, and limitations. Development follows explicit approval gates. Phase 04 has not begun.
+See [DOM analyzer and Phase 04 verification](docs/PHASE_04_ANALYZER.md) for the algorithm, measured fixture timings, evidence, and limitations. Development follows explicit approval gates. Phase 05 has not begun.

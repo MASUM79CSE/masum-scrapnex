@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <title>Visibility and exclusions</title>
+  <style>
+    .none {
+      display: none;
+    }
+    .until-visible {
+      visibility: hidden;
+    }
+    .override {
+      visibility: visible;
+    }
+    .transparent {
+      opacity: 0;
+    }
+    .skip-render {
+      content-visibility: hidden;
+    }
+    .offscreen {
+      position: absolute;
+      top: 5000px;
+    }
+  </style>
+  <main>
+    <section class="offscreen">
+      <article><h2>Public one</h2></article>
+      <article><h2>Public two</h2></article>
+    </section>
+    <section class="none">
+      <article><h2>Display hidden</h2></article>
+      <article><h2>Display hidden</h2></article>
+    </section>
+    <section class="transparent">
+      <article><h2>Opacity hidden</h2></article>
+      <article><h2>Opacity hidden</h2></article>
+    </section>
+    <section class="skip-render">
+      <article><h2>Rendering hidden</h2></article>
+      <article><h2>Rendering hidden</h2></article>
+    </section>
+    <section inert>
+      <article><h2>Inert</h2></article>
+      <article><h2>Inert</h2></article>
+    </section>
+    <section aria-hidden="true">
+      <article><h2>Accessibility hidden</h2></article>
+      <article><h2>Accessibility hidden</h2></article>
+    </section>
+    <section class="until-visible">
+      <article><h2>CSS hidden</h2></article>
+      <article><h2>CSS hidden</h2></article>
+    </section>
+    <section class="until-visible">
+      <article class="override"><h2>Override visible 1</h2></article>
+      <article class="override"><h2>Override visible 2</h2></article>
+    </section>
+    <form>
+      <input type="hidden" value="private-sentinel-value" /><label
+        >Password <input type="password" value="private-sentinel-password"
+      /></label>
+      <p>private-sentinel-text</p>
+    </form>
+    <iframe
+      srcdoc="<article><h2>Frame text 1</h2></article><article><h2>Frame text 2</h2></article>"
+    ></iframe>
+    <div id="shadow-host">
+      <article><h2>Unassigned light DOM 1</h2></article>
+      <article><h2>Unassigned light DOM 2</h2></article>
+    </div>
+    <script>
+      document
+        .getElementById("shadow-host")
+        .attachShadow({ mode: "open" }).innerHTML =
+        "<article>Shadow 1</article><article>Shadow 2</article>";
+    </script>
+  </main>
+</html>

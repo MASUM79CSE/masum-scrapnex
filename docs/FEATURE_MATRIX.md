@@ -1,8 +1,8 @@
-# MASUM SCRAPNEX — Feature matrix
+# MASUM SCRAPNEXS — Feature matrix
 
 The reference column describes [publisher listing claims](https://chromewebstore.google.com/detail/instant-data-scraper/ofaokhiedipichpaobibbnahnkdoiiah) unless noted, not tested behavior. “Not established” does not mean absent. All SCRAPNEX implementation is **NOT STARTED**.
 
-| Capability | Reference evidence | SCRAPNEX v1 plan | First primary phase | Acceptance |
+| Capability | Reference evidence | SCRAPNEXS v1 plan | First primary phase | Acceptance |
 |---|---|---|---|---|
 | Automatic suggestions and customization | Advertises automatic detection (publisher calls it AI) and customization | Deterministic scoring, evidence, ranked alternatives | 04–05 | R01 |
 | Native tables, spans, nested and headerless | Table edge cases not established | Rectangular aligned projection and explicit warnings | 05, 07, 11 | R02 |

@@ -4,7 +4,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "MASUM SCRAPNEX",
+    name: "MASUM SCRAPNEXS",
     description:
       "An independent, local-first workspace for structured web data.",
     minimum_chrome_version: "116",
@@ -15,7 +15,7 @@ export default defineConfig({
       128: "icons/128.png",
     },
     permissions: ["activeTab", "scripting", "storage"],
-    action: { default_title: "MASUM SCRAPNEX" },
+    action: { default_title: "MASUM SCRAPNEXS" },
   },
   vite: () => ({ plugins: [tailwindcss()] }),
 });

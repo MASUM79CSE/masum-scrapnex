@@ -1,7 +1,7 @@
-# MASUM SCRAPNEX — Product requirements
+# MASUM SCRAPNEXS — Product requirements
 
 **Phase 01 · 19 November 2026 · Awaiting approval**  
-**Product:** MASUM SCRAPNEX (“Scrap-neks”). **Engineering identifiers:** `instant-scraper` (codename, proposed repository and npm package as specified); package starts at `0.1.0`, with `1.0.0` the release target.  
+**Product:** MASUM SCRAPNEXS (“Scrap-neks”). **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`; package starts at `0.1.0`, with `1.0.0` the release target.  
 **Positioning:** Transform structured information on the web into usable data — directly in your browser, under your control.
 
 ## Scope and research

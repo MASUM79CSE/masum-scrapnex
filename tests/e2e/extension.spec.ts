@@ -11,7 +11,7 @@ test("production manifest exposes only the planned permissions and entrypoints",
     await readFile(join(build, "manifest.json"), "utf8"),
   );
   expect(manifest).toMatchObject({
-    name: "MASUM SCRAPNEX",
+    name: "MASUM SCRAPNEXS",
     version: "0.1.0",
     manifest_version: 3,
     minimum_chrome_version: "116",

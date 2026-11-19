@@ -1,4 +1,4 @@
-# MASUM SCRAPNEX — Architecture
+# MASUM SCRAPNEXS — Architecture
 
 **Phase 01 design proposal; not implemented.**
 
@@ -64,7 +64,7 @@ Default CSV UTF-8, quoted/doubled separators and newlines, optional BOM, safe sp
 ## Proposed code tree (Phase 02 onward)
 
 ```text
-instant-scraper/
+masum-scrapnex/
   entrypoints/{background.ts,page-agent.ts,popup/,sidepanel/,options/}
   src/{app/,core/{analyzer,detector,extractor,pagination,normalizer}/,
        browser/{adapters,messaging,permissions}/,

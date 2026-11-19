@@ -1,6 +1,6 @@
 /** Initial versioned shapes; not a persistence schema or a collection implementation. */
 export const SCHEMA_VERSION = 1 as const;
-export const PRODUCT_NAME = "MASUM SCRAPNEX";
+export const PRODUCT_NAME = "MASUM SCRAPNEXS";
 
 type SchemaVersion = typeof SCHEMA_VERSION;
 export type CellValue = string | number | boolean | null;

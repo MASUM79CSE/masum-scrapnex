@@ -53,7 +53,7 @@ function Popup() {
   }
 
   return (
-    <main className="popup" aria-label="MASUM SCRAPNEX">
+    <main className="popup" aria-label="MASUM SCRAPNEXS">
       <header className="popup-top">
         <Brand />
         <LocalBadge />

@@ -1,4 +1,4 @@
-# MASUM SCRAPNEX — Development roadmap and Phase 01 checklist
+# MASUM SCRAPNEXS — Development roadmap and Phase 01 checklist
 
 **Approval protocol:** complete, verify and document each phase, then stop. To authorize Phase 02, reply `APPROVE PHASE 01`. Phase 02 has not begun. Do not publish or distribute a production extension without separate explicit authorization.
 
@@ -19,7 +19,7 @@
 | Phase | Scope | Evidence before asking approval |
 |---|---|---|
 | 01 Research and architecture | Six planning documents only | Internal consistency and stated limitations; user approves direction. |
-| 02 Greenfield initialization | Create `instant-scraper`, Git and initial docs; provision compatible Node; WXT/React/TypeScript/Tailwind, lint/format, Vitest, Playwright; entrypoints, adapters and model scaffolding | Install and verify pinned versions, typecheck/lint/unit tests/build; inspect generated MV3 manifest, try Chromium extension smoke and explain any unresolved browser blocker. |
+| 02 Greenfield initialization | Initialize the repository (now `masum-scrapnex`), Git and initial docs; provision compatible Node; WXT/React/TypeScript/Tailwind, lint/format, Vitest, Playwright; entrypoints, adapters and model scaffolding | Install and verify pinned versions, typecheck/lint/unit tests/build; inspect generated MV3 manifest, try Chromium extension smoke and explain any unresolved browser blocker. |
 | 03 Design/UI foundation | Original identity and light/dark tokens; popup, panel, grid and settings foundations | Keyboard/contrast/narrow-width and view-state checks; omit unavailable actions or explicitly label disabled scope. |
 | 04 DOM analyzer | Bounded structure/visibility analysis and fixture harness | Tree/region and budget/cancel assertions; initial browser performance baseline and proposed thresholds. |
 | 05 Automatic detection | Native tables, recurring structures, scoring and alternatives | Golden rank and regression fixtures incl. false positives; evidence visible for alternatives. |

@@ -1,4 +1,4 @@
-# MASUM SCRAPNEX — Security and privacy design
+# MASUM SCRAPNEXS — Security and privacy design
 
 Phase 01 threat model and release requirements, not an audit or security claim. Trust the packaged extension and its validated internal state; treat all site DOM/text/URLs/attributes, imports and transport payloads as untrusted. `activeTab` indicates browser access, not consent for bulk collection or legal entitlement to reuse data.
 
