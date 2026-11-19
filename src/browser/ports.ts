@@ -1,3 +1,5 @@
+import type { PageDetection } from "../core/detector/contracts";
+
 export type WorkspaceTab =
   | { state: "available"; tabId: number; windowId: number; origin: string }
   | { state: "restricted" | "unavailable" };
@@ -10,7 +12,7 @@ export interface WorkspacePort {
 
 export interface AgentPort {
   /** Caller is responsible for explicit user consent and bound tab/document context. */
-  injectTopFrame(tabId: number): Promise<void>;
+  detectTopFrame(tabId: number, origin: string): Promise<PageDetection>;
 }
 
 export function describeTab(tab?: {

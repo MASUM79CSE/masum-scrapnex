@@ -64,8 +64,7 @@ function Popup() {
         </p>
         <h1>Open workspace</h1>
         <p>
-          Inspect candidates and preview sample records. Live analysis is not
-          enabled yet.
+          Analyze the authorized page and preview detected tables or listings.
         </p>
         <p role="status" className="popup-status">
           {tab ? (
@@ -94,7 +93,7 @@ function Popup() {
         {error && <p role="alert">{error}</p>}
       </section>
       <footer className="popup-foot">
-        <span>No extraction sessions yet</span>
+        <span>Previews stay in this browser</span>
         <a href="/options.html" target="_blank" rel="noopener">
           Settings
         </a>

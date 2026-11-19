@@ -1,3 +1,4 @@
+import { useDetection } from "../../src/browser/use-detection";
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { extensionThemeStore } from "../../src/browser/preferences";
@@ -7,6 +8,7 @@ import { mount } from "../../src/styles/mount";
 import { Workspace, type Connection } from "../../src/ui/workspace";
 
 function SidePanel() {
+  const detection = useDetection();
   const [connection, setConnection] = useState<Connection>("loading");
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -34,6 +36,7 @@ function SidePanel() {
       mode="extension"
       connection={connection}
       themeStore={extensionThemeStore}
+      detection={detection}
       retry={() => {
         setConnection("loading");
         setAttempt((n) => n + 1);

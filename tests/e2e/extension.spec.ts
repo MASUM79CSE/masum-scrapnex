@@ -1,3 +1,5 @@
+import { createServer } from "node:http";
+import type { browser as BrowserApi } from "wxt/browser";
 import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -221,5 +223,59 @@ smoke(
       .poll(() => table.evaluate((node) => node.scrollLeft))
       .toBeGreaterThan(0);
     await checkAccess(page);
+  },
+);
+
+smoke(
+  "production build has no loopback host grant and offers no scan before authorization",
+  async ({ shell: { page, root } }) => {
+    const server = createServer((_req, res) =>
+      res
+        .writeHead(200, { "Content-Type": "text/html" })
+        .end("<main><h1>Controlled page</h1></main>"),
+    );
+    await new Promise<void>((done, reject) => {
+      server.once("error", reject);
+      server.listen(0, "127.0.0.1", done);
+    });
+    const address = server.address();
+    if (!address || typeof address === "string")
+      throw new Error("Missing fixture server");
+    const local = await page.context().newPage();
+    try {
+      await page.goto(`${root}sidepanel.html`);
+      await local.goto(`http://127.0.0.1:${address.port}/`);
+      await local.bringToFront();
+      await expect(
+        page.getByText("No webpage connected for analysis"),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Analyze page" }),
+      ).toHaveCount(0);
+      const authority = await page.evaluate(async () => {
+        const chrome = (window as unknown as { chrome: typeof BrowserApi })
+          .chrome;
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        return {
+          hostGrant: await chrome.permissions.contains({
+            origins: ["http://127.0.0.1/*"],
+          }),
+          urlExposed: tab?.url !== undefined,
+          activeTab: tab?.id !== undefined,
+        };
+      });
+      expect(authority).toEqual({
+        hostGrant: false,
+        urlExposed: false,
+        activeTab: true,
+      });
+    } finally {
+      await local.close();
+      server.closeAllConnections();
+      await new Promise<void>((done) => server.close(() => done()));
+    }
   },
 );

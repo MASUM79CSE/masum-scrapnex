@@ -112,6 +112,7 @@ const sampleChildren = 12;
 const sampleGrandchildren = 4;
 
 interface Entry {
+  element?: Element;
   ordinal: number;
   tag: string;
   key: string;
@@ -131,8 +132,10 @@ interface Group {
   first: Entry;
   masks: number[];
   sumSimilarity: number;
+  samples: Element[];
 }
 interface Ranked extends StructureCandidate {
+  samples: readonly Element[];
   firstOrdinal: number;
 }
 
@@ -310,6 +313,7 @@ function toCandidate(
     confidence: score >= 76 ? "strong" : score >= 53 ? "possible" : "weak",
     reasons,
     firstOrdinal: group.first.ordinal,
+    samples: group.samples,
   };
 }
 
@@ -317,6 +321,26 @@ export async function analyzeDocument(
   doc: Document,
   options: AnalyzerOptions = {},
 ): Promise<AnalysisResult> {
+  return (await scan(doc, options, false)).analysis;
+}
+
+/** Internal handles are scoped to the detector's same-document preview pass. Never message them. */
+export function scanForDetection(doc: Document) {
+  return scan(doc, {}, true);
+}
+
+interface Snapshot {
+  analysis: AnalysisResult;
+  members: ReadonlyMap<string, readonly Element[]>;
+  tables: readonly HTMLTableElement[];
+  tableLimitReached: boolean;
+}
+
+async function scan(
+  doc: Document,
+  options: AnalyzerOptions,
+  capture: boolean,
+): Promise<Snapshot> {
   const limits = limitsFor(options.limits);
   const start = performance.now();
   const stats: AnalysisResult["stats"] = {
@@ -329,20 +353,32 @@ export async function analyzeDocument(
     elapsedMs: 0,
   };
   const best: Ranked[] = [];
+  const tables: HTMLTableElement[] = [];
+  let tableLimitReached = false;
   const finish = (
     status: AnalysisResult["status"],
     reason?: AnalysisResult["reason"],
     discard = false,
-  ): AnalysisResult => ({
-    status,
-    ...(reason ? { reason } : {}),
-    stats: { ...stats, elapsedMs: performance.now() - start },
-    candidates: discard
-      ? []
-      : best.map(({ firstOrdinal, ...candidate }) => {
-          void firstOrdinal;
-          return candidate;
-        }),
+  ): Snapshot => ({
+    analysis: {
+      status,
+      ...(reason ? { reason } : {}),
+      stats: { ...stats, elapsedMs: performance.now() - start },
+      candidates: discard
+        ? []
+        : best.map(({ firstOrdinal, samples, ...candidate }) => {
+            void firstOrdinal;
+            void samples;
+            return candidate;
+          }),
+    },
+    members: new Map(
+      capture && !discard
+        ? best.map((candidate) => [candidate.id, candidate.samples] as const)
+        : [],
+    ),
+    tables: discard ? [] : tables,
+    tableLimitReached,
   });
   if (options.signal?.aborted) return finish("cancelled", "aborted", true);
   const view = doc.defaultView;
@@ -362,7 +398,7 @@ export async function analyzeDocument(
     characterData: true,
     attributes: true,
   });
-  function stop(): AnalysisResult | undefined {
+  function stop(): Snapshot | undefined {
     if (options.signal?.aborted) return finish("cancelled", "aborted", true);
     if (dirty || observer.takeRecords().length || !root.isConnected)
       return finish("partial", "dom-changed", true);
@@ -412,6 +448,13 @@ export async function analyzeDocument(
             depth,
             stats.visited,
           );
+          if (capture && entry.visible) {
+            entry.element = element;
+            if (entry.tag === "table") {
+              if (tables.length < 24) tables.push(element as HTMLTableElement);
+              else tableLimitReached = true;
+            }
+          }
           entries.push(entry);
           if (entry.visible) stats.visibleElements += 1;
           // Keep visible siblings only, but aggregate signals through non-pruned hidden wrappers below.
@@ -467,6 +510,8 @@ export async function analyzeDocument(
           }
           if (bestMatch) {
             bestMatch.masks.push(row.mask);
+            if (row.element && bestMatch.samples.length < 6)
+              bestMatch.samples.push(row.element);
             bestMatch.sumSimilarity += bestSimilarity;
           } else if (matches.length < maxGroupsPerRoot) {
             matches.push({
@@ -474,6 +519,7 @@ export async function analyzeDocument(
               first: row,
               masks: [row.mask],
               sumSimilarity: 1,
+              samples: row.element ? [row.element] : [],
             });
             buckets.set(shape.root, matches);
           }

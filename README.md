@@ -1,6 +1,6 @@
 # MASUM SCRAPNEXS
 
-An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 04 development snapshot (`0.1.0`)**, not a working scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The DOM analyzer runs in the browser fixture harness only. Live webpage analysis, collection, dataset storage, and export are not enabled in the extension.
+An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 05 development snapshot (`0.1.0`)**, not a complete scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The extension also detects structures on the authorized tab and shows a read-only preview of up to six rows per candidate. Full collection, dataset storage, manual selection, and export are not enabled.
 
 ## Build and load locally
 
@@ -11,9 +11,9 @@ npm ci
 npm run build
 ```
 
-Open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose `.output/chrome-mv3`. Open an ordinary HTTPS page and invoke the toolbar popup; then try **Open side panel**. The automated check loads the underlying extension pages in Chromium; the manual process above is how to verify the real toolbar interaction. Browser version `116` is a provisional manifest minimum, not a tested compatibility guarantee.
+Open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose `.output/chrome-mv3`. Open an ordinary HTTPS page and invoke the toolbar popup; select **Open side panel**, then click **Analyze page**. Use only webpages you are authorized to analyze. Browser version `116` is a provisional manifest minimum, not a tested compatibility guarantee.
 
-The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged page agent does not collect or read webpage data in Phase 02. The extension stores only the appearance preference in `storage.local`.
+The extension requests `activeTab`, `scripting`, `storage`, and `sidePanel`. There are no host permissions or automatically registered content scripts. The packaged page agent runs only for a requested scan in the authorized top-frame document. No request, click, navigation, or file export is triggered by detection. The extension stores only the appearance preference in `storage.local`.
 
 ## Try the standalone UI preview
 
@@ -41,6 +41,7 @@ On a fresh Debian/Linux environment with missing shared libraries, use `npx play
 | `entrypoints/`       | WXT extension worker, popup, side panel, options, and page agent |
 | `src/browser/`       | Browser ports, Chrome adapter, and validated shell messages      |
 | `src/ui/`            | Workbench, settings, brand components, and sample data           |
+| `src/core/detector/` | Table and listing detection and bounded previews                 |
 | `src/core/analyzer/` | Bounded, deterministic DOM structure analysis                    |
 | `src/data/`          | Initial typed extraction contracts                               |
 | `src/styles/`        | Shared design tokens, responsive CSS, and React mounting         |
@@ -48,4 +49,4 @@ On a fresh Debian/Linux environment with missing shared libraries, use `npx play
 | `tests/e2e/`         | Generated manifest and Chromium extension smoke tests            |
 | `docs/`              | Design baseline and phase verification                           |
 
-See [DOM analyzer and Phase 04 verification](docs/PHASE_04_ANALYZER.md) for the algorithm, measured fixture timings, evidence, and limitations. Development follows explicit approval gates. Phase 05 has not begun.
+See [Phase 05 detection and verification](docs/PHASE_05_DETECTION.md) and [Phase 04 analyzer notes](docs/PHASE_04_ANALYZER.md). Development follows explicit approval gates. Phase 06 has not begun.

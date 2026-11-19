@@ -1,3 +1,8 @@
+import {
+  LiveCandidates,
+  LivePreview,
+  type DetectionView,
+} from "./live-detection";
 import { useRef, useState, type ReactNode } from "react";
 import {
   ArrowDown,
@@ -427,8 +432,8 @@ function SettingsScreen({
           hint="Local by design"
         />
         <p className="settings-copy">
-          This build saves your appearance preference only. It does not scan
-          webpages, store extraction history, or upload data.
+          The appearance preference is saved locally. Page detection runs only
+          on request; previews are not saved as history or uploaded.
         </p>
       </section>
       <section
@@ -454,17 +459,24 @@ export function Workspace({
   themeStore,
   connection = "loading",
   retry,
+  detection,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
   connection?: Connection;
   retry?: () => void;
+  detection?: DetectionView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
     mode === "options" ? "settings" : "workspace",
   );
   const [candidate, setCandidate] = useState<Candidate>(candidates[0]);
+  const [selectedId, setSelectedId] = useState<string>();
+  const live = !sample ? detection : undefined;
+  const liveChoice =
+    live?.report?.candidates.find((item) => item.id === selectedId) ??
+    live?.report?.candidates[0];
   const heading = useRef<HTMLHeadingElement>(null);
   const appearance = useTheme(
     themeStore,
@@ -496,8 +508,32 @@ export function Workspace({
       : section === "candidates"
         ? "Compare similar collections and choose which structure to preview."
         : section === "preview"
-          ? "Review, search, and sort records in a spreadsheet-style view."
+          ? live
+            ? "Review a read-only preview of the detected structure."
+            : "Review, search, and sort records in a spreadsheet-style view."
           : "Manage appearance and see what SCRAPNEXS stores on this device.";
+
+  const candidatePanel = live ? (
+    <LiveCandidates
+      view={live}
+      selected={liveChoice?.id}
+      onSelect={setSelectedId}
+    />
+  ) : (
+    <CandidateCards
+      sample={sample}
+      selected={candidate}
+      choose={setCandidate}
+    />
+  );
+  const dataPanel = live ? (
+    <LivePreview key={liveChoice?.id} candidate={liveChoice} />
+  ) : (
+    <DataPreview
+      key={`${sample}-${candidate.id}`}
+      {...(sample ? { candidate } : {})}
+    />
+  );
 
   return (
     <div className="app-shell">
@@ -573,7 +609,7 @@ export function Workspace({
                     <strong>
                       {sample
                         ? "fieldwork.example/catalog"
-                        : "No webpage connected for analysis"}
+                        : (live?.origin ?? "No webpage connected for analysis")}
                     </strong>
                   </div>
                 </div>
@@ -582,8 +618,22 @@ export function Workspace({
             {!isSettings && (
               <div className="hero-actions">
                 {sample && <SampleBadge />}
+                {live?.origin && (
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={() => {
+                      setSelectedId(undefined);
+                      live.scan();
+                    }}
+                    disabled={live.state === "running"}
+                  >
+                    <ScanLine size={16} aria-hidden="true" />
+                    {live.state === "running" ? "Analyzing…" : "Analyze page"}
+                  </button>
+                )}
                 <button
-                  className={`button ${sample ? "button--outline" : "button--primary"}`}
+                  className={`button ${sample || live?.origin ? "button--outline" : "button--primary"}`}
                   type="button"
                   onClick={toggleSample}
                 >
@@ -600,6 +650,25 @@ export function Workspace({
           {mode === "extension" && (
             <Status connection={connection} retry={retry} />
           )}
+          {live && !isSettings && live.state !== "idle" && (
+            <div
+              className="detection-notes"
+              role={live.state === "error" ? "alert" : "status"}
+            >
+              {live.state === "error"
+                ? "Could not analyze this page. Reopen the toolbar popup on the target tab and try again."
+                : live.state === "running"
+                  ? "Looking for tables and listings…"
+                  : `${live.report?.candidates.length ?? 0} candidate structures found.`}
+              {live.report?.notes.length ? (
+                <ul>
+                  {live.report.notes.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          )}
           {section === "workspace" && (
             <>
               <ol className="workflow" aria-label="Extraction workflow">
@@ -607,7 +676,9 @@ export function Workspace({
                   <li
                     key={step.title}
                     aria-current={
-                      index === (sample ? 1 : 0) ? "step" : undefined
+                      index === (sample || liveChoice ? 1 : 0)
+                        ? "step"
+                        : undefined
                     }
                     className={
                       index === 0 && sample ? "flow-complete" : undefined
@@ -638,43 +709,27 @@ export function Workspace({
                 ))}
               </ol>
               <div className="work-grid">
-                <CandidateCards
-                  sample={sample}
-                  selected={candidate}
-                  choose={setCandidate}
-                />
-                <DataPreview
-                  key={`${sample}-${candidate.id}`}
-                  {...(sample ? { candidate } : {})}
-                />
+                {candidatePanel}
+                {dataPanel}
               </div>
             </>
           )}
           {section === "candidates" && (
             <div className="focused-panel">
-              <CandidateCards
-                sample={sample}
-                selected={candidate}
-                choose={setCandidate}
-              />
-              {sample && (
+              {candidatePanel}
+              {(sample || liveChoice) && (
                 <button
                   type="button"
                   className="button button--primary"
                   onClick={() => navigate("preview")}
                 >
-                  View sample preview{" "}
+                  {sample ? "View sample preview" : "View detected records"}{" "}
                   <ArrowRight size={17} aria-hidden="true" />
                 </button>
               )}
             </div>
           )}
-          {section === "preview" && (
-            <DataPreview
-              key={`${sample}-${candidate.id}`}
-              {...(sample ? { candidate } : {})}
-            />
-          )}
+          {section === "preview" && dataPanel}
           {isSettings && <SettingsScreen appearance={appearance} />}
           <footer className="workspace-foot">
             <span>

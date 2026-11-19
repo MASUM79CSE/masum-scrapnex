@@ -1,4 +1,5 @@
 import { browser } from "wxt/browser";
+import { changedPage, isPageDetection } from "../core/detector/contracts";
 import { describeTab, type AgentPort, type WorkspacePort } from "./ports";
 
 export const chromeWorkspace: WorkspacePort = {
@@ -14,13 +15,55 @@ export const chromeWorkspace: WorkspacePort = {
   },
 };
 
-// Not exposed by the Phase 02 UI; Phase 04 must bind it to fresh authorized context.
 export const chromeAgent: AgentPort = {
-  async injectTopFrame(tabId) {
-    await browser.scripting.executeScript({
+  async detectTopFrame(tabId, origin) {
+    const [before] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const target = describeTab(before);
+    if (
+      !before ||
+      target.state !== "available" ||
+      target.tabId !== tabId ||
+      target.origin !== origin ||
+      before.status !== "complete"
+    ) {
+      throw new Error("The current page is not ready or authorized.");
+    }
+    const [binding] = await browser.scripting.executeScript({
       target: { tabId, frameIds: [0] },
+      world: "ISOLATED",
+      func: () => location.href,
+    });
+    if (
+      binding?.frameId !== 0 ||
+      !binding.documentId ||
+      binding.result !== before.url
+    )
+      return changedPage();
+    const [injection] = await browser.scripting.executeScript({
+      target: { tabId, documentIds: [binding.documentId] },
       files: ["/page-agent.js"],
       world: "ISOLATED",
     });
+    const [after] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (
+      !after ||
+      before.id !== after.id ||
+      before.url !== after.url ||
+      after.status !== "complete"
+    )
+      return changedPage();
+    if (
+      injection?.frameId !== 0 ||
+      injection.documentId !== binding.documentId ||
+      !isPageDetection(injection.result)
+    )
+      throw new Error("Unexpected page analysis response.");
+    return injection.result;
   },
 };

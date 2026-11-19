@@ -970,7 +970,7 @@ th[aria-sort] .sort-button {
   font-size: 11px;
 }
 .popup {
-  width: min(360px, 100vw);
+  width: 360px;
   background: var(--top);
 }
 .popup-top {
@@ -1162,4 +1162,41 @@ th[aria-sort] .sort-button {
 }
 .candidate-panel .count-tag {
   justify-self: end;
+}
+.live-table table {
+  min-width: 360px;
+}
+.live-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 95px;
+  max-width: 320px;
+}
+.live-table th {
+  white-space: normal;
+}
+.match-reasons {
+  padding: 12px 15px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.match-reasons summary {
+  cursor: pointer;
+  font-weight: 650;
+  color: var(--text);
+}
+.match-reasons ul,
+.detection-notes ul {
+  padding-inline-start: 18px;
+  list-style: disc;
+  margin-top: 7px;
+}
+.detection-notes {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
 }

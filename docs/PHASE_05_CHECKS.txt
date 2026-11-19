@@ -1,0 +1,95 @@
+
+> instant-scraper@0.1.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> instant-scraper@0.1.0 typecheck
+> tsc --noEmit
+
+
+> instant-scraper@0.1.0 lint
+> eslint .
+
+
+> instant-scraper@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.1 /home/user/masum-scrapnex
+
+ ✓ tests/unit/ui.test.tsx (5 tests) 35ms
+ ✓ tests/unit/browser.test.ts (9 tests) 7ms
+ ✓ tests/unit/detector-contracts.test.ts (3 tests) 5ms
+ ✓ tests/unit/analyzer-shape.test.ts (4 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  15:42:00
+   Duration  844ms (import 62%, transform 18%, tests 14%, worker 5%)
+
+    Isolate  4 workers spawned · ~113ms startup each (spawn + environment, per file)
+             at least ~339ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+> instant-scraper@0.1.0 test:e2e
+> npm run build && playwright test
+
+
+> instant-scraper@0.1.0 build
+> wxt build --browser chrome --mv3
+
+
+WXT 0.21.5
+ℹ Building chrome-mv3 for production with Vite 8.3.8
+
+
+✔ Built extension in 1.067 s
+  ├─ .output/chrome-mv3/manifest.json                                  555 B    
+  ├─ .output/chrome-mv3/options.html                                   552 B    
+  ├─ .output/chrome-mv3/popup.html                                     547 B    
+  ├─ .output/chrome-mv3/sidepanel.html                                 631 B    
+  ├─ .output/chrome-mv3/background.js                                  1.12 kB  
+  ├─ .output/chrome-mv3/chunks/brand-CtY5_Kdp.js                       227.80 kB
+  ├─ .output/chrome-mv3/chunks/chrome-BfehlVaK.js                      1.43 kB  
+  ├─ .output/chrome-mv3/chunks/options-BoZMtzNJ.js                     154 B    
+  ├─ .output/chrome-mv3/chunks/popup-DMLyIVLY.js                       2.04 kB  
+  ├─ .output/chrome-mv3/chunks/sidepanel-D9xjc_jR.js                   1.89 kB  
+  ├─ .output/chrome-mv3/chunks/workspace-CMz4Z-Np.js                   23.49 kB 
+  ├─ .output/chrome-mv3/page-agent.js                                  16.07 kB 
+  ├─ .output/chrome-mv3/assets/brand-K5fb7Ke2.css                      28.03 kB 
+  ├─ .output/chrome-mv3/assets/inter-latin-wght-normal-Dx4kXJAl.woff2  48.26 kB 
+  ├─ .output/chrome-mv3/icons/128.png                                  8.54 kB  
+  ├─ .output/chrome-mv3/icons/16.png                                   843 B    
+  ├─ .output/chrome-mv3/icons/32.png                                   2.02 kB  
+  ├─ .output/chrome-mv3/icons/48.png                                   3.07 kB  
+  ├─ .output/chrome-mv3/licenses/Inter-OFL.txt                         4.48 kB  
+  └─ .output/chrome-mv3/licenses/Lucide.txt                            3.21 kB  
+Σ Total size: 374.72 kB                                              
+✔ Finished in 1.380 s
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/e2e/analyzer.spec.ts:51:1 › nested meaningful content outranks navigation and retains deterministic explanations (446ms)
+  ✓   2 tests/e2e/analyzer.spec.ts:81:1 › groups irregular cards, ignores unstable classes, and rediscovers updated rows on a fresh scan (137ms)
+  ✓   3 tests/e2e/analyzer.spec.ts:108:1 › uses rendered visibility signals, excludes sensitive subtrees, and returns no source text (120ms)
+  ✓   4 tests/e2e/analyzer.spec.ts:127:1 › cancellation and mid-scan mutation discard stale conclusions (86ms)
+  ✓   5 tests/e2e/analyzer.spec.ts:174:1 › enforces node, depth, time, sibling sample, and result caps (136ms)
+BASELINE rows=100 nodes=302 first_ms=9.5 warm_ms=1.7,1.2,2.8 warm_median_ms=1.7
+BASELINE rows=1000 nodes=3002 first_ms=14 warm_ms=23.2,11.6,9.6 warm_median_ms=11.6
+BASELINE rows=10000 nodes=30002 first_ms=171.5 warm_ms=82.7,99.7,90.9 warm_median_ms=90.9
+  ✓   6 tests/e2e/analyzer.spec.ts:223:1 › records Chromium timing baselines for flat 100, 1,000 and 10,000 row DOMs (636ms)
+  ✓   7 tests/e2e/detector.spec.ts:114:1 › packaged detector previews merged, headerless and sparse native HTML tables (619ms)
+  ✓   8 tests/e2e/detector.spec.ts:143:1 › recognizes product, article, directory, list and card structures and infers recurring fields (510ms)
+  ✓   9 tests/e2e/detector.spec.ts:190:1 › navigation, controls and empty repeated containers do not produce candidates (456ms)
+  ✓  10 tests/e2e/detector.spec.ts:197:1 › workspace scans only after explicit action, presents real candidates and clears stale previews (2.4s)
+  ✓  11 tests/e2e/extension.spec.ts:11:1 › production manifest exposes only the planned permissions and entrypoints (5ms)
+  ✓  12 tests/e2e/extension.spec.ts:100:1 › packaged popup and side panel render, connect and do not request external resources (2.8s)
+  ✓  13 tests/e2e/extension.spec.ts:132:1 › sample candidates, navigation, search, sorting and row selection work (1.8s)
+  ✓  14 tests/e2e/extension.spec.ts:174:1 › themes persist in extension storage and reflect system color scheme (5.1s)
+  ✓  15 tests/e2e/extension.spec.ts:198:1 › narrow side panel does not overflow, and the table scroll is keyboard reachable (2.9s)
+  ✓  16 tests/e2e/extension.spec.ts:229:1 › production build has no loopback host grant and offers no scan before authorization (1.5s)
+
+  16 passed (23.3s)
+found 0 vulnerabilities
