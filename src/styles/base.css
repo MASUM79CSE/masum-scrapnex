@@ -3452,3 +3452,69 @@ tbody th[scope="row"] {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Phase F — motion and polish
+   Motion explains a change; it never delays one. Everything here is
+   transform/opacity or a colour fade, capped at the 320 ms budget.
+   ========================================================================== */
+
+/* One stroke weight for every glyph, so a mixed set still reads as one family. */
+svg {
+  stroke-width: var(--icon-stroke);
+}
+
+/* Selection reads as a filled state, not a shape change. */
+.radio-dot {
+  transition:
+    border-width var(--duration-standard) var(--ease-standard),
+    border-color var(--duration-standard) var(--ease-standard);
+}
+
+.candidate:has(input:checked) .radio-dot {
+  animation: dot-settle var(--duration-spring) var(--ease-spring);
+}
+
+@keyframes dot-settle {
+  from {
+    transform: scale(0.82);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Rows and cards respond to the pointer with colour only. */
+.panel,
+.candidate,
+.library-list li,
+td,
+th {
+  transition: background-color var(--duration-micro) var(--ease-standard);
+}
+
+/* A sheet opens with its own surface, not the whole page. */
+.export-panel > summary {
+  transition: background-color var(--duration-micro) var(--ease-standard);
+}
+
+/* Progress presence: the spinner is the only looping animation in the product. */
+.spin {
+  animation: spin 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate:has(input:checked) .radio-dot {
+    animation: none;
+  }
+
+  .radio-dot,
+  .panel,
+  .candidate,
+  .library-list li,
+  td,
+  th,
+  .export-panel > summary {
+    transition: none;
+  }
+}

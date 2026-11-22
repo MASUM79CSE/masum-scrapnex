@@ -191,3 +191,38 @@ test("G13: the options page passes axe with every sheet open", async () => {
   expect(results.violations.map((violation) => violation.id)).toEqual([]);
   await page.close();
 });
+
+test("F: reduced motion also disables the selection spring", async () => {
+  const page = await surface();
+  await page.getByRole("button", { name: "Try sample data" }).first().click();
+  await page.waitForTimeout(300);
+  const motion = await page.evaluate(() => {
+    const dot = document.querySelector<HTMLElement>(
+      ".candidate:has(input:checked) .radio-dot",
+    );
+    if (!dot) return null;
+    return getComputedStyle(dot).animationName;
+  });
+  expect(motion).toBe("dot-settle");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const reduced = await page.evaluate(() => {
+    const dot = document.querySelector<HTMLElement>(
+      ".candidate:has(input:checked) .radio-dot",
+    );
+    return dot ? getComputedStyle(dot).animationName : null;
+  });
+  expect(reduced).toBe("none");
+  await page.close();
+});
+
+test("F: every icon is drawn at the same stroke weight", async () => {
+  const page = await surface();
+  const weights = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<SVGElement>("svg"))
+      .filter((node) => node.offsetParent !== null)
+      .map((node) => getComputedStyle(node).strokeWidth),
+  );
+  expect(weights.length).toBeGreaterThan(0);
+  expect([...new Set(weights)]).toEqual(["2px"]);
+  await page.close();
+});

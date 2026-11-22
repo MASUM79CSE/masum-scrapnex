@@ -248,3 +248,38 @@ scan, so the usual sweep would have skipped exactly the surfaces that were newly
 
 **Regression:** format/typecheck/lint clean, **73 unit**, **76 Chromium e2e**.
 **Evidence:** `artifacts/screenshots/apple/sidepanel-history-{dark,light}.png`.
+
+---
+
+## Phase F — Motion and polish ✅
+
+**Delivered:**
+
+| Item | Treatment |
+| --- | --- |
+| Motion budget | Nothing longer than 320 ms; only the 1.2 s spinner loops |
+| Animated properties | Keyframes touch `transform` and `opacity` only — never width, height or colour |
+| Selection | The radio dot settles with a 320 ms spring scale; disabled under reduced motion |
+| Hover | Colour-only transitions at 120 ms on rows, cards and summaries |
+| Icon rhythm | One stroke weight (`--icon-stroke: 2`) applied to every glyph through one CSS rule |
+| Spacing rhythm | Every spacing literal in the design layer moved onto the 2 px grid (8 values corrected) |
+
+**New gates:**
+
+| Gate | Assertion | Result |
+| --- | --- | --- |
+| F (static) | no transition/animation declaration exceeds 320 ms | pass |
+| F (static) | no keyframe animates a property other than transform/opacity | pass |
+| F (static) | every spacing literal in the design layer is on the 2 px grid | pass |
+| F (static) | `svg { stroke-width: var(--icon-stroke) }` exists and the token is `2` | pass |
+| G11 (browser) | reduced motion sets the selection spring to `dot-settle` → `none` | pass |
+| F (browser) | every visible icon computes to `2px` stroke | pass |
+
+Static gates live in `tests/unit/design-motion.test.ts`; the two behavioural ones were added to
+`tests/e2e/design-flows.spec.ts`.
+
+**Honest note:** the "spacing audit" is deliberately narrow — it checks the design layer's spacing
+*literals*, not the whole token vocabulary, because legacy rules outside the design layer are not
+part of this migration.
+
+**Regression:** format/typecheck/lint clean, **77 unit (14 files)**, **78 Chromium e2e**.
