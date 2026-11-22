@@ -320,6 +320,12 @@ subpixel rounding: the same build renders differently on a developer machine and
 baseline that fails for reasons the change did not cause teaches people to ignore it. Re-baselining
 is explicit (`UPDATE_BASELINES=1`) and reviewable as a JSON diff.
 
+**The baseline gate earned its keep on the first run.** Adding the ≤ 360 px compact rules dropped
+the *popup* header from 60 px to 49 px, because the popup is always 320 px wide and inherited the
+shell's compact rules — it silently lost its caption line. G15 failed on `chrome: 60 → 49` for both
+themes. The rules are now scoped to `.app-top`, the popup keeps its caption, and no re-baseline was
+needed: the gate caught a real regression, not noise.
+
 **What is *not* verified**
 
 - Cross-browser rendering. Every browser gate here ran in Chromium. Firefox and Edge are not

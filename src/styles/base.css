@@ -3533,11 +3533,12 @@ th {
     display: none;
   }
 
-  .brand-name {
+  /* Scoped to the app shell: the popup is always 320 px wide and keeps its caption. */
+  .app-top .brand-name {
     font-size: var(--text-headline);
   }
 
-  .brand-caption {
+  .app-top .brand-caption {
     display: none;
   }
 
@@ -3545,8 +3546,6 @@ th {
     position: absolute;
     width: 1px;
     height: 1px;
-    margin: -1px;
-    padding: 0;
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
