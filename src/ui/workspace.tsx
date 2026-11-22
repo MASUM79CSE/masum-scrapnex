@@ -57,12 +57,25 @@ import { useTheme, type ThemeStore } from "./theme";
 
 export type Connection = "loading" | "connected" | "error";
 type Section = "workspace" | "candidates" | "preview" | "history" | "settings";
+// `short` is the label used inside the compact tab bar, where five tabs share the
+// panel width. Exactly one of the two labels is rendered at any breakpoint, so the
+// accessible name always matches what is on screen.
 const navigation = [
-  { id: "workspace", label: "Workspace", icon: LayoutDashboard },
-  { id: "candidates", label: "Candidates", icon: ScanLine },
-  { id: "preview", label: "Data preview", icon: Table2 },
-  { id: "history", label: "Local history", icon: Archive },
-  { id: "settings", label: "Settings", icon: Settings2 },
+  {
+    id: "workspace",
+    label: "Workspace",
+    short: "Workspace",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "candidates",
+    label: "Candidates",
+    short: "Candidates",
+    icon: ScanLine,
+  },
+  { id: "preview", label: "Data preview", short: "Preview", icon: Table2 },
+  { id: "history", label: "Local history", short: "History", icon: Archive },
+  { id: "settings", label: "Settings", short: "Settings", icon: Settings2 },
 ] as const;
 const workflow = [
   { title: "Source", detail: "Select a webpage" },
@@ -636,7 +649,7 @@ export function Workspace({
               <nav aria-label="Workspace navigation">
                 {navigation
                   .filter(({ id }) => id !== "history" || !!library)
-                  .map(({ id, label, icon: Icon }) => (
+                  .map(({ id, label, short, icon: Icon }) => (
                     <button
                       type="button"
                       className="nav-link"
@@ -645,7 +658,10 @@ export function Workspace({
                       onClick={() => navigate(id)}
                     >
                       <Icon size={18} aria-hidden="true" />
-                      <span>{label}</span>
+                      <span className="nav-label">{label}</span>
+                      <span className="nav-label nav-label--short">
+                        {short}
+                      </span>
                       {section === id && (
                         <span className="nav-active-dot" aria-hidden="true" />
                       )}

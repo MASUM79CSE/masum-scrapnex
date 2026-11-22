@@ -13,7 +13,7 @@ mkdirSync(out, { recursive: true });
 
 const surfaces = [
   { name: "sidepanel", path: "sidepanel.html", width: 420, height: 900 },
-  { name: "popup", path: "popup.html", width: 320, height: 260 },
+  { name: "popup", path: "popup.html", width: 320, height: 420 },
   { name: "options", path: "options.html", width: 900, height: 800 },
 ];
 

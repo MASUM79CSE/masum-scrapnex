@@ -115,7 +115,8 @@ smoke(
     await expect(page.getByRole("status")).toHaveText(
       /No authorized web tab|This page is restricted/,
     );
-    await expect(page.locator("main")).toHaveCSS("width", "360px");
+    // The popup is a 320 px card in the Apple layout (see docs/DESIGN_APPLE_PLAN.md).
+    await expect(page.locator("main")).toHaveCSS("width", "320px");
     await checkAccess(page);
 
     await page.goto(`${root}sidepanel.html`);

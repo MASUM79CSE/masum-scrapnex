@@ -226,15 +226,25 @@ describe("design token foundation (Gates G1, G2, G5, G6)", () => {
     const offenders: string[] = [];
     for (const file of files) {
       const text = readFileSync(file, "utf8");
-      for (const match of text.matchAll(/font-size:\s*([\d.]+)(px|rem)/g)) {
-        const size = Number(match[1]);
-        const px = match[2] === "rem" ? size * 16 : size;
-        // Custom-property indirection (`var(--text-...)`) is not matched by this pattern.
-        if (
-          px < 11 &&
-          !text.slice(Math.max(0, match.index - 24), match.index).includes("--")
-        )
-          offenders.push(`${file}: ${match[0]}`);
+      // `font-size: 10px` and the `font:` shorthand (`font: 600 10px var(--mono)`)
+      // both have to respect the floor; the shorthand used to slip past this gate.
+      const sizes = [
+        /font-size:\s*([\d.]+)(px|rem)/g,
+        /(?<![-\w])font:\s*[^;]*?([\d.]+)(px|rem)\s/g,
+      ];
+      for (const pattern of sizes) {
+        for (const match of text.matchAll(pattern)) {
+          const size = Number(match[1]);
+          const px = match[2] === "rem" ? size * 16 : size;
+          // Custom-property indirection (`var(--text-...)`) is not matched by these patterns.
+          if (
+            px < 11 &&
+            !text
+              .slice(Math.max(0, match.index - 24), match.index)
+              .includes("--")
+          )
+            offenders.push(`${file}: ${match[0].trim()}`);
+        }
       }
     }
     expect(offenders).toEqual([]);

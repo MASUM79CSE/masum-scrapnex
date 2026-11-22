@@ -101,3 +101,59 @@ including the nested light-preference case.
 | G14 | layout shift on first paint < 0.1 | pass |
 
 **Evidence:** `artifacts/screenshots/apple/*-{dark,light}.png`, regenerated after the phase.
+
+---
+
+## Phase C — Shell and navigation ✅
+
+**Delivered** — the frame the product lives in:
+
+| Region | Treatment |
+| --- | --- |
+| Window chrome | 52 px sticky toolbar, translucent material with a solid `--bgChrome` fallback; hairline separator instead of a heavy border |
+| Brand | 28 px mark, 17 px semibold wordmark, 11 px tracked caption |
+| Sidebar | Source-list: sticky under the toolbar, scrolls on its own, 32 px rows, tinted selection |
+| Compact navigation | Under 680 px the sidebar becomes a five-tab bar: one row, icon over label, 44 px targets, never wrapping |
+| Labels | Responsive: `Data preview` / `Local history` on wide, `Preview` / `History` in the tab bar. Only the visible label is in the accessibility tree, so the accessible name always matches the screen |
+| Hero | The gradient banner and the grid texture are gone. A quiet surface card, 22–28 px title, 13 px description, grouped source row |
+| Workflow | A step rail, not a second card: hairline border, 20 px index circles, tinted current step |
+| Footer | Hairline rule, footnote caption |
+| Options | Single centred column (max 820 px), cards without shadow stacking |
+| Popup | 320 px card, material header, filled status row, full-width 38 px primary action |
+
+**Bugs found and fixed during this phase.**
+
+1. `.app-grid { grid-template-columns: 216px … }` silently applied to the options page and crushed
+   its content into a 130 px column: a later single-class rule outranks the earlier
+   `.app-grid--options` rule at equal specificity. Both the base and the 975 px override are now
+   scoped with `:not(.app-grid--options)`. Visible only in a screenshot — no test asserted options
+   width.
+2. The extension gate's popup width check encoded the old 360 px; the plan specifies 320 px. The
+   assertion was updated, not bypassed.
+3. G6 had a hole: it scanned `font-size:` but not the `font:` shorthand, so five declarations
+   below the 11 px floor (`font: 650 9px var(--mono)`) had survived Phase A. The gate now matches
+   both forms and all five are fixed.
+4. axe caught `.build-tag span` at 3.44:1 — a text element using `--labelQuaternary`, which is a
+   graphic role. It now uses `--labelTertiary` (5.96:1 dark, 5.20:1 light).
+
+**New gate suite** — `tests/e2e/shell.spec.ts`:
+
+| Gate | Assertion | Result |
+| --- | --- | --- |
+| G10 | no horizontal overflow at 320 px on all three surfaces; every visible control inside the viewport | pass |
+| G10 | the work grid stacks from two columns to one instead of clipping | pass |
+| G13 | axe clean on 5 surface × width combinations (compact and wide) | pass |
+| shell | five tabs share one row at 320/375/420/560/680 px and never overflow the bar | pass |
+| shell | wide sidebar lists every tab at one left edge and one width | pass |
+| shell | toolbar and sidebar stay pinned while the panel scrolls | pass |
+| shell | with materials disabled the bar is opaque (`rgb(…)`, alpha 1, no blur) | pass |
+| shell | each breakpoint exposes the label it shows, with no duplicate accessible names | pass |
+
+*200 % zoom is emulated as a halved CSS viewport (320 px from a 640 px window) — that is the reflow
+a real zoom produces. Page-scale zoom does not reflow and would prove nothing.*
+
+**Regression:** format, typecheck and lint clean; **73 unit tests (13 files)**; **64 Chromium e2e
+tests** (56 previous + 8 new). One existing assertion was updated for the deliberate popup width
+change.
+
+**Evidence:** `artifacts/screenshots/apple/{sidepanel,popup,options}-{dark,light}.png`.
