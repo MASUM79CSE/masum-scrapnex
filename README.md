@@ -36,17 +36,21 @@ npm run test:e2e
 
 On a fresh Debian/Linux environment with missing shared libraries, use `npx playwright install --with-deps chromium` (OS package installation may require administrator privileges). In a fresh Arena sandbox you can run npm with the pinned runtime, for example `npm exec --yes --package=node@24.22.3 -- npm ci`, and use the same prefix for the other `npm` commands.
 
-| Path                 | Purpose                                                          |
-| -------------------- | ---------------------------------------------------------------- |
-| `entrypoints/`       | WXT extension worker, popup, side panel, options, and page agent |
-| `src/browser/`       | Browser ports, Chrome adapter, and validated shell messages      |
-| `src/ui/`            | Workbench, settings, brand components, and sample data           |
-| `src/core/detector/` | Table and listing detection and bounded previews                 |
-| `src/core/analyzer/` | Bounded, deterministic DOM structure analysis                    |
-| `src/data/`          | Initial typed extraction contracts                               |
-| `src/styles/`        | Shared design tokens, responsive CSS, and React mounting         |
-| `tests/unit/`        | URL/context handling and message boundary tests                  |
-| `tests/e2e/`         | Generated manifest and Chromium extension smoke tests            |
-| `docs/`              | Design baseline and phase verification                           |
+| Path              | Purpose                                                             |
+| ----------------- | ------------------------------------------------------------------- |
+| `entrypoints/`    | WXT extension worker, popup, side panel, options, and page agents   |
+| `src/browser/`    | Browser ports, Chrome adapter, hooks, and validated shell messages  |
+| `src/core/`       | Analyzer, detector, extraction, pagination, picker, export, library |
+| `src/ui/`         | Workbench panels, settings, brand components, and sample data       |
+| `src/data/`       | Shared typed extraction contracts                                   |
+| `src/styles/`     | Shared design tokens, responsive CSS, and React mounting            |
+| `public/`         | Extension icons and license texts copied into the build             |
+| `preview/`        | Standalone UI preview (sample data, no extension APIs)              |
+| `tests/unit/`     | Unit and component tests                                            |
+| `tests/e2e/`      | Chromium extension end-to-end tests                                 |
+| `tests/fixtures/` | HTML and harness fixtures for browser tests                         |
+| `tests/qa/`       | Standalone QA verification scripts                                  |
+| `docs/`           | Architecture, requirements, security, roadmap, feature matrix       |
+| `docs/phases/`    | Per-phase verification reports and check transcripts                |
 
-See [Phase 10 local persistence and verification](docs/PHASE_10_PERSISTENCE.md), [Phase 09 exports and verification](docs/PHASE_09_EXPORT.md) and [Phase 08 pagination](docs/PHASE_08_PAGINATION.md). Development follows explicit approval gates. Phase 11 has not begun.
+See [Phase 10 local persistence and verification](docs/phases/PHASE_10_PERSISTENCE.md), [Phase 09 exports and verification](docs/phases/PHASE_09_EXPORT.md) and [Phase 08 pagination](docs/phases/PHASE_08_PAGINATION.md). Development follows explicit approval gates. Phase 11 (advanced product features) is in progress; see [Phase 11 progress](docs/phases/PHASE_11_PROGRESS.md).

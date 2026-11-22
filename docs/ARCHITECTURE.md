@@ -69,8 +69,8 @@ masum-scrapnex/
   src/{app/,core/{analyzer,detector,extractor,pagination,normalizer}/,
        browser/{adapters,messaging,permissions}/,
        data/{models,repositories,exporters}/,features/,components/}
-  tests/{unit,integration,fixtures,e2e}/   public/icons/   docs/
+  tests/{unit,fixtures,e2e,qa}/   public/icons/   docs/{,phases/}
   wxt.config.ts   package.json   tsconfig.json   README.md
 ```
 
-Create modules as needed, not as empty placeholders. Phase 01 documents live outside this not-yet-created root.
+Create modules as needed, not as empty placeholders. Phase 01 documents are archived outside the repository under `artifacts/archive/phase-01-docs/`.
