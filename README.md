@@ -1,5 +1,7 @@
 # MASUM SCRAPNEXS
 
+[![CI](https://github.com/MASUM79CSE/masum-scrapnex/actions/workflows/ci.yml/badge.svg)](https://github.com/MASUM79CSE/masum-scrapnex/actions/workflows/ci.yml)
+
 An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 10 development snapshot (`0.1.0`)**, not a complete scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The extension also detects structures on the authorized tab and shows a read-only preview of up to six rows per candidate. Point-and-click selection can narrow the row scope, choose individual fields, and confirm a local preview. Collect the selected structure from the current page, then edit, sort, filter, or deduplicate the working dataset. The working copy stays in memory unless you save a local snapshot. For automatically detected structures, you can also inspect and authorize a bounded, same-origin pagination run. Download the working dataset as CSV, XLSX, or JSON, or copy a tab-separated selection. Use Local history to restore a saved snapshot or select a structure using a saved configuration after a fresh analysis. Settings shows storage usage, cleanup controls, and workflow defaults.
 
 ## Build and load locally
@@ -22,6 +24,15 @@ npm run preview:ui
 ```
 
 The preview starts in sample mode and exercises the same workspace UI without Chrome extension APIs. Its theme preference is isolated to preview-origin local storage.
+
+## Continuous integration
+
+Every push and pull request runs `.github/workflows/ci.yml` on GitHub's runners: formatting,
+type checking, lint, unit and component tests, the production build, a **manifest assertion that
+the shipped extension has no host permissions and no static content scripts**, then the full
+Chromium suite including the detection accuracy corpus. The generated accuracy report is kept as
+an artifact. `main` is protected: the check must pass, force pushes and deletions are blocked,
+and history must stay linear.
 
 ## Verify
 
