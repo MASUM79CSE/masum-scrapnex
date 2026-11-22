@@ -208,3 +208,43 @@ panel was brought to the foreground).
 **Regression:** format/typecheck/lint clean, **73 unit**, **69 Chromium e2e**.
 **Evidence:** `artifacts/screenshots/apple/sidepanel-data-{dark,light}.png` plus the four surface
 captures.
+
+---
+
+## Phase E — Flows and overlays ✅
+
+**Delivered:**
+
+| Surface | Treatment |
+| --- | --- |
+| Disclosure sheets (save, export, import, queue, diagnostics) | 40 px summary row, hairline body, inset focus ring, hover fill |
+| Export options | Caption labels, 32 px fields, grouped fieldset, success/warning notes |
+| History and configuration lists | Grouped rows with a single hairline between them, actions on the right |
+| Feedback | Toast-style banner with a tint edge, 240 ms entrance, destructive variant for errors |
+| URL queue | Mono textarea, 32 px field, grouped form |
+| Diagnostics | Mono block on a raised surface, scrollable, capped at 40 vh |
+| Crash card | Centred sheet (shadow-3), title1 heading, mono detail block with a destructive edge |
+| Dismissal | **Escape closes the sheet the user is in and returns focus to its summary** |
+
+The Escape behaviour is new code (`src/ui/overlays.ts`), not styling: `<details>` has no dismissal of
+its own, so an open sheet could only be closed by finding its summary again. The handler is scoped —
+it closes only a sheet that contains the focused element, so Escape never closes something the user
+is not looking at.
+
+**New gate suite** — `tests/e2e/design-flows.spec.ts`:
+
+| Gate | Assertion | Result |
+| --- | --- | --- |
+| G9 | Escape closes an open sheet and focus returns to the summary | pass |
+| G9 | Escape still dismisses while typing inside the sheet | pass |
+| G9 | a sheet opens with Enter, shows a ≥ 2 px focus ring, closes with Escape | pass |
+| G7 | every sheet summary row is ≥ 38 px | pass |
+| G11 | reduced motion removes the toast entrance (≤ 2 ms) | pass |
+| G13 | axe clean on the history view **with every sheet open** | pass — 0 violations |
+| G13 | axe clean on the options page with every sheet open | pass — 0 violations |
+
+Opening every sheet before running axe matters: a closed `<details>` hides its content from the
+scan, so the usual sweep would have skipped exactly the surfaces that were newly styled.
+
+**Regression:** format/typecheck/lint clean, **73 unit**, **76 Chromium e2e**.
+**Evidence:** `artifacts/screenshots/apple/sidepanel-history-{dark,light}.png`.

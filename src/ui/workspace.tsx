@@ -21,6 +21,7 @@ import {
   type DetectionView,
 } from "./live-detection";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useDismissableSheets } from "./overlays";
 import {
   Archive,
   ArrowDown,
@@ -507,6 +508,7 @@ export function Workspace({
   library?: LibraryView;
   queue?: UrlQueueView;
 }) {
+  useDismissableSheets();
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
     mode === "options" ? "settings" : "workspace",

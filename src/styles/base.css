@@ -922,7 +922,7 @@ th[aria-sort] .sort-button {
 }
 .popup-status svg {
   color: var(--accent);
-  margin-top: 1px;
+  margin-top: 0;
 }
 .popup [role="alert"] {
   color: var(--error);
@@ -2077,7 +2077,7 @@ input[type="radio"] {
 }
 
 .brand-caption {
-  margin-top: 1px;
+  margin-top: 0;
   font-size: var(--text-footnote);
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
@@ -2311,7 +2311,7 @@ h1 {
 }
 
 .source-chip strong {
-  margin-top: 1px;
+  margin-top: 0;
   font-size: var(--text-body);
   font-weight: var(--weight-medium);
   color: var(--label);
@@ -2322,7 +2322,7 @@ h1 {
 .workflow {
   gap: 2px;
   margin: var(--space-4) 0;
-  padding: 3px;
+  padding: 4px;
   border: 1px solid var(--separator);
   border-radius: var(--radius-md);
   background: var(--bgSurface);
@@ -2376,7 +2376,7 @@ h1 {
 }
 
 .workflow small {
-  margin-top: 1px;
+  margin-top: 0;
   font-size: var(--text-footnote);
   color: var(--labelTertiary);
 }
@@ -2550,7 +2550,7 @@ h1 {
     min-height: 44px;
     flex-direction: column;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     padding: 4px 2px;
     border-radius: var(--radius-xs);
     font-size: var(--text-caption);
@@ -2676,7 +2676,7 @@ h1 {
 
 .match-tag {
   margin-top: var(--space-1);
-  padding: 1px var(--space-2);
+  padding: 2px var(--space-2);
   border: 0;
   border-radius: var(--radius-pill);
   background: var(--fillTertiary);
@@ -2842,7 +2842,7 @@ tbody th[scope="row"] {
 }
 
 .stock-tag {
-  padding: 1px var(--space-2);
+  padding: 2px var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--fillTertiary);
   color: var(--labelSecondary);
@@ -3134,7 +3134,7 @@ tbody th[scope="row"] {
   place-items: center;
   width: 32px;
   height: 32px;
-  margin: -9px -8px;
+  margin: -8px;
   cursor: pointer;
 }
 
@@ -3171,4 +3171,284 @@ tbody th[scope="row"] {
 .export-check > input[type="checkbox"] {
   width: 16px;
   height: 16px;
+}
+
+/* ==========================================================================
+   Phase E — flows and overlays
+   Sheets, toasts, list rows and the crash card. One elevation per level, one
+   accent per intent, and every disclosure dismissable with Escape.
+   ========================================================================== */
+
+/* --- Sheets: the disclosure panels used for save, export and import ------ */
+
+.export-panel {
+  box-shadow: none;
+}
+
+.export-panel > summary {
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--label);
+}
+
+.export-panel > summary::marker,
+.export-panel > summary::-webkit-details-marker {
+  color: var(--labelTertiary);
+}
+
+.export-panel:focus-within {
+  border-color: var(--controlBorder);
+}
+
+.export-panel > summary:focus-visible {
+  outline: 3px solid var(--focusRing);
+  outline-offset: -3px;
+  border-radius: var(--radius-md);
+}
+
+.export-options {
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.export-options label,
+.export-panel label {
+  gap: var(--space-1);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--labelTertiary);
+}
+
+.export-options select,
+.export-options input,
+.export-panel input[type="file"] {
+  min-height: 32px;
+  border: 1px solid var(--controlBorder);
+  border-radius: var(--radius-xs);
+  background: var(--bgSurfaceAlt);
+  color: var(--label);
+  font-size: var(--text-body);
+}
+
+.export-panel fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.export-panel legend {
+  padding: 0 0 var(--space-1);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--labelTertiary);
+}
+
+.export-note {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-3);
+  font-size: var(--text-footnote);
+  line-height: 1.45;
+  color: var(--labelTertiary);
+}
+
+.export-note.export-ok {
+  color: var(--success);
+}
+
+.export-note.export-error {
+  color: var(--warning);
+}
+
+/* --- Grouped lists: history, recipes, queue rows ------------------------- */
+
+.library-list {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.library-list h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  color: var(--label);
+}
+
+.library-list ul {
+  gap: 0;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bgSurface);
+}
+
+.library-list li {
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-top: 1px solid var(--separator);
+  border-radius: 0;
+  background: transparent;
+}
+
+.library-list li:first-child {
+  border-top: 0;
+}
+
+.library-list li:hover {
+  background: var(--fillTertiary);
+}
+
+.library-list li strong {
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--label);
+}
+
+.library-list li p {
+  margin: 2px 0 0;
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+.library-actions {
+  gap: var(--space-2);
+}
+
+.library-tools {
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.library-usage {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+/* --- Feedback: a toast that stays in the flow, not a floating rectangle - */
+
+.library-feedback {
+  margin: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--separator);
+  border-left: 3px solid var(--tint);
+  border-radius: var(--radius-sm);
+  background: var(--bgSurfaceAlt);
+  font-size: var(--text-body);
+  color: var(--label);
+  animation: toast-in var(--duration-enter) var(--ease-enter);
+}
+
+.library-feedback.settings-error,
+.library-feedback[role="alert"] {
+  border-left-color: var(--destructive);
+  background: var(--destructiveWash);
+  color: var(--label);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- URL queue ----------------------------------------------------------- */
+
+.url-queue-panel textarea {
+  min-height: 76px;
+  margin: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--controlBorder);
+  border-radius: var(--radius-sm);
+  background: var(--bgSurfaceAlt);
+  color: var(--label);
+  font-family: var(--font-mono);
+  font-size: var(--text-footnote);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.url-queue-panel strong {
+  font-weight: var(--weight-medium);
+  color: var(--label);
+}
+
+/* --- Diagnostics: machine text, clearly separated from prose ------------- */
+
+.diagnostics-panel {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.diagnostics-panel pre,
+.diagnostics-panel code,
+.crash-detail {
+  font-family: var(--font-mono);
+  font-size: var(--text-footnote);
+  line-height: 1.5;
+  color: var(--labelSecondary);
+  overflow-wrap: anywhere;
+}
+
+.diagnostics-panel pre {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-sm);
+  background: var(--bgSurfaceAlt);
+  overflow: auto;
+  max-height: 40vh;
+}
+
+/* --- Crash card ---------------------------------------------------------- */
+
+.crash-card {
+  max-width: 46rem;
+  margin: var(--space-8) auto;
+  padding: var(--space-6);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-lg);
+  background: var(--bgSurface);
+  box-shadow: var(--shadow-3);
+}
+
+.crash-card h1 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-title-1);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--label);
+}
+
+.crash-card p {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--labelSecondary);
+}
+
+.crash-card .crash-detail {
+  padding: var(--space-3);
+  border: 1px solid var(--separator);
+  border-left: 3px solid var(--destructive);
+  border-radius: var(--radius-sm);
+  background: var(--bgSurfaceAlt);
+  color: var(--labelSecondary);
+}
+
+/* --- Motion -------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .library-feedback {
+    animation: none;
+  }
 }

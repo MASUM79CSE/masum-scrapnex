@@ -29,6 +29,22 @@ const surfaces = [
       await page.waitForTimeout(500);
     },
   },
+  {
+    // History is where the save, import and export sheets live.
+    name: "sidepanel-history",
+    path: "sidepanel.html",
+    width: 900,
+    height: 1000,
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Local history" }).click();
+      await page.waitForTimeout(400);
+      await page.evaluate(() => {
+        const sheet = document.querySelector("details.export-panel");
+        if (sheet) sheet.open = true;
+      });
+      await page.waitForTimeout(200);
+    },
+  },
   { name: "popup", path: "popup.html", width: 320, height: 420 },
   { name: "options", path: "options.html", width: 900, height: 800 },
 ];
