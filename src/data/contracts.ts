@@ -1,6 +1,12 @@
 /** Initial versioned shapes; not a persistence schema or a collection implementation. */
 export const SCHEMA_VERSION = 1 as const;
 export const PRODUCT_NAME = "MASUM SCRAPNEXS";
+/**
+ * Injected from package.json at build time (`wxt.config.ts`). The fallback keeps unit
+ * tests and any non-bundled consumer working without a define step.
+ */
+export const PRODUCT_VERSION: string =
+  typeof __PRODUCT_VERSION__ === "string" ? __PRODUCT_VERSION__ : "0.1.0";
 
 type SchemaVersion = typeof SCHEMA_VERSION;
 export type CellValue = string | number | boolean | null;

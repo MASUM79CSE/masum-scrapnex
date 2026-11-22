@@ -1,5 +1,11 @@
+import { readFileSync } from "node:fs";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "wxt";
+
+// The UI badge and diagnostics read the real release version, never a hard-coded string.
+const { version } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+) as { version: string };
 
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
@@ -17,5 +23,8 @@ export default defineConfig({
     permissions: ["activeTab", "scripting", "storage"],
     action: { default_title: "MASUM SCRAPNEXS" },
   },
-  vite: () => ({ plugins: [tailwindcss()] }),
+  vite: () => ({
+    plugins: [tailwindcss()],
+    define: { __PRODUCT_VERSION__: JSON.stringify(version) },
+  }),
 });

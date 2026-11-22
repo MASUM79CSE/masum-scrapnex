@@ -11,11 +11,16 @@
  * procedure documented in that report; never re-fetch a live site during a run.
  */
 
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
 export type ExpectedKind =
   "products" | "articles" | "directory" | "list" | "cards" | "table";
 
 export interface CorpusPage {
   id: string;
+  /** Captured pages without a sidecar are exercised but never scored. */
+  scored?: boolean;
   archetype: string;
   note: string;
   html: string;
@@ -780,3 +785,84 @@ export const corpus: CorpusPage[] = [
     },
   },
 ];
+
+/**
+ * Real captured pages live in `captured/`. A file is scored only when a sidecar
+ * `<name>.html.json` describes the expected structure; otherwise it is exercised for
+ * crashes and reported unscored, so the accuracy figure can never be inflated.
+ */
+interface Sidecar {
+  note?: string;
+  kinds?: ExpectedKind[];
+  minRows?: number;
+  maxRows?: number;
+  minColumns?: number;
+  maxColumns?: number;
+  absentFromTop?: string[];
+}
+
+function readSidecar(path: string): Sidecar | null {
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as Sidecar;
+  } catch {
+    return null;
+  }
+}
+
+export function loadCapturedPages(
+  directory = "tests/fixtures/corpus/captured",
+): CorpusPage[] {
+  const pages: CorpusPage[] = [];
+  let entries: string[];
+  try {
+    entries = readdirSync(directory);
+  } catch {
+    return pages;
+  }
+  for (const name of entries.filter((file) => file.endsWith(".html")).sort()) {
+    const html = readFileSync(join(directory, name), "utf8");
+    const id = name.replace(/\.html$/, "");
+    const sidecar = readSidecar(join(directory, `${name}.json`));
+    if (!sidecar) {
+      pages.push({
+        id,
+        archetype: "captured",
+        note: "Captured page without a sidecar; not scored",
+        scored: false,
+        html,
+        expect: {
+          kinds: [
+            "table",
+            "products",
+            "articles",
+            "directory",
+            "list",
+            "cards",
+          ],
+          minRows: 0,
+          maxRows: 100_000,
+          minColumns: 1,
+          maxColumns: 12,
+        },
+      });
+      continue;
+    }
+    pages.push({
+      id,
+      archetype: "captured",
+      note: sidecar.note ?? "Captured page",
+      html,
+      expect: {
+        kinds: sidecar.kinds ?? ["table"],
+        minRows: sidecar.minRows ?? 1,
+        maxRows: sidecar.maxRows ?? 100_000,
+        minColumns: sidecar.minColumns ?? 1,
+        maxColumns: sidecar.maxColumns ?? 12,
+        ...(sidecar.absentFromTop
+          ? { absentFromTop: sidecar.absentFromTop }
+          : {}),
+      },
+    });
+  }
+  return pages;
+}

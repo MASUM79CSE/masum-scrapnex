@@ -1,32 +1,80 @@
-# MASUM SCRAPNEXS — Feature matrix
+# Feature matrix
 
-The reference column describes [publisher listing claims](https://chromewebstore.google.com/detail/instant-data-scraper/ofaokhiedipichpaobibbnahnkdoiiah) unless noted, not tested behavior. “Not established” does not mean absent. All SCRAPNEX implementation is **NOT STARTED**.
+Status legend: **Verified** = exercised by automated tests in this repository ·
+**Implemented, partial** = works but narrower than the brief · **Open** = not built ·
+**Out of scope** = deliberate v1 non-goal (master brief §3.2).
 
-| Capability | Reference evidence | SCRAPNEXS v1 plan | First primary phase | Acceptance |
-|---|---|---|---|---|
-| Automatic suggestions and customization | Advertises automatic detection (publisher calls it AI) and customization | Deterministic scoring, evidence, ranked alternatives | 04–05 | R01 |
-| Native tables, spans, nested and headerless | Table edge cases not established | Rectangular aligned projection and explicit warnings | 05, 07, 11 | R02 |
-| Cards, listings, link/image collections | Automatic HTML detection advertised; exact support not established | Structural clustering and evidence-based relative fields | 05, 07 | R01, R03 |
-| Visual selection and field controls | Customizable selections advertised; picker steps not established | Visual/keyboard picker, manual relative rules and preview | 06–07 | R04 |
-| Next and numbered navigation | Next via buttons or links advertised; numbered/pattern controls not established | User-approved, scoped, verified navigation | 08 | R05 |
-| Infinite scroll and configurable waits | Both advertised | Scoped observer and explicit limits | 08 | R05 |
-| Load More | Not separately established | Confirm control; stop on failed/no-growth steps | 08 | R05 |
-| Spreadsheet preview/editing | Preview, column rename/filter advertised | Virtual grid, search/filter/sort, reorder/delete, cell edits and dedupe | 03, 07 | R06 |
-| Clipboard | Copy/paste preview advertised | Copy all or selection with spreadsheet safeguards | 09 | R07 |
-| Export formats | CSV, XLS, XLSX advertised | CSV, XLSX and typed JSON; legacy XLS excluded | 09 | R07 |
-| Local persistence and configuration reuse | Publisher states scraped data stays in browser; recovery/history not established | IndexedDB sessions, versioned recipes, settings, clear history and quota reporting | 10 | R08 |
-| Accessibility and privacy UI | Not established | Original light/dark, accessible desktop workspace; no hidden telemetry or upload | 03, 10, 13 | R09 |
-| Advanced diagnostics/config import and finite URL queue | Not established | Redacted diagnostics, validated imports and explicit approval for each origin | 11 | R10 |
-| Browser support | Chrome listing reviewed | Chrome release; Edge/Firefox adapter feasibility and explicit support matrix | 12–14 | Browser release evidence |
+Last updated against `main` after the Phase 11 detection work. Evidence column names the
+authoritative test or document.
 
-## Verification coverage map (planned)
+## Detection and extraction
 
-| Fixture set | Essential assertions | Test layer |
-|---|---|---|
-| Standard/headerless/sparse/span tables; nested/empty rows, footers, malformed spans | Counts, header paths, exact null/empty semantics, no inner-table bleed | Vitest DOM and browser parity |
-| Simple/complex product cards, article/search/directory listings; dynamic classes, nested repeats | Positive candidate ordering and field alignment; stable output across class changes; no merging unrelated lists | Vitest fixtures; browser layouts |
-| Navigation links, ads, banners, buttons, decorative/empty groups | False positives penalized; genuine links in primary content remain candidates | Vitest fixtures |
-| Unicode, missing fields, malformed and unsafe links, duplicate-looking rows | Correct normalization, no silent loss or navigation from values | Vitest fixtures; export round-trip |
-| Next/full reload, numbered and URL-pattern; infinite scroll and Load More; disabled/stalled/redirect cases | Verify progress, action permissions, no runaway loops, cancel/recover | Extension E2E on controlled local pages |
-| Manual picker, hostile markup, storage quota/restart, copied/exported formulas | Teardown, trust boundary, idempotent batches, safe text outputs | Unit/contract and browser; explicit manual checks |
-| 100/1,000/10,000 records | Report conditions and measured throughput, memory and responsiveness, verify virtualized rendering | Repeatable performance run |
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Automatic suggestions with ranked alternatives | Verified | `tests/e2e/detector.spec.ts`, 46-page corpus |
+| Evidence-based cross-kind ranking | Verified | `tests/unit/detector-rank.test.ts` |
+| Native tables with colspan/rowspan projection | Verified | `tests/fixtures/detector/tables.html`, corpus `span-*` |
+| Headerless and sparse tables | Verified | corpus `tables-02` |
+| Nested tables (no inner bleed, no primary promotion) | Verified | corpus `nested-01…05` |
+| Repeating cards, irregular shapes | Verified | corpus `irregular-01…04` |
+| Product / article / directory / list classification | Verified | `tests/e2e/detector.spec.ts`, corpus |
+| Div-soup layouts without semantic markup | Verified | corpus `soup-*` |
+| Site-chrome and advertisement rejection | Verified | `detector-rank` chrome penalty, corpus decoy metric |
+| Real-world accuracy measurement | **Open** — needs captured pages | [CAPTURE_CORPUS.md](CAPTURE_CORPUS.md) |
+
+## Manual control and fields
+
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Point-and-click picker, parent/child correction | Verified | `tests/e2e/picker.spec.ts` |
+| Manual relative fields, picked attributes | Verified | `picker.spec.ts` (images, alt, price) |
+| Keyboard operation and Escape teardown | Verified | `picker.spec.ts` |
+| Repair an auto-detected structure's fields | **Open** | [GAP_ANALYSIS](GAP_ANALYSIS.md) M2 |
+| Rename / reorder / delete columns | Verified | `tests/unit/extraction.test.ts` |
+| Field transforms, kind override, defaults, hide | **Open** | GAP_ANALYSIS M1 |
+
+## Collection runs
+
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Next / numbered / URL-pattern pagination | Verified | `detector.spec.ts` pagination cases |
+| Load More, scroll | Verified | `detector.spec.ts` |
+| Bounded actions, delay and time budget | Verified | Phase 08 limits |
+| Pause / resume / stop with verified rows kept | Verified | `detector.spec.ts` |
+| Redirect and failed-step refusal | Verified | `detector.spec.ts` |
+| Per-page retry / skip / keep-N recovery UI | **Open** | GAP_ANALYSIS M3 |
+| Pagination for manual picker selections | Out of scope | brief §3.2 |
+
+## Data, export and persistence
+
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Virtualised grid, sort, search, filter, dedupe | Verified | `detector.spec.ts` scale cases |
+| Cell editing and row deletion | Verified | `tests/unit/extraction.test.ts` |
+| CSV / XLSX / JSON export, subset controls | Verified | `tests/unit/export.test.ts`, QA script |
+| Clipboard copy with formula safety | Verified | `detector.spec.ts` |
+| Partial-capture messaging and export of captured rows | Verified | `tests/unit/ui.test.tsx` |
+| Snapshots, migration, rollback, retention | Verified | `tests/e2e/library.spec.ts` |
+| Configuration save, reuse, export/import | Verified | `library.spec.ts`, `phase11-portable.test.ts` |
+| Hard ceiling above 10 k rows | **Open** | `maxDatasetRows` |
+
+## Platform, quality and release
+
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Minimal permissions, no host grants, no remote code | Verified (asserted in CI) | `tests/e2e/extension.spec.ts`, `ci.yml` |
+| Light/dark, narrow widths, keyboard paths | Verified | `extension.spec.ts` |
+| Systematic WCAG 2.1 AA audit and screen-reader pass | **Open** | GAP_ANALYSIS H4 |
+| Global error boundary with safe diagnostics | Verified | `tests/unit/ui.test.tsx` |
+| Cross-browser (Edge / Firefox) | **Open** — Phase 12 | [BROWSER_MATRIX.md](BROWSER_MATRIX.md) |
+| Multi-URL queue with per-page authorisation | Verified | `library.spec.ts` |
+| CI pipeline with manifest guard | Verified | `.github/workflows/ci.yml` |
+| Coverage measurement | **Open** | GAP_ANALYSIS H7 |
+| Store listing, assets, privacy policy | **Open** — Phase 14 | GAP_ANALYSIS M4 |
+
+## Accounting
+
+- Verified capabilities: 34
+- Open items (blocking launch): 9 — real-page accuracy, field transforms, structure repair,
+  recovery UI, >10 k ceiling, WCAG audit, cross-browser, coverage, store package
+- Deliberate non-goals: 7

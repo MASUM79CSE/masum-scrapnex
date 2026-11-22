@@ -1,3 +1,4 @@
+import { PRODUCT_VERSION } from "../data/contracts";
 import { UrlQueuePanel } from "./url-queue-panel";
 import type { UrlQueueView } from "../browser/use-url-queue";
 import { DiagnosticsPanel } from "./diagnostics-panel";
@@ -620,7 +621,7 @@ export function Workspace({
         <Brand />
         <div className="top-end">
           <span className="build-tag">
-            v0.1.0 <span>FOUNDATION</span>
+            v{PRODUCT_VERSION} <span>PREVIEW</span>
           </span>
           <LocalBadge />
         </div>

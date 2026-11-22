@@ -4,7 +4,14 @@ Evidence-based audit of `main` (`883755c`) against the master brief (v1 scope), 
 launch bar in [PRODUCTION_PLAN.md](PRODUCTION_PLAN.md), and the Chrome Web Store requirements.
 Every claim below was checked against the repository, not recalled.
 
-**Verdict:** no *architectural* gaps — nothing is built on a foundation that must be replaced.
+> **Status update (pass 1).** Closed: H1 (error boundary), H2 (cap messaging and export of
+> captured rows), H6 (feature matrix rewritten), H7 (coverage ratchet + CI artifact), M7 (version
+> badge reads `package.json`). Prepared: C1 (capture tool, sidecar format, unscored-by-default
+> loader), C4 (API-floor vs support-claim documented in BROWSER_MATRIX). Partly closed: C3
+> (LICENSE still needs your decision; store assets still open). Still open: C1 captures, C2
+> (11.4–11.7), C5, H3–H5, M1–M4.
+>
+> **Verdict:** no *architectural* gaps — nothing is built on a foundation that must be replaced.
 The gaps are **coverage** (untested reality), **completeness** (v1 features still open) and
 **packaging** (release artefacts that do not exist yet). Roughly 70 % of v1 scope is done.
 

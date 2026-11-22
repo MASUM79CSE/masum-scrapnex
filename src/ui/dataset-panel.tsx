@@ -28,6 +28,7 @@ import {
 } from "../core/extraction/edit";
 import type { Cell, Dataset } from "../core/extraction/contracts";
 import { maxCellChars } from "../core/detector/contracts";
+import { maxDatasetRows } from "../core/extraction/contracts";
 
 const rowHeight = 40;
 type Editor = { row: string; column: string; label: string; value: string };
@@ -164,6 +165,15 @@ function Grid({
           {dataset.rows.length.toLocaleString()} rows
         </span>
       </header>
+      {view.partial && (
+        <div className="dataset-notice" role="status">
+          <strong>Partial capture.</strong> Collection stopped at a limit — the{" "}
+          {maxDatasetRows.toLocaleString()} row cap, a detected page limit, or
+          the time budget. Everything captured is real and stays fully editable,
+          exportable and saveable; nothing is silently padded. Narrow the scope
+          or start from an earlier page to collect the remainder.
+        </div>
+      )}
       <div className="dataset-tools">
         <button
           type="button"
