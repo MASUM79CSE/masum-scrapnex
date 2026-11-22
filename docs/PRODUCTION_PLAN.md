@@ -166,8 +166,14 @@ Fixed-rubric pass producing `docs/reports/QA_AUDIT.md`:
 
 ### W5 — Release engineering
 
-- **CI** (GitHub Actions): `format:check → typecheck → lint → unit → build → e2e` on every push,
-  with a pinned Node 24.22.3 and a Playwright browser cache. Nightly full matrix.
+- **CI (delivered).** `.github/workflows/ci.yml` runs `format:check → typecheck → lint → unit →
+  build → manifest assertion → Chromium + corpus E2E` on every push and pull request, on GitHub's
+  runners with the pinned Node runtime from `.nvmrc`. Verified green on `main` in about two
+  minutes. `main` is protected: required status check, linear history, no force pushes or
+  deletions. Dependabot proposes weekly npm and monthly Actions updates, grouped; semver-major
+  bumps of the TypeScript/ESLint toolchain are ignored because TypeScript 7 breaks
+  `typescript-eslint` 8 peer resolution (confirmed by CI on the first proposed PR, then closed
+  with an explanation).
 - **Version discipline:** `0.1.0` → `1.0.0` at Phase 14; `CHANGELOG.md` in Keep-a-Changelog format;
   version reflected in manifest, package, and UI badge (currently hard-coded `v0.1.0 FOUNDATION`).
 - **Reproducible artifact:** build from a clean checkout, checksum, record `SHA256SUMS`,

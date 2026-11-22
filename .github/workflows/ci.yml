@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "phase-*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Format, types, lint, unit and browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install the pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Build the extension
+        run: npm run build
+
+      - name: Assert the production manifest has no host permissions
+        run: |
+          node -e '
+            const m = require("./.output/chrome-mv3/manifest.json");
+            if (m.host_permissions?.length) {
+              console.error("Host permissions are not allowed in the production manifest");
+              process.exit(1);
+            }
+            if (m.content_scripts?.length) {
+              console.error("Content scripts must not be registered statically");
+              process.exit(1);
+            }
+            console.log("Manifest OK:", m.permissions.join(", "));
+          '
+
+      - name: Install the Chromium test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end, extension and accuracy corpus tests
+        run: npx playwright test
+
+      - name: Keep the accuracy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accuracy-report
+          path: docs/reports/ACCURACY.md
+          if-no-files-found: ignore
+
+      - name: Keep failure context
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          if-no-files-found: ignore
