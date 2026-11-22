@@ -283,3 +283,52 @@ Static gates live in `tests/unit/design-motion.test.ts`; the two behavioural one
 part of this migration.
 
 **Regression:** format/typecheck/lint clean, **77 unit (14 files)**, **78 Chromium e2e**.
+
+---
+
+## Phase G — Verification and documentation ✅
+
+**Full gate run** — `npm run verify`, exit code 0:
+
+| Stage | Result |
+| --- | --- |
+| Format (`prettier --check`) | clean |
+| Type check (`tsc --noEmit`) | clean |
+| Lint (`eslint .`) | clean |
+| Unit tests | **77 passed** (14 files) |
+| Chromium e2e | **86 passed** (3.5 min) |
+
+The 86 e2e tests include all 26 design-gate tests added across phases B–G plus the 60 pre-existing
+behavioural tests, which is the point: the new language did not break detection, capture, editing,
+export, pagination, import or the picker.
+
+**Delivered in this phase:**
+
+- `docs/DESIGN_SYSTEM.md` — tokens, type ramp, spacing, radii, colour roles with measured contrast,
+  motion, the component table, do/don't rules, the gate index, and how to add a component.
+- `CHANGELOG.md` — Unreleased entries for the visual language and every defect fixed on the way.
+- `README.md` — a Design section with four screenshots committed under `docs/screenshots/`.
+- `tests/e2e/design-layout.spec.ts` + `tests/e2e/baselines/design-layout.json` — G15.
+- A 320 px capture (`sidepanel-compact-*.png`), which is the reflow a 640 px window sees at 200 %
+  zoom. At 360 px and below the tabs become icon-only and the toolbar badge is hidden, because the
+  labels no longer fit; the labels stay in the accessibility tree.
+
+**G15 deviation, stated plainly.** The plan asked for pixel snapshots. The gate compares landmark
+geometry (chrome height, sidebar width, nav row count, heading/body size, radii, hero height,
+document overflow) with a 2 px tolerance instead. Pixel diffs depend on the host GPU, font stack and
+subpixel rounding: the same build renders differently on a developer machine and on CI, and a
+baseline that fails for reasons the change did not cause teaches people to ignore it. Re-baselining
+is explicit (`UPDATE_BASELINES=1`) and reviewable as a JSON diff.
+
+**What is *not* verified**
+
+- Cross-browser rendering. Every browser gate here ran in Chromium. Firefox and Edge are not
+  covered by this design work, and no claim is made that they are.
+- Real-page contrast. Materials only ever sit over our own backgrounds; text on chrome uses opaque
+  tokens. That reasoning is why the contrast matrix is trustworthy, but it is reasoning, not a
+  measurement on arbitrary sites.
+- The design gates run against a loopback fixture copy of the build, not against live pages.
+
+**Evidence:** `artifacts/screenshots/apple/*.png` — 10 captures (side panel empty / with data /
+history / compact / 200 %-zoom equivalent, popup, options; dark and light), regenerated after the
+last change.

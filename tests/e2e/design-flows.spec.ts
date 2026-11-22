@@ -219,7 +219,7 @@ test("F: every icon is drawn at the same stroke weight", async () => {
   const page = await surface();
   const weights = await page.evaluate(() =>
     Array.from(document.querySelectorAll<SVGElement>("svg"))
-      .filter((node) => node.offsetParent !== null)
+      .filter((node) => node.getBoundingClientRect().width > 0)
       .map((node) => getComputedStyle(node).strokeWidth),
   );
   expect(weights.length).toBeGreaterThan(0);

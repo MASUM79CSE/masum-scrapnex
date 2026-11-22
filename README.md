@@ -4,6 +4,28 @@
 
 An independent, local-first Chrome extension for collecting structured web data. **Repository:** `masum-scrapnex`. **Package:** `instant-scraper`. This is the **Phase 10 development snapshot (`0.1.0`)**, not a complete scraper or a release build for publication. The popup, workspace, and settings have a shared light/dark design. Try the clearly labeled, built-in sample data to select a candidate, sort/search records, and select rows. The extension also detects structures on the authorized tab and shows a read-only preview of up to six rows per candidate. Point-and-click selection can narrow the row scope, choose individual fields, and confirm a local preview. Collect the selected structure from the current page, then edit, sort, filter, or deduplicate the working dataset. The working copy stays in memory unless you save a local snapshot. For automatically detected structures, you can also inspect and authorize a bounded, same-origin pagination run. Download the working dataset as CSV, XLSX, or JSON, or copy a tab-separated selection. Use Local history to restore a saved snapshot or select a structure using a saved configuration after a fresh analysis. Settings shows storage usage, cleanup controls, and workflow defaults.
 
+## Design
+
+The interface follows an Apple-inspired design language: a system font stack, an 11–28 px type
+ramp, 4 pt spacing, hairline separators instead of boxes, a translucent toolbar with an opaque
+fallback, one elevation per level, and a data grid built for density (34 px rows, tabular figures,
+sticky opaque header) rather than for decoration. Apple assets are not bundled — typography
+resolves to the system stack and materials are CSS approximations.
+
+| Side panel, dark                                                      | Side panel, light                                                       |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| ![Side panel in dark appearance](docs/screenshots/sidepanel-dark.png) | ![Side panel in light appearance](docs/screenshots/sidepanel-light.png) |
+
+| Settings                                            | Popup                                     |
+| --------------------------------------------------- | ----------------------------------------- |
+| ![Options page](docs/screenshots/options-light.png) | ![Popup](docs/screenshots/popup-dark.png) |
+
+Every rule is enforced by a machine check — contrast, hit targets, accessible names, focus,
+reduced motion, increased contrast, axe, layout shift, motion budget and committed layout
+baselines. Read [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for the tokens and components,
+[`docs/DESIGN_APPLE_PLAN.md`](docs/DESIGN_APPLE_PLAN.md) for the gates, and
+[`docs/DESIGN_APPLE_LOG.md`](docs/DESIGN_APPLE_LOG.md) for the phase-by-phase evidence.
+
 ## Build and load locally
 
 Use [Node.js](https://nodejs.org/) `24.22.3` (see `.nvmrc`) and npm `10.8.2` or newer. From the project root:

@@ -6,6 +6,29 @@ All notable changes to MASUM SCRAPNEXS. Format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **New visual language across every surface.** An Apple-inspired design system (system font
+  stack, 11–28 px type ramp, 4 pt spacing, hairline separators, translucent toolbar with an opaque
+  fallback, one elevation per level) now covers the popup, side panel, options page, dialogs and
+  the data grid. Existing class names and all behaviour are unchanged; the design layer is additive
+  CSS plus a remapped token set. Apple assets are not bundled: typography resolves to the system
+  stack and materials are CSS approximations, both stated in `docs/DESIGN_SYSTEM.md`.
+- The popup is now a 320 px card (was 360 px).
+- Compact layouts use a five-tab bar with short labels (`Preview`, `History`) instead of a wrapping
+  navigation row; the long labels remain in the sidebar at wide widths.
+
+### Fixed
+
+- Editable grid cells now include their visible value in the accessible name (WCAG 2.5.3), so
+  screen readers and voice control can address them.
+- Checkbox targets are 32 px, and export checkbox rows are no longer 18 px tall.
+- Increased-contrast and reduced-transparency preferences now apply in light mode; the override
+  previously lost to the more specific `:root[data-theme="system"]` selector.
+- Escape closes an open disclosure sheet and returns focus to its summary.
+- Five text declarations below the 11 px floor are corrected; the type-floor gate now also matches
+  the `font` shorthand that hid them.
+
 ### Added
 
 - Versioned JSON export and reviewed import of extraction configurations, with strict

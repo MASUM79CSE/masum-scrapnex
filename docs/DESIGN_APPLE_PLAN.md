@@ -5,6 +5,10 @@
 translucent materials, purposeful motion
 **Enforcement:** automated gates, not review opinions. A phase is not done until its gates are green.
 
+**Status (2026-11-22):** phases A–G complete; every gate below is enforced by a test in the
+repository. Evidence per phase is recorded in `docs/DESIGN_APPLE_LOG.md`; the token and
+component reference is `docs/DESIGN_SYSTEM.md`.
+
 ---
 
 ## 1. What "Apple design" means concretely here

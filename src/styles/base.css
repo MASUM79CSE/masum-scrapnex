@@ -3453,6 +3453,12 @@ tbody th[scope="row"] {
   }
 }
 
+/* The ramp's body size is 13 px; the legacy default was 14 px. */
+body {
+  font-size: var(--text-body);
+  line-height: 1.45;
+}
+
 /* ==========================================================================
    Phase F — motion and polish
    Motion explains a change; it never delays one. Everything here is
@@ -3516,5 +3522,42 @@ th {
   th,
   .export-panel > summary {
     transition: none;
+  }
+}
+
+/* 320 px is the narrowest panel (a 640 px window at 200 % zoom). Below 360 px the
+   toolbar badge and the tab labels no longer fit, so the tabs become icon-only:
+   the label stays in the accessibility tree, it just stops being painted. */
+@media (max-width: 360px) {
+  .app-top .badge--local {
+    display: none;
+  }
+
+  .brand-name {
+    font-size: var(--text-headline);
+  }
+
+  .brand-caption {
+    display: none;
+  }
+
+  .nav-label--short {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nav-link {
+    gap: 0;
+  }
+
+  .nav-link svg {
+    width: 20px;
+    height: 20px;
   }
 }

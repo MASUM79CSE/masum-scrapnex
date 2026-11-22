@@ -45,6 +45,13 @@ const surfaces = [
       await page.waitForTimeout(200);
     },
   },
+  {
+    // 320 px is the reflow a 640 px window sees at 200 % browser zoom.
+    name: "sidepanel-compact",
+    path: "sidepanel.html",
+    width: 320,
+    height: 900,
+  },
   { name: "popup", path: "popup.html", width: 320, height: 420 },
   { name: "options", path: "options.html", width: 900, height: 800 },
 ];
