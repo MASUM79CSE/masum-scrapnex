@@ -343,12 +343,16 @@ export function DataPreview({ candidate }: { candidate?: Candidate }) {
                     }
                   >
                     <td className="row-select">
-                      <input
-                        type="checkbox"
-                        aria-label={`Select ${row.item}`}
-                        checked={selection.has(row.id)}
-                        onChange={() => toggle(row.id)}
-                      />
+                      {/* A native checkbox cannot grow its own hit area, so the
+                          label provides a 32 px target around the 16 px control. */}
+                      <label className="row-check">
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${row.item}`}
+                          checked={selection.has(row.id)}
+                          onChange={() => toggle(row.id)}
+                        />
+                      </label>
                     </td>
                     <td className="row-number">
                       {candidate.rows.findIndex(

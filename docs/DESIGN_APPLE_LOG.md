@@ -157,3 +157,54 @@ tests** (56 previous + 8 new). One existing assertion was updated for the delibe
 change.
 
 **Evidence:** `artifacts/screenshots/apple/{sidepanel,popup,options}-{dark,light}.png`.
+
+---
+
+## Phase D — Data surfaces ✅
+
+**Delivered** — the grid is the product, so it got the most attention:
+
+| Surface | Treatment |
+| --- | --- |
+| Candidate list | Grouped list, one hairline between rows, 16 px radio, tinted selection with a 2 px left bar |
+| Sample preview table | 34 px rows, hairline separators, zebra striping removed, sticky-width numerics |
+| Working dataset grid | Sticky opaque header, 34 px rows, `--font-text` with `tabular-nums`, hairline separators, row selection tinted with a left bar |
+| Filters and tools | Caption labels, 32 px fields, pill search, tabular counts |
+| Column manager | Disclosure sheet with grouped rows and 32 px targets |
+| Inline cell editor | Raised card (shadow-2), tint edge, opens in place |
+| Empty state | Quiet tinted glyph, 15 px title, 13 px explanation |
+| Capture status | Inline footnote with a success dot; destructive colour on failure |
+
+**Defects the gates found (three real ones):**
+
+1. **WCAG 2.5.3 Label in Name.** Every editable cell button carried
+   `aria-label="Edit Batch in row 8"` while its visible text was the cell value, so the accessible
+   name did not contain the visible label. 38 nodes failed axe. The name now ends with the value:
+   `Edit Batch in row 8: 3`. This changed the accessible name, so four `exact: true` test lookups
+   were updated to prefix regexes — the assertions were corrected, not deleted.
+2. **16 px checkboxes were 16 px hit targets.** Native checkboxes ignore padding and borders
+   (verified in Chromium: `padding: 8px` leaves the box at 16 px), so CSS alone cannot grow them.
+   Row checkboxes are now wrapped in a 32 px `.row-check` label, and the export/column checkbox
+   rows became 32 px settings rows.
+3. **`.export-columns` rows were 18 px tall** — below the G7 floor once inputs were included in
+   the gate. Fixed with a 32 px row and a hover fill.
+
+**New gate suite** — `tests/e2e/design-data.spec.ts`, run with real captured records:
+
+| Gate | Assertion | Result |
+| --- | --- | --- |
+| G13 | axe clean on the populated grid (200 rows) | pass — 0 violations |
+| G7 | every control in the dataset panel ≥ 28 px (checkbox label counted as its target) | pass |
+| D | `font-variant-numeric` is `tabular-nums` on grid cells | pass |
+| D | the table header stays pinned (≤ 1 px drift) while 2 000 px of rows scroll under it | pass |
+| D | a selected row computes a different background from an unselected one | pass |
+| **Exit** | **10 000 rows sustain ≥ 50 fps** | **pass — 60 fps, p95 16.7 ms, max 16.8 ms, 23 DOM rows** |
+
+The frame rate is measured as painted frames in a one-second continuous scroll window, not as an
+average frame delta: rAF is quantised to the refresh interval, so an average delta hides drops, and
+in a background tab rAF throttles to ~1 Hz (the first attempt measured 1 fps and was wrong until the
+panel was brought to the foreground).
+
+**Regression:** format/typecheck/lint clean, **73 unit**, **69 Chromium e2e**.
+**Evidence:** `artifacts/screenshots/apple/sidepanel-data-{dark,light}.png` plus the four surface
+captures.

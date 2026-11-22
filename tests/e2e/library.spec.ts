@@ -206,9 +206,7 @@ test("library saves actual edits and a recipe, restores after Chromium exits and
     await source.bringToFront();
     await invoke(panel, "Collect records");
     const table = panel.getByRole("table", { name: "Captured records" });
-    await table
-      .getByRole("button", { name: "Edit Item in row 1", exact: true })
-      .click();
+    await table.getByRole("button", { name: /^Edit Item in row 1:/ }).click();
     const editor = panel.getByRole("form", { name: "Edit cell" });
     await editor.getByRole("textbox").fill("Edited local lamp");
     await editor.getByRole("button", { name: "Save cell" }).click();
@@ -296,7 +294,7 @@ test("library saves actual edits and a recipe, restores after Chromium exits and
     await expect(restored).toContainText("সরঞ্জাম");
     await expect(restored).not.toContainText("Camp pack");
     await expect(
-      restored.getByRole("button", { name: "Edit Item in row 3", exact: true }),
+      restored.getByRole("button", { name: /^Edit Item in row 3:/ }),
     ).toBeVisible();
     acceptDialog(panel);
     await panel.getByRole("button", { name: "Discard dataset" }).click();

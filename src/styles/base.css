@@ -2602,3 +2602,573 @@ h1 {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Phase D — data surfaces
+   The data is the interface. Hairlines instead of boxes, one sticky header,
+   tabular figures, and a selection that is visible without shouting.
+   ========================================================================== */
+
+/* --- Candidate list: a grouped list, one hairline between rows ----------- */
+
+.candidate-list {
+  gap: 0;
+  margin: 0 var(--space-3) var(--space-3);
+  padding: 0;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+  background: var(--bgSurface);
+  overflow: hidden;
+}
+
+.candidate {
+  padding: var(--space-3);
+  border: 0;
+  border-top: 1px solid var(--separator);
+  border-radius: 0;
+  background: transparent;
+  transition: background-color var(--duration-micro) var(--ease-standard);
+}
+
+.candidate:first-of-type {
+  border-top: 0;
+}
+
+.candidate:hover {
+  background: var(--fillTertiary);
+}
+
+.candidate:has(input:checked) {
+  background: var(--tintWash);
+  box-shadow: inset 2px 0 0 var(--tint);
+}
+
+.candidate-title {
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  color: var(--label);
+}
+
+.candidate-meta,
+.candidate-hint {
+  margin-top: 2px;
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+.candidate-hint {
+  margin-top: var(--space-1);
+  line-height: 1.45;
+}
+
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--controlBorder);
+  background: var(--bgSurface);
+}
+
+.candidate:has(input:checked) .radio-dot {
+  border: 4px solid var(--tint);
+  background: var(--bgSurface);
+}
+
+.match-tag {
+  margin-top: var(--space-1);
+  padding: 1px var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--fillTertiary);
+  color: var(--labelSecondary);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+}
+
+.match-tag--strong {
+  border: 0;
+  background: var(--tintWash);
+  color: var(--tint);
+}
+
+.panel-note {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--separator);
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+/* --- Panel headers: one title, one caption, one count ------------------- */
+
+.card-head {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--separator);
+}
+
+.card-head h2 {
+  margin: 0 0 2px;
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--label);
+}
+
+.card-head p {
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+.section-icon {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--tintWash);
+  color: var(--tint);
+}
+
+.section-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.count-tag {
+  padding: 2px var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--fillTertiary);
+  color: var(--labelSecondary);
+  font-family: var(--font-text);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-tag.dataset-partial {
+  background: var(--warningWash);
+  color: var(--warning);
+}
+
+/* --- Tables -------------------------------------------------------------- */
+
+.table-scroll {
+  border-block: 1px solid var(--separator);
+  background: var(--bgSurface);
+}
+
+table {
+  font-size: var(--text-body);
+}
+
+th,
+td {
+  height: 34px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+}
+
+thead {
+  background: var(--bgSurfaceAlt);
+  color: var(--labelTertiary);
+}
+
+thead th {
+  height: 30px;
+  border-bottom: 1px solid var(--separator);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  color: var(--labelTertiary);
+}
+
+/* Alternating fills fight the hairlines in a dense grid. Separators win. */
+tbody tr:nth-child(even) {
+  background: transparent;
+}
+
+tbody tr {
+  border-top: 1px solid var(--separator);
+  color: var(--labelSecondary);
+}
+
+tbody tr:first-child {
+  border-top: 0;
+}
+
+tbody tr:hover {
+  background: var(--fillTertiary);
+}
+
+tbody tr.selected-row {
+  background: var(--tintWash);
+}
+
+tbody tr.selected-row > td:first-child,
+tbody tr.selected-row > th:first-child {
+  box-shadow: inset 2px 0 0 var(--tint);
+}
+
+.product-cell,
+tbody th[scope="row"] {
+  color: var(--label);
+  font-weight: var(--weight-medium);
+}
+
+.price-cell {
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--label);
+}
+
+.row-number {
+  width: 32px;
+  color: var(--labelTertiary);
+  font-family: var(--font-text);
+  font-size: var(--text-footnote);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-select {
+  padding-left: var(--space-3);
+}
+
+.row-select input {
+  width: 15px;
+  height: 15px;
+}
+
+.stock-tag {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--fillTertiary);
+  color: var(--labelSecondary);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+}
+
+.stock-tag--ok {
+  background: var(--tintWash);
+  color: var(--tint);
+}
+
+.stock-tag--low {
+  background: var(--warningWash);
+  color: var(--warning);
+}
+
+.no-results {
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--labelTertiary);
+  font-size: var(--text-body);
+}
+
+.table-tools {
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.table-meta {
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+.table-foot,
+.dataset-footer {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--separator);
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+/* --- The working dataset grid ------------------------------------------- */
+
+.dataset-grid {
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+  margin: 0 var(--space-3) var(--space-3);
+  background: var(--bgSurface);
+}
+
+.dataset-grid table {
+  border-radius: var(--radius-md);
+}
+
+/* An opaque sticky header: rows scroll underneath it, so it cannot be translucent. */
+.dataset-grid thead {
+  background: var(--bgSurfaceAlt);
+  box-shadow: 0 1px 0 var(--separator);
+}
+
+.dataset-grid thead th {
+  padding-block: 0;
+  height: 32px;
+  border-bottom: 0;
+}
+
+.dataset-grid thead .sort-button {
+  min-height: 30px;
+  padding: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  color: var(--labelTertiary);
+}
+
+.dataset-grid thead .sort-button:hover,
+.dataset-grid thead th[aria-sort] .sort-button {
+  color: var(--tint);
+}
+
+.dataset-grid tbody tr:not(.grid-spacer),
+.dataset-grid thead tr {
+  height: 34px;
+}
+
+.dataset-grid tbody tr[aria-selected="true"] {
+  background: var(--tintWash);
+}
+
+.dataset-grid .grid-cell {
+  padding: 0;
+  min-height: 34px;
+  line-height: 34px;
+  font-size: var(--text-body);
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+
+.dataset-grid .grid-cell:hover {
+  color: var(--tint);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.dataset-grid .muted-value {
+  color: var(--labelTertiary);
+  font-style: normal;
+}
+
+.dataset-grid tr.grid-spacer td {
+  height: auto;
+}
+
+.dataset-grid input[type="checkbox"] {
+  accent-color: var(--tint);
+}
+
+/* --- Dataset toolbar, filters and the column manager -------------------- */
+
+.dataset-tools {
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.dataset-tools label,
+.cell-editor label {
+  gap: var(--space-1);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--labelTertiary);
+}
+
+.dataset-tools select,
+.dataset-tools input:not([type="search"]),
+.cell-editor textarea {
+  min-height: 32px;
+  border: 1px solid var(--controlBorder);
+  border-radius: var(--radius-xs);
+  background: var(--bgSurfaceAlt);
+  color: var(--label);
+  font-size: var(--text-body);
+}
+
+.dataset-filters .search-box {
+  width: min(280px, 100%);
+}
+
+.dataset-manage {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: 0;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+  background: var(--bgSurface);
+  overflow: hidden;
+}
+
+.dataset-manage > summary {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--label);
+}
+
+.dataset-manage > summary:hover {
+  background: var(--fillTertiary);
+}
+
+.dataset-manage[open] > summary {
+  border-bottom: 1px solid var(--separator);
+}
+
+.dataset-manage .dataset-tools {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Inline editing is a sheet: one elevation level above the grid. */
+.cell-editor {
+  margin: 0 var(--space-4) var(--space-3);
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--tintLine);
+  border-left: 3px solid var(--tint);
+  border-radius: var(--radius-md);
+  background: var(--bgSurface);
+  box-shadow: var(--shadow-2);
+}
+
+.dataset-notice {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--separator);
+  border-left: 3px solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--bgSurfaceAlt);
+  font-size: var(--text-footnote);
+  line-height: 1.45;
+  color: var(--labelSecondary);
+}
+
+.dataset-footer .dataset-notice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tint);
+}
+
+.dataset-jump input {
+  width: 92px;
+}
+
+/* --- Empty and loading states ------------------------------------------- */
+
+.empty-state {
+  min-height: 220px;
+  gap: var(--space-1);
+  padding: var(--space-6) var(--space-4);
+  border-top: 0;
+}
+
+.empty-state svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2);
+  box-sizing: content-box;
+  border-radius: var(--radius-pill);
+  background: var(--fillTertiary);
+  color: var(--labelTertiary);
+}
+
+.empty-state strong,
+.empty-state h3 {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  color: var(--label);
+}
+
+.empty-state p {
+  max-width: 42ch;
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.45;
+  color: var(--labelTertiary);
+}
+
+/* A capture in progress reads as a quiet inline progress row. */
+.connection {
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-footnote);
+  color: var(--labelTertiary);
+}
+
+.connection svg {
+  width: 14px;
+  height: 14px;
+}
+
+.connection .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+}
+
+.connection--error {
+  color: var(--destructive);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate,
+  .grid-cell {
+    transition: none;
+  }
+}
+
+/* A 16 px checkbox is a 16 px hit target, and a native checkbox ignores padding
+   and borders, so the label supplies the 32 px target. Negative margins keep the
+   row height unchanged. */
+.row-check {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -9px -8px;
+  cursor: pointer;
+}
+
+.row-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* Checkbox rows in the export sheet and the column list are settings rows:
+   the whole row is the target, 32 px tall, and it highlights on hover. */
+.export-columns label,
+.export-check,
+.export-columns label {
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-body);
+  color: var(--labelSecondary);
+  cursor: pointer;
+}
+
+.export-columns label:hover,
+.export-check:hover {
+  background: var(--fillTertiary);
+  color: var(--label);
+}
+
+.export-columns {
+  gap: var(--space-1) var(--space-2);
+}
+
+.export-columns label > input[type="checkbox"],
+.export-check > input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}

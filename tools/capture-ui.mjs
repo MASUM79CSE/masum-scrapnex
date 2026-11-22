@@ -13,6 +13,22 @@ mkdirSync(out, { recursive: true });
 
 const surfaces = [
   { name: "sidepanel", path: "sidepanel.html", width: 420, height: 900 },
+  {
+    // The data surfaces only exist once something has been captured, so the
+    // sample run is captured separately instead of pretending the empty panel
+    // represents the product.
+    name: "sidepanel-data",
+    path: "sidepanel.html",
+    width: 420,
+    height: 1200,
+    prepare: async (page) => {
+      await page
+        .getByRole("button", { name: "Try sample data" })
+        .first()
+        .click();
+      await page.waitForTimeout(500);
+    },
+  },
   { name: "popup", path: "popup.html", width: 320, height: 420 },
   { name: "options", path: "options.html", width: 900, height: 800 },
 ];
@@ -38,6 +54,7 @@ for (const scheme of ["dark", "light"]) {
     });
     await page.goto(`chrome-extension://${id}/${surface.path}`);
     await page.waitForTimeout(700);
+    if (surface.prepare) await surface.prepare(page);
     const file = join(out, `${surface.name}-${scheme}.png`);
     await page.screenshot({ path: file });
     console.log("captured", file);

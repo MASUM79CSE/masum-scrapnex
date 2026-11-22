@@ -467,13 +467,15 @@ function Grid({
                 aria-rowindex={window.first + index + 2}
                 className={selection.has(row.id) ? "selected-row" : undefined}
               >
-                <td>
-                  <input
-                    type="checkbox"
-                    aria-label={`Select row ${row.id.slice(1)}`}
-                    checked={selection.has(row.id)}
-                    onChange={() => toggle(row.id)}
-                  />
+                <td className="row-select">
+                  <label className="row-check">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select row ${row.id.slice(1)}`}
+                      checked={selection.has(row.id)}
+                      onChange={() => toggle(row.id)}
+                    />
+                  </label>
                 </td>
                 <th scope="row">{window.first + index + 1}</th>
                 {dataset.columns.map(({ id, label }, i) => {
@@ -484,7 +486,15 @@ function Grid({
                         type="button"
                         className="grid-cell"
                         title={cell ?? "Missing value"}
-                        aria-label={`Edit ${label} in row ${row.id.slice(1)}`}
+                        // WCAG 2.5.3: the accessible name must contain the visible
+                        // label, so the cell value is appended after the action.
+                        aria-label={`Edit ${label} in row ${row.id.slice(1)}: ${
+                          cell === null
+                            ? "missing value"
+                            : cell === ""
+                              ? "empty"
+                              : cell
+                        }`}
                         onClick={(event) => {
                           editTrigger.current = event.currentTarget;
                           setError("");

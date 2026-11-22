@@ -470,8 +470,8 @@ for (const count of [100, 1000, 10000])
       await jump.press("Enter");
       await expect(
         table.getByRole("button", {
-          name: `Edit Record in row ${displayed}`,
-          exact: true,
+          // The accessible name ends with the cell value (WCAG 2.5.3).
+          name: new RegExp(`^Edit Record in row ${displayed}:`),
         }),
       ).toBeInViewport();
       const jumpMs = performance.now() - jumpStart;
@@ -490,12 +490,11 @@ for (const count of [100, 1000, 10000])
         await jump.press("Enter");
         await expect(
           table.getByRole("button", {
-            name: "Edit Record in row 988",
-            exact: true,
+            name: /^Edit Record in row 988:/,
           }),
         ).toBeInViewport();
         await table
-          .getByRole("button", { name: "Edit Record in row 988", exact: true })
+          .getByRole("button", { name: /^Edit Record in row 988:/ })
           .click();
         await panel
           .getByRole("form", { name: "Edit cell" })
@@ -715,7 +714,7 @@ test("export downloads real Unicode CSV, XLSX and JSON with formula-safe spreads
     await startCapture();
     await panel.bringToFront();
     await captured()
-      .getByRole("button", { name: "Edit Notes in row 1", exact: true })
+      .getByRole("button", { name: /^Edit Notes in row 1:/ })
       .click();
     const editor = panel.getByRole("form", { name: "Edit cell" });
     await editor
