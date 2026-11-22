@@ -1,0 +1,345 @@
+/*
+ * MASUM SCRAPNEXS — Apple-inspired design tokens.
+ *
+ * Rules:
+ *  - Every value a component needs lives here. Components consume tokens only.
+ *  - Each semantic role is defined in four contexts: dark, light, system-light and
+ *    prefers-contrast: more. `tests/unit/design-tokens.test.ts` fails the build otherwise.
+ *  - Colour is reserved for meaning (tint, destructive, warning). Large areas never use
+ *    pure black or pure white.
+ *  - SF Pro is not licensed for web use, so the system font stack resolves to SF on Apple
+ *    platforms and to Segoe UI / Roboto / Inter elsewhere.
+ */
+
+/* BLOCK: metrics */
+:root {
+  /* Type ramp — macOS scale, floor 11px */
+  --font-text:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", "Segoe UI Variable", "Segoe UI", Roboto, "Inter Variable",
+    Inter, system-ui, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Mono",
+    "Roboto Mono", Consolas, monospace;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
+    "Segoe UI Variable Display", "Segoe UI", Roboto, Inter, system-ui,
+    sans-serif;
+
+  --text-large-title: 1.75rem; /* 28 */
+  --text-title-1: 1.375rem; /* 22 */
+  --text-title-2: 1.0625rem; /* 17 */
+  --text-headline: 0.9375rem; /* 15 */
+  --text-body: 0.8125rem; /* 13 */
+  --text-callout: 0.78125em; /* 12.5 */
+  --text-subhead: 0.75rem; /* 12 */
+  --text-footnote: 0.6875rem; /* 11 */
+  --text-caption: 0.6875rem; /* 11 */
+
+  --leading-tight: 1.22;
+  --leading-snug: 1.35;
+  --leading-normal: 1.46;
+  --leading-relaxed: 1.55;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-caps: 0.06em;
+
+  /* Spacing — 4pt grid */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-9: 2.5rem;
+  --space-10: 3rem;
+  --space-11: 3.5rem;
+  --space-12: 4rem;
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Control metrics */
+  --hit-primary: 44px;
+  --hit-secondary: 40px;
+  --hit-dense: 32px;
+  --control-height: 32px;
+  --control-height-sm: 28px;
+  --row-height: 42px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --duration-micro: 120ms;
+  --duration-standard: 200ms;
+  --duration-enter: 240ms;
+  --duration-exit: 140ms;
+  --duration-spring: 320ms;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 6%), 0 4px 12px rgb(0 0 0 / 6%);
+  --shadow-2: 0 4px 16px rgb(0 0 0 / 8%), 0 12px 32px rgb(0 0 0 / 10%);
+  --shadow-3: 0 12px 40px rgb(0 0 0 / 14%), 0 32px 80px rgb(0 0 0 / 18%);
+
+  /* Legacy aliases: existing component rules keep working while surfaces migrate. */
+  --sans: var(--font-text);
+  --mono: var(--font-mono);
+  --card-radius: var(--radius-md);
+}
+
+/* BLOCK: dark */
+:root {
+  color-scheme: dark;
+
+  --bgWindow: #121214;
+  --bgSidebar: #17171a;
+  --bgChrome: #1b1b1e;
+  --bgSurface: #212124;
+  --bgSurfaceAlt: #2a2a2e;
+  --bgSurfaceElevated: #333338;
+
+  --fillPrimary: #ffffff1f;
+  --fillSecondary: #ffffff14;
+  --fillTertiary: #ffffff0a;
+
+  --label: #f5f5f7;
+  --labelSecondary: #bcbcc4;
+  --labelTertiary: #9d9da5;
+  --labelQuaternary: #85858d;
+
+  --separator: #3a3a3f;
+  --separatorOpaque: #48484e;
+  --controlBorder: #7b7b83;
+
+  --tint: #5fe0b8;
+  --onTint: #07231b;
+  --tintWash: #16332c;
+  --tintLine: #2f6f5f;
+
+  --destructive: #ff8183;
+  --onDestructive: #2b0d0e;
+  --destructiveWash: #38262a;
+  --warning: #f0c778;
+  --warningWash: #332c23;
+  --success: #6fd68f;
+  --info: #9cc7f5;
+
+  --focusRing: #86ecc9;
+  --overlayScrim: rgb(0 0 0 / 55%);
+  --gridline: #ffffff10;
+  --hero-edge: #2a2f38;
+  --hero-base: #1d222a;
+  --shadow: rgb(0 0 0 / 40%);
+
+  --materialChrome: rgb(27 27 30 / 72%);
+  --materialThick: rgb(33 33 36 / 88%);
+  --materialBlur: saturate(180%) blur(20px);
+
+  /* Legacy aliases */
+  --bg: var(--bgWindow);
+  --sidebar: var(--bgSidebar);
+  --top: var(--bgChrome);
+  --surface: var(--bgSurface);
+  --surface-2: var(--bgSurfaceAlt);
+  --surface-hover: var(--fillSecondary);
+  --border: var(--separator);
+  --border-2: var(--controlBorder);
+  --text: var(--label);
+  --muted: var(--labelSecondary);
+  --dim: var(--labelTertiary);
+  --accent: var(--tint);
+  --accent-ink: var(--onTint);
+  --accent-wash: var(--tintWash);
+  --accent-line: var(--tintLine);
+  --error: var(--destructive);
+  --error-wash: var(--destructiveWash);
+}
+
+/* BLOCK: light */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bgWindow: #f2f2f7;
+  --bgSidebar: #f7f7fa;
+  --bgChrome: #fbfbfd;
+  --bgSurface: #ffffff;
+  --bgSurfaceAlt: #f6f6f9;
+  --bgSurfaceElevated: #ffffff;
+
+  --fillPrimary: #78788024;
+  --fillSecondary: #78788014;
+  --fillTertiary: #7878800a;
+
+  --label: #1c1c1e;
+  --labelSecondary: #55555b;
+  --labelTertiary: #6c6c74;
+  --labelQuaternary: #86868d;
+
+  --separator: #d6d6dc;
+  --separatorOpaque: #c6c6cc;
+  --controlBorder: #8a8a90;
+
+  --tint: #07735a;
+  --onTint: #ffffff;
+  --tintWash: #e3f5ee;
+  --tintLine: #9fd0c0;
+
+  --destructive: #c2261f;
+  --onDestructive: #ffffff;
+  --destructiveWash: #fdeceb;
+  --warning: #8a5a00;
+  --warningWash: #fff4d9;
+  --success: #19703c;
+  --info: #1d5c9e;
+
+  --focusRing: #07735a;
+  --overlayScrim: rgb(0 0 0 / 32%);
+  --gridline: #1c1c1e12;
+  --hero-edge: #d9e6ea;
+  --hero-base: #f8fcfd;
+  --shadow: rgb(28 28 30 / 10%);
+
+  --materialChrome: rgb(251 251 253 / 78%);
+  --materialThick: rgb(255 255 255 / 92%);
+  --materialBlur: saturate(180%) blur(20px);
+
+  --bg: var(--bgWindow);
+  --sidebar: var(--bgSidebar);
+  --top: var(--bgChrome);
+  --surface: var(--bgSurface);
+  --surface-2: var(--bgSurfaceAlt);
+  --surface-hover: var(--fillSecondary);
+  --border: var(--separator);
+  --border-2: var(--controlBorder);
+  --text: var(--label);
+  --muted: var(--labelSecondary);
+  --dim: var(--labelTertiary);
+  --accent: var(--tint);
+  --accent-ink: var(--onTint);
+  --accent-wash: var(--tintWash);
+  --accent-line: var(--tintLine);
+  --error: var(--destructive);
+  --error-wash: var(--destructiveWash);
+}
+
+/* BLOCK: system */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+
+    --bgWindow: #f2f2f7;
+    --bgSidebar: #f7f7fa;
+    --bgChrome: #fbfbfd;
+    --bgSurface: #ffffff;
+    --bgSurfaceAlt: #f6f6f9;
+    --bgSurfaceElevated: #ffffff;
+
+    --fillPrimary: #78788024;
+    --fillSecondary: #78788014;
+    --fillTertiary: #7878800a;
+
+    --label: #1c1c1e;
+    --labelSecondary: #55555b;
+    --labelTertiary: #6c6c74;
+    --labelQuaternary: #86868d;
+
+    --separator: #d6d6dc;
+    --separatorOpaque: #c6c6cc;
+    --controlBorder: #8a8a90;
+
+    --tint: #07735a;
+    --onTint: #ffffff;
+    --tintWash: #e3f5ee;
+    --tintLine: #9fd0c0;
+
+    --destructive: #c2261f;
+    --onDestructive: #ffffff;
+    --destructiveWash: #fdeceb;
+    --warning: #8a5a00;
+    --warningWash: #fff4d9;
+    --success: #19703c;
+    --info: #1d5c9e;
+
+    --focusRing: #07735a;
+    --overlayScrim: rgb(0 0 0 / 32%);
+    --gridline: #1c1c1e12;
+    --hero-edge: #d9e6ea;
+    --hero-base: #f8fcfd;
+    --shadow: rgb(28 28 30 / 10%);
+
+    --materialChrome: rgb(251 251 253 / 78%);
+    --materialThick: rgb(255 255 255 / 92%);
+    --materialBlur: saturate(180%) blur(20px);
+
+    --bg: var(--bgWindow);
+    --sidebar: var(--bgSidebar);
+    --top: var(--bgChrome);
+    --surface: var(--bgSurface);
+    --surface-2: var(--bgSurfaceAlt);
+    --surface-hover: var(--fillSecondary);
+    --border: var(--separator);
+    --border-2: var(--controlBorder);
+    --text: var(--label);
+    --muted: var(--labelSecondary);
+    --dim: var(--labelTertiary);
+    --accent: var(--tint);
+    --accent-ink: var(--onTint);
+    --accent-wash: var(--tintWash);
+    --accent-line: var(--tintLine);
+    --error: var(--destructive);
+    --error-wash: var(--destructiveWash);
+  }
+}
+
+/* BLOCK: contrast */
+@media (prefers-contrast: more) {
+  :root {
+    --label: #ffffff;
+    --labelSecondary: #e2e2e8;
+    --labelTertiary: #c9c9d0;
+    --labelQuaternary: #b4b4bc;
+    --separator: #6f6f77;
+    --separatorOpaque: #8b8b93;
+    --controlBorder: #b9b9c2;
+    --tint: #8cf3d3;
+    --onTint: #04231a;
+    --destructive: #ffa6a8;
+    --focusRing: #a8f7dd;
+    --materialChrome: var(--bgChrome);
+    --materialThick: var(--bgSurface);
+    --materialBlur: none;
+  }
+  :root[data-theme="light"] {
+    --label: #000000;
+    --labelSecondary: #3a3a40;
+    --labelTertiary: #4c4c53;
+    --labelQuaternary: #5c5c63;
+    --separator: #9a9aa1;
+    --separatorOpaque: #7c7c84;
+    --controlBorder: #5c5c63;
+    --tint: #04543f;
+    --onTint: #ffffff;
+    --destructive: #9c1b15;
+    --focusRing: #04543f;
+    --materialChrome: var(--bgChrome);
+    --materialThick: var(--bgSurface);
+    --materialBlur: none;
+  }
+}

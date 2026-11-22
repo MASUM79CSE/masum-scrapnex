@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 @font-face {
   font-family: "Inter Variable";
@@ -9,94 +10,6 @@
   font-display: swap;
 }
 
-:root {
-  color-scheme: dark;
-  --bg: #0a111a;
-  --sidebar: #0d1621;
-  --top: #0b141e;
-  --surface: #101c29;
-  --surface-2: #142231;
-  --surface-hover: #182a3b;
-  --border: #253649;
-  --border-2: #374e63;
-  --text: #ecf3fa;
-  --muted: #9eafc1;
-  --dim: #8da2b8;
-  --accent: #66e5be;
-  --accent-ink: #0a2825;
-  --accent-wash: #153638;
-  --accent-line: #2d6e66;
-  --warning: #f0c778;
-  --warning-wash: #332b26;
-  --error: #ffb1b3;
-  --error-wash: #382631;
-  --info: #b6d3f7;
-  --hero-edge: #172c3c;
-  --hero-base: #10202f;
-  --gridline: #9bc9e919;
-  --shadow: #02071038;
-  --sans:
-    "Inter Variable", Inter, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  --card-radius: 14px;
-}
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #edf3f7;
-  --sidebar: #f7fafc;
-  --top: #fcfeff;
-  --surface: #fff;
-  --surface-2: #f1f6f9;
-  --surface-hover: #eaf1f6;
-  --border: #d4e0e8;
-  --border-2: #9bacbb;
-  --text: #142637;
-  --muted: #4b6175;
-  --dim: #4c6378;
-  --accent: #076957;
-  --accent-ink: #fff;
-  --accent-wash: #e0f4eb;
-  --accent-line: #95c5b6;
-  --warning: #785017;
-  --warning-wash: #fff2d9;
-  --error: #982e3d;
-  --error-wash: #fce8ed;
-  --info: #345b8c;
-  --hero-edge: #dbedea;
-  --hero-base: #f7fcff;
-  --gridline: #2f71851d;
-  --shadow: #1534470c;
-}
-@media (prefers-color-scheme: light) {
-  :root[data-theme="system"] {
-    color-scheme: light;
-    --bg: #edf3f7;
-    --sidebar: #f7fafc;
-    --top: #fcfeff;
-    --surface: #fff;
-    --surface-2: #f1f6f9;
-    --surface-hover: #eaf1f6;
-    --border: #d4e0e8;
-    --border-2: #9bacbb;
-    --text: #142637;
-    --muted: #4b6175;
-    --dim: #4c6378;
-    --accent: #076957;
-    --accent-ink: #fff;
-    --accent-wash: #e0f4eb;
-    --accent-line: #95c5b6;
-    --warning: #785017;
-    --warning-wash: #fff2d9;
-    --error: #982e3d;
-    --error-wash: #fce8ed;
-    --info: #345b8c;
-    --hero-edge: #dbedea;
-    --hero-base: #f7fcff;
-    --gridline: #2f71851d;
-    --shadow: #1534470c;
-  }
-}
 * {
   box-sizing: border-box;
 }
@@ -190,7 +103,7 @@ svg {
 }
 .brand-caption {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
   color: var(--dim);
   letter-spacing: 0.18em;
@@ -545,7 +458,7 @@ h1 {
 .workflow small {
   display: block;
   color: var(--dim);
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 2px;
   line-height: 1.3;
 }
@@ -697,7 +610,7 @@ h1 {
   color: var(--info);
   border: 1px solid var(--border);
   border-radius: 5px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 650;
   margin-top: 8px;
 }
@@ -720,7 +633,7 @@ h1 {
   align-items: center;
   gap: 7px;
   color: var(--dim);
-  font-size: 10px;
+  font-size: 11px;
   padding: 12px 14px;
 }
 .table-tools {
@@ -751,10 +664,11 @@ h1 {
   width: 100%;
   min-width: 0;
   color: var(--text);
-  font: 520 12px var(--sans);
+  font: var(--weight-medium) var(--text-subhead) var(--font-text);
   background: transparent;
   border: 0;
-  outline: 0;
+  /* The wrapper owns the focus indicator; see `.search-box:focus-within`. */
+  outline: none;
 }
 .search-box input::placeholder {
   color: var(--muted);
@@ -829,7 +743,7 @@ tbody tr.selected-row {
   background: transparent;
   padding: 3px 0;
   border: 0;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 680;
   color: var(--muted);
 }
@@ -853,7 +767,7 @@ th[aria-sort] .sort-button {
   border-radius: 5px;
   background: var(--surface-2);
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
 }
 .stock-tag--ok {
@@ -1087,7 +1001,7 @@ th[aria-sort] .sort-button {
     flex-direction: column;
     justify-content: center;
     gap: 3px;
-    font-size: 10px;
+    font-size: 11px;
     min-height: 48px;
     padding: 4px 2px;
   }
@@ -1135,7 +1049,7 @@ th[aria-sort] .sort-button {
     font-size: 12px;
   }
   .brand-caption {
-    font-size: 8px;
+    font-size: 11px;
   }
   .table-meta span {
     display: none;
@@ -1659,4 +1573,169 @@ th[aria-sort] .sort-button {
   border-radius: 8px;
   font-size: 0.85rem;
   line-height: 1.5;
+}
+
+/* =========================================================================
+   Apple-inspired design layer — Phase A: foundations
+   Type, focus, elevation, motion, and appearance branches. Components keep
+   their existing class names; they inherit the new token layer.
+   ========================================================================= */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+optgroup {
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: var(--tracking-normal);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-snug);
+  line-height: var(--leading-tight);
+}
+
+h1 {
+  font-size: var(--text-large-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+h2 {
+  font-size: var(--text-title-1);
+  font-weight: var(--weight-semibold);
+}
+
+h3 {
+  font-size: var(--text-title-2);
+  font-weight: var(--weight-semibold);
+}
+
+h4 {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+}
+
+p,
+li,
+dd,
+td,
+label {
+  line-height: var(--leading-normal);
+}
+
+/* Numbers line up in every data surface. */
+td,
+th,
+output,
+.count-tag,
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Focus: always visible, always high contrast, never removed. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--focusRing);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus:not(
+    :focus-visible
+  ) {
+  outline: none;
+}
+
+::selection {
+  background: var(--tint);
+  color: var(--onTint);
+}
+
+/* Thin overlay scrollbars, as macOS uses. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--separatorOpaque) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--separatorOpaque);
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Materials degrade to opaque surfaces when transparency is unwanted or unsupported. */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --materialChrome: var(--bgChrome);
+    --materialThick: var(--bgSurface);
+    --materialBlur: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root {
+    --materialChrome: var(--bgChrome);
+    --materialThick: var(--bgSurface);
+    --materialBlur: none;
+  }
+}
+
+/* Reduced motion: no transforms, no springs, no animated entrances. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  :where([class]) {
+    transform: none !important;
+  }
+}
+
+/* Increased contrast: firmer hairlines, no translucency, stronger controls. */
+@media (prefers-contrast: more) {
+  * {
+    border-color: var(--separator) !important;
+  }
+
+  :where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]
+  ):focus-visible {
+    outline-width: 3px !important;
+    outline-color: var(--focusRing) !important;
+  }
 }
