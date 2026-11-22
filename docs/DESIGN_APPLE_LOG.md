@@ -58,3 +58,46 @@ via `node tools/capture-ui.mjs`.
 
 **Carried into later phases:** component-level restyling (B), shell/navigation (C), data
 surfaces (D), flows (E), motion (F), full verification (G).
+
+---
+
+## Phase B — Core controls ✅
+
+**Delivered** — a single control vocabulary, all token-driven:
+
+| Element | Treatment |
+| --- | --- |
+| `.button--primary` | Filled tint, 38 px tall, semibold, soft elevation, press-scale 0.985 |
+| `.button--outline` / `--quiet` | Transparent with hairline, fills on hover |
+| `.button--destructive` | Solid red, always paired with a confirmation |
+| `.button:disabled` | Reduced-tint fill, tertiary label, `cursor: not-allowed`, no shadow |
+| Icon buttons | 32 px hit floor; accessible name is a gate (G8) |
+| `.nav-link` | Segmented tab bar; `aria-current` gets tint wash + tint ring |
+| Text inputs, select, textarea | Filled surface, 3:1 border (above WCAG 1.4.11's minimum), tint on focus |
+| Checkboxes / radios | `accent-color: var(--tint)`, 16 px |
+| `.search-box` | Pill field, focus ring on the wrapper, no inner outline |
+| `.count-tag` | Caption pill; partial-capture tag switches to the warning role |
+| Disclosure (`details.export-panel`) | Grouped-list row, 38 px, hairline separator when open |
+| `[role="alert"]` | Destructive wash with a 3 px coloured edge |
+| `.sort-button` | Plain text control with hover fill |
+
+**Bug found and fixed during this phase.** The `prefers-contrast: more` and
+`prefers-reduced-transparency` overrides were written against `:root`, which loses to the more
+specific `:root[data-theme="system"]` selector (0,2,0 vs 0,1,0). In light mode the accessibility
+override silently did nothing — exactly the class of defect a gate exists to catch. Both layers
+now target `:root`, `:root[data-theme="light"]` and `:root[data-theme="system"]` explicitly,
+including the nested light-preference case.
+
+**New gate suite** — `tests/e2e/design.spec.ts`, run against the packaged extension:
+
+| Gate | Assertion | Result |
+| --- | --- | --- |
+| G7 | all visible controls ≥ 30 px tall, primary ≥ 38 px | pass |
+| G8 | no icon-only control without an accessible name (3 surfaces) | pass |
+| G9 | Tab produces a ≥ 2 px visible outline | pass |
+| G11 | reduced motion collapses transitions/animations to ≤ 2 ms | pass |
+| G12 | increased contrast sets `--materialBlur: none` | pass |
+| G13 | axe (WCAG 2.0/2.1 A + AA) reports zero violations | pass |
+| G14 | layout shift on first paint < 0.1 | pass |
+
+**Evidence:** `artifacts/screenshots/apple/*-{dark,light}.png`, regenerated after the phase.

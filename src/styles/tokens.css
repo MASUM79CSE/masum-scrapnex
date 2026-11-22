@@ -309,12 +309,20 @@
 }
 
 /* BLOCK: contrast */
+/*
+ * Each appearance is overridden with a selector at least as specific as the one it
+ * replaces. `:root[data-theme="system"]` (0,2,0) beats plain `:root` (0,1,0), so a
+ * naive `:root`-only override silently loses in light mode. Dark overrides target the
+ * base `:root`; light overrides target both the explicit light attribute and the
+ * system appearance under a light OS preference.
+ */
 @media (prefers-contrast: more) {
   :root {
     --label: #ffffff;
     --labelSecondary: #e2e2e8;
     --labelTertiary: #c9c9d0;
     --labelQuaternary: #b4b4bc;
+    --label-on-fill: #ffffff;
     --separator: #6f6f77;
     --separatorOpaque: #8b8b93;
     --controlBorder: #b9b9c2;
@@ -326,6 +334,7 @@
     --materialThick: var(--bgSurface);
     --materialBlur: none;
   }
+
   :root[data-theme="light"] {
     --label: #000000;
     --labelSecondary: #3a3a40;
@@ -338,6 +347,36 @@
     --onTint: #ffffff;
     --destructive: #9c1b15;
     --focusRing: #04543f;
+    --materialChrome: var(--bgChrome);
+    --materialThick: var(--bgSurface);
+    --materialBlur: none;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="system"] {
+      --label: #000000;
+      --labelSecondary: #3a3a40;
+      --labelTertiary: #4c4c53;
+      --labelQuaternary: #5c5c63;
+      --separator: #9a9aa1;
+      --separatorOpaque: #7c7c84;
+      --controlBorder: #5c5c63;
+      --tint: #04543f;
+      --onTint: #ffffff;
+      --destructive: #9c1b15;
+      --focusRing: #04543f;
+      --materialChrome: var(--bgChrome);
+      --materialThick: var(--bgSurface);
+      --materialBlur: none;
+    }
+  }
+}
+
+/* Reduced transparency keeps the same specificity discipline. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme="light"],
+  :root[data-theme="system"] {
     --materialChrome: var(--bgChrome);
     --materialThick: var(--bgSurface);
     --materialBlur: none;

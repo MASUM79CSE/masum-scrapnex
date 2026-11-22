@@ -1696,7 +1696,9 @@ output,
 }
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  :root {
+  :root,
+  :root[data-theme="light"],
+  :root[data-theme="system"] {
     --materialChrome: var(--bgChrome);
     --materialThick: var(--bgSurface);
     --materialBlur: none;
@@ -1737,5 +1739,284 @@ output,
   ):focus-visible {
     outline-width: 3px !important;
     outline-color: var(--focusRing) !important;
+  }
+}
+
+/* =========================================================================
+   Phase B — core controls
+   Filled = primary action, tinted/outline = secondary, plain = tertiary.
+   Destructive is always red and always confirmed.
+   ========================================================================= */
+
+.button {
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--separator);
+  background: var(--fillTertiary);
+  color: var(--label);
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-micro) var(--ease-standard),
+    border-color var(--duration-micro) var(--ease-standard),
+    color var(--duration-micro) var(--ease-standard),
+    box-shadow var(--duration-micro) var(--ease-standard);
+}
+
+.button:not(:disabled):hover {
+  background: var(--fillSecondary);
+  border-color: var(--separatorOpaque);
+}
+
+.button:not(:disabled):active {
+  background: var(--fillPrimary);
+  transform: scale(0.985);
+}
+
+.button--primary {
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  border-color: transparent;
+  background: var(--tint);
+  color: var(--onTint);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-1);
+}
+
+.button--primary:not(:disabled):hover {
+  background: var(--tint);
+  filter: brightness(1.06);
+  box-shadow: var(--shadow-2);
+}
+
+.button--primary:not(:disabled):active {
+  filter: brightness(0.96);
+  transform: scale(0.985);
+}
+
+.button--outline,
+.button--quiet {
+  background: transparent;
+  border-color: var(--separator);
+  color: var(--label);
+}
+
+.button--outline:not(:disabled):hover,
+.button--quiet:not(:disabled):hover {
+  background: var(--fillTertiary);
+  border-color: var(--separatorOpaque);
+}
+
+.button:disabled {
+  background: var(--fillTertiary);
+  border-color: var(--separator);
+  color: var(--labelTertiary);
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Destructive intent is colour + confirmation, never colour alone. */
+.button--destructive {
+  border-color: transparent;
+  background: var(--destructive);
+  color: var(--onDestructive);
+  font-weight: var(--weight-semibold);
+}
+
+.button--destructive:not(:disabled):hover {
+  filter: brightness(1.05);
+}
+
+/* Icon-only controls keep a 32px hit floor and a required accessible name. */
+.icon-button,
+.button[aria-label]:not(.button--primary) {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+}
+
+/* Navigation reads as a segmented tab bar. */
+.nav-link {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  color: var(--labelSecondary);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  transition:
+    background-color var(--duration-micro) var(--ease-standard),
+    color var(--duration-micro) var(--ease-standard);
+}
+
+.nav-link:hover {
+  background: var(--fillTertiary);
+  color: var(--label);
+}
+
+.nav-link[aria-current="page"] {
+  background: var(--tintWash);
+  border-color: var(--tintLine);
+  color: var(--tint);
+  font-weight: var(--weight-semibold);
+}
+
+.nav-link[aria-current="page"] .nav-active-dot {
+  background: var(--tint);
+}
+
+/* Text entry: filled surface, firm border (we exceed WCAG 1.4.11's 3:1). */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  min-height: 32px;
+  padding: 6px var(--space-2);
+  border: 1px solid var(--controlBorder);
+  border-radius: var(--radius-xs);
+  background: var(--bgSurfaceAlt);
+  color: var(--label);
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  transition:
+    border-color var(--duration-micro) var(--ease-standard),
+    box-shadow var(--duration-micro) var(--ease-standard);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+  border-color: var(--labelTertiary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--labelTertiary);
+  opacity: 1;
+}
+
+/* Checkboxes and radios adopt the tint in every engine that supports it. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--tint);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.search-box {
+  min-height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--controlBorder);
+  background: var(--bgSurfaceAlt);
+  transition:
+    border-color var(--duration-micro) var(--ease-standard),
+    box-shadow var(--duration-standard) var(--ease-standard);
+}
+
+.search-box:focus-within {
+  outline: 3px solid var(--focusRing);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+/* Badges: captions, never decoration. */
+.count-tag {
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2);
+  background: var(--fillTertiary);
+  border: 1px solid var(--separator);
+  color: var(--labelSecondary);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+}
+
+.count-tag.dataset-partial {
+  background: var(--warningWash);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+/* Disclosure rows, as macOS grouped lists. */
+.export-panel {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--separator);
+  background: var(--bgSurface);
+  overflow: hidden;
+}
+
+.export-panel > summary {
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--label);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: background-color var(--duration-micro) var(--ease-standard);
+}
+
+.export-panel > summary:hover {
+  background: var(--fillTertiary);
+}
+
+.export-panel[open] > summary {
+  border-bottom: 1px solid var(--separator);
+}
+
+/* Alerts: tinted wash, coloured edge, plain-language copy. */
+[role="alert"] {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--destructive);
+  border-left-width: 3px;
+  background: var(--destructiveWash);
+  color: var(--label);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body);
+}
+
+/* Status pills inside empty and loading states. */
+.connection,
+.library-feedback {
+  border-radius: var(--radius-pill);
+}
+
+/* Sorting is a plain text control with an explicit affordance. */
+.sort-button {
+  min-height: 28px;
+  border-radius: var(--radius-xs);
+  color: var(--labelSecondary);
+  font-size: var(--text-subhead);
+  font-weight: var(--weight-medium);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--duration-micro) var(--ease-standard);
+}
+
+.sort-button:hover {
+  background: var(--fillTertiary);
+  color: var(--label);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .nav-link,
+  .search-box,
+  .export-panel > summary,
+  .sort-button {
+    transition: none !important;
+  }
+
+  .button:not(:disabled):active,
+  .button--primary:not(:disabled):active {
+    transform: none !important;
   }
 }
