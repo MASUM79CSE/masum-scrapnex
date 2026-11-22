@@ -1,3 +1,11 @@
+import { readSchema } from "../core/extraction/signature";
+import { requestDownload } from "../browser/export";
+import {
+  encodeConfiguration,
+  decodeConfiguration,
+  configurationFileLimit,
+  type PortableConfiguration,
+} from "../core/library/portable";
 import { formats, type Format } from "../core/export/plan";
 import {
   isSettings,
@@ -6,7 +14,7 @@ import {
   maxDelay,
 } from "../core/pagination/contracts";
 import { Archive, Database, FolderOpen, Save, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { LibraryView } from "../browser/use-library";
 import type {
   DetectedCandidate,
@@ -15,7 +23,7 @@ import type {
 import type { Dataset } from "../core/extraction/contracts";
 import {
   cleanupDays,
-  matchRecipe,
+  configurationMatch,
   maxLibraryBytes,
   maxRecipes,
   maxSessions,
@@ -334,6 +342,105 @@ export function WorkflowSettings({ library }: { library: LibraryView }) {
     </section>
   );
 }
+function ConfigurationExchange({ library }: { library: LibraryView }) {
+  const [pending, setPending] = useState<PortableConfiguration | null>(null);
+  const [error, setError] = useState("");
+  const generation = useRef(0);
+  return (
+    <details className="export-panel">
+      <summary>Import configuration</summary>
+      <div className="library-tools">
+        <p className="export-note">
+          Select a SCRAPNEXS configuration JSON file, review its site and name,
+          then confirm. A file never grants page access or runs a capture.
+        </p>
+        <label>
+          Configuration JSON file{" "}
+          <input
+            type="file"
+            accept=".json,application/json"
+            disabled={library.busy}
+            onChange={(event) => {
+              const current = ++generation.current;
+              const file = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              setPending(null);
+              setError("");
+              if (!file) return;
+              if (file.size > configurationFileLimit) {
+                setError("Configuration files must be 24 KiB or smaller.");
+                return;
+              }
+              void file
+                .arrayBuffer()
+                .then((bytes) => {
+                  let text: string;
+                  try {
+                    text = new TextDecoder("utf-8", { fatal: true }).decode(
+                      bytes,
+                    );
+                  } catch {
+                    throw new Error("Configuration files must use UTF-8.");
+                  }
+                  const next = decodeConfiguration(text);
+                  if (current === generation.current) setPending(next);
+                })
+                .catch((problem: unknown) => {
+                  if (current === generation.current)
+                    setError(
+                      problem instanceof Error
+                        ? problem.message
+                        : "Could not read the configuration file.",
+                    );
+                });
+            }}
+          />
+        </label>
+        {error && <p role="alert">{error}</p>}
+        {pending && (
+          <div className="library-list">
+            <p>
+              Review “{pending.name}” · {pending.origin} · {pending.kind}
+            </p>
+            <p>
+              Fields:{" "}
+              {readSchema(pending.signature, pending.kind)
+                ?.map(([, label, type]) => `${label || "Unnamed"} (${type})`)
+                .join(", ")}
+            </p>
+            <div className="library-actions">
+              <button
+                type="button"
+                className="button button--outline"
+                disabled={
+                  library.busy ||
+                  library.loading ||
+                  library.recipes.length >= maxRecipes
+                }
+                onClick={() => {
+                  library.importConfiguration(pending);
+                  setPending(null);
+                }}
+              >
+                Confirm configuration import
+              </button>
+              <button
+                type="button"
+                className="button button--outline"
+                onClick={() => setPending(null)}
+              >
+                Cancel import
+              </button>
+            </div>
+            {library.recipes.length >= maxRecipes && (
+              <p>Delete a saved configuration before importing another.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
 export function HistoryPanel({
   library,
   blocked,
@@ -349,6 +456,7 @@ export function HistoryPanel({
   origin: string | null;
   useCandidate: (candidate: DetectedCandidate) => void;
 }) {
+  const [downloadNote, setDownloadNote] = useState("");
   return (
     <section
       className="panel library-panel"
@@ -431,6 +539,8 @@ export function HistoryPanel({
       </div>
       <div className="library-list">
         <h3>Saved configurations</h3>
+        <ConfigurationExchange library={library} />
+        {downloadNote && <p role="status">{downloadNote}</p>}
         <p className="export-note">
           Analyze a page on the same site first. A matching configuration can
           select its structure, but will not collect or navigate.
@@ -440,7 +550,17 @@ export function HistoryPanel({
         )}
         <ul>
           {library.recipes.map((item) => {
-            const found = matchRecipe(item, origin, report);
+            const match = configurationMatch(item, origin, report);
+            const found = "candidate" in match ? match.candidate : undefined;
+            const reason = {
+              site: "Open and analyze a page on this site.",
+              scan: "Run a complete analysis first.",
+              none: "No compatible structure found.",
+              ambiguous: "Several structures match. Choose one manually.",
+              exact: "Exact schema match.",
+              compatible:
+                "Matching field labels and types; review the new column order.",
+            }[match.status];
             return (
               <li key={item.id}>
                 <div>
@@ -448,6 +568,7 @@ export function HistoryPanel({
                   <p>
                     {item.origin} · {item.kind}
                   </p>
+                  <p>{reason}</p>
                 </div>
                 <div className="library-actions">
                   <button
@@ -460,6 +581,28 @@ export function HistoryPanel({
                     }}
                   >
                     Use configuration
+                  </button>
+                  <button
+                    type="button"
+                    className="button button--outline"
+                    aria-label={`Download configuration ${item.name}`}
+                    onClick={() => {
+                      try {
+                        requestDownload(
+                          new Blob([encodeConfiguration(item)], {
+                            type: "application/json;charset=utf-8",
+                          }),
+                          "scrapnexs-configuration.json",
+                        );
+                        setDownloadNote("Configuration download requested.");
+                      } catch {
+                        setDownloadNote(
+                          "This configuration could not be downloaded.",
+                        );
+                      }
+                    }}
+                  >
+                    Download JSON
                   </button>
                   <button
                     type="button"

@@ -24,6 +24,7 @@ export interface DatasetView {
 export function useDataset(
   context: () => { binding: ScanBinding; current: () => boolean } | null,
   deduplicate = false,
+  onCaptured?: (binding: ScanBinding, partial: boolean) => void,
 ): DatasetView {
   const current = useRef<Dataset | null>(null);
   const capture = useRef(false);
@@ -77,7 +78,10 @@ export function useDataset(
     setError("");
     void collectFromTab(scan.binding, candidate)
       .then(
-        (result) => accept(scan.current() ? result : changedCollection()),
+        (result) => {
+          if (accept(scan.current() ? result : changedCollection()))
+            onCaptured?.(scan.binding, result.status === "partial");
+        },
         () =>
           setError(
             "Collection failed. Reopen the toolbar popup on the authorized tab and analyze again.",

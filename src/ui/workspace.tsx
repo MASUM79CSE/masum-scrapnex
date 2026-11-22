@@ -1,3 +1,6 @@
+import { UrlQueuePanel } from "./url-queue-panel";
+import type { UrlQueueView } from "../browser/use-url-queue";
+import { DiagnosticsPanel } from "./diagnostics-panel";
 import {
   HistoryPanel,
   LibraryFeedback,
@@ -473,6 +476,7 @@ export function Workspace({
   datasetView,
   pagination,
   library,
+  queue,
 }: {
   mode: "preview" | "extension" | "options";
   themeStore: ThemeStore;
@@ -483,6 +487,7 @@ export function Workspace({
   datasetView?: DatasetView;
   pagination?: PaginationView;
   library?: LibraryView;
+  queue?: UrlQueueView;
 }) {
   const [sample, setSample] = useState(mode === "preview");
   const [section, setSection] = useState<Section>(
@@ -786,6 +791,12 @@ export function Workspace({
                 ) : null}
               </div>
             )}
+          {!datasetOpen && !isSettings && !isHistory && live?.report && (
+            <DiagnosticsPanel
+              key={live.report.candidates[0]?.id ?? live.report.status}
+              report={live.report}
+            />
+          )}
           {datasetView?.error && !datasetOpen && (
             <p role="alert" className="detection-notes">
               {datasetView.error}
@@ -799,6 +810,18 @@ export function Workspace({
                 !!datasetView?.dataset || !!datasetView?.busy || !!manual
               }
             />
+          )}
+          {queue && (
+            <div hidden={section !== "workspace" || !!manual || sample}>
+              <UrlQueuePanel
+                queue={queue}
+                locked={
+                  !!datasetView?.dataset ||
+                  !!datasetView?.busy ||
+                  paginationLocked
+                }
+              />
+            </div>
           )}
           {library && <LibraryFeedback library={library} />}
           {datasetOpen && datasetView && (

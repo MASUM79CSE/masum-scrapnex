@@ -1,3 +1,7 @@
+import {
+  importedConfiguration,
+  type PortableConfiguration,
+} from "../core/library/portable";
 import { useEffect, useRef, useState } from "react";
 import { browser } from "wxt/browser";
 import type { DetectedCandidate } from "../core/detector/contracts";
@@ -31,6 +35,7 @@ export interface LibraryView {
   save: (name: string, data: Dataset, partial: boolean) => void;
   restore: (id: string, apply: (item: SavedSession) => boolean) => void;
   recipe: (name: string, origin: string, candidate: DetectedCandidate) => void;
+  importConfiguration: (data: PortableConfiguration) => void;
   remove: (id: string) => void;
   removeRecipe: (id: string) => void;
   clearHistory: () => void;
@@ -150,6 +155,16 @@ export function useLibrary(): LibraryView {
         );
         await library.addRecipe(item);
         return `Saved configuration “${item.name}”.`;
+      }),
+    importConfiguration: (data) =>
+      void execute(async () => {
+        const item = importedConfiguration(
+          data,
+          crypto.randomUUID(),
+          Date.now(),
+        );
+        await library.addRecipe(item);
+        return `Imported configuration “${item.name}”.`;
       }),
     remove: (id) =>
       void execute(async () => {

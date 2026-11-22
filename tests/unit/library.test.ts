@@ -158,3 +158,40 @@ describe("local library schema and settings", () => {
     expect(() => cleanedName("  \u200B")).toThrow(/Enter a name/);
   });
 });
+
+it("matches a reordered same-site schema only when its candidate is unambiguous", () => {
+  const recipe = newRecipe(
+    "Stock",
+    "https://example.test",
+    candidate,
+    "recipe-one",
+    1,
+  );
+  const changed = {
+    ...candidate,
+    id: "table-2",
+    columns: [
+      { ...fixture.columns[1]!, id: "t9" },
+      { ...fixture.columns[0]!, id: "t4" },
+    ],
+  };
+  expect(
+    matchRecipe(recipe, recipe.origin, { ...report, candidates: [changed] }),
+  ).toBe(changed);
+  expect(
+    matchRecipe(recipe, recipe.origin, {
+      ...report,
+      candidates: [changed, candidate],
+    }),
+  ).toBeUndefined();
+  const renamed = {
+    ...changed,
+    columns: [
+      changed.columns[0]!,
+      { ...changed.columns[1]!, label: "Another name" },
+    ],
+  };
+  expect(
+    matchRecipe(recipe, recipe.origin, { ...report, candidates: [renamed] }),
+  ).toBeUndefined();
+});

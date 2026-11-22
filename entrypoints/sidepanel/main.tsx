@@ -1,3 +1,4 @@
+import { useUrlQueue } from "../../src/browser/use-url-queue";
 import { useLibrary } from "../../src/browser/use-library";
 import { usePagination } from "../../src/browser/use-pagination";
 import { useDataset } from "../../src/browser/use-dataset";
@@ -14,9 +15,11 @@ import { Workspace, type Connection } from "../../src/ui/workspace";
 function SidePanel() {
   const detection = useDetection();
   const library = useLibrary();
+  const queue = useUrlQueue();
   const dataset = useDataset(
     detection.captureContext,
     library.settings.deduplicate,
+    queue.collected,
   );
   const pagination = usePagination(detection.captureContext, dataset.accept);
   const picker = usePicker(detection.authorizedTarget, dataset.accept);
@@ -52,6 +55,7 @@ function SidePanel() {
       datasetView={dataset}
       pagination={pagination}
       library={library}
+      queue={queue}
       retry={() => {
         setConnection("loading");
         setAttempt((n) => n + 1);

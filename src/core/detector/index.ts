@@ -6,6 +6,7 @@ import {
   type DetectedCandidate,
   type PageDetection,
 } from "./contracts";
+import { rankCandidates } from "./rank";
 import { detectTable, tableRecords } from "./tables";
 import type { RowPlan } from "../extraction/collect";
 
@@ -28,6 +29,7 @@ export async function findPlans(
   if (snapshot.analysis.reason === "dom-changed" || view.location.href !== url)
     return { report: changedPage(), plans };
   const candidates: DetectedCandidate[] = [];
+  const tableOf = new Map<string, HTMLTableElement>();
   let limited = false;
   for (const [index, table] of snapshot.tables.entries()) {
     if (performance.now() - start >= 1_800) {
@@ -38,6 +40,7 @@ export async function findPlans(
     const candidate = detectTable(table, index, view);
     if (!candidate) continue;
     candidates.push(candidate);
+    tableOf.set(candidate.id, table);
     let clipped = false;
     plans.set(candidate.id, {
       columns: candidate.columns,
@@ -84,14 +87,25 @@ export async function findPlans(
     notes.push(
       "Previews contain up to six observed rows. A match score is a heuristic, not a guarantee.",
     );
-  const ranked = candidates
-    .sort(
-      (a, b) =>
-        b.score - a.score ||
-        Number(b.kind === "table") - Number(a.kind === "table") ||
-        b.observed - a.observed,
-    )
-    .slice(0, maxStructures);
+  // A table nested inside another detected table is part of its parent's records
+  // (a nested grid, a layout cell). Keep it as an alternative, never as the primary
+  // suggestion, so ranking cannot promote inner content over the record structure.
+  const nested = new Set(
+    [...tableOf].flatMap(([id, table]) => {
+      for (
+        let ancestor = table.parentElement?.closest("table");
+        ancestor;
+        ancestor = ancestor.parentElement?.closest("table")
+      )
+        if ([...tableOf.values()].includes(ancestor)) return [id];
+      return [];
+    }),
+  );
+  const ordered = rankCandidates(candidates);
+  const ranked = [
+    ...ordered.filter(({ id }) => !nested.has(id)),
+    ...ordered.filter(({ id }) => nested.has(id)),
+  ].slice(0, maxStructures);
   return {
     report: {
       version: 1,

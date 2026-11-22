@@ -14,7 +14,7 @@ import {
   normalizeCell,
   type Dataset,
 } from "../extraction/contracts";
-import { schemaSignature } from "../extraction/signature";
+import { portableSchemaKey, schemaSignature } from "../extraction/signature";
 
 export const libraryName = "masum-scrapnexs-library";
 export const libraryVersion = 2;
@@ -228,17 +228,41 @@ export function newRecipe(
     throw new Error("This detected configuration cannot be saved.");
   return recipe;
 }
+export type ConfigurationMatch =
+  | { status: "exact" | "compatible"; candidate: DetectedCandidate }
+  | { status: "site" | "scan" | "none" | "ambiguous" };
+export function configurationMatch(
+  recipe: Recipe,
+  origin: string | null,
+  report: PageDetection | null,
+): ConfigurationMatch {
+  if (origin !== recipe.origin) return { status: "site" };
+  if (report?.status !== "complete") return { status: "scan" };
+  const key = portableSchemaKey(recipe.signature, recipe.kind);
+  const matches = report.candidates.filter((candidate) => {
+    if (candidate.kind !== recipe.kind) return false;
+    const signature = schemaSignature(candidate);
+    return (
+      signature === recipe.signature ||
+      (key !== null && key === portableSchemaKey(signature, recipe.kind))
+    );
+  });
+  if (matches.length > 1) return { status: "ambiguous" };
+  const [candidate] = matches;
+  if (!candidate) return { status: "none" };
+  return {
+    status:
+      schemaSignature(candidate) === recipe.signature ? "exact" : "compatible",
+    candidate,
+  };
+}
 export function matchRecipe(
   recipe: Recipe,
   origin: string | null,
   report: PageDetection | null,
 ) {
-  if (origin !== recipe.origin || report?.status !== "complete")
-    return undefined;
-  const matches = report.candidates.filter(
-    (c) => c.kind === recipe.kind && schemaSignature(c) === recipe.signature,
-  );
-  return matches.length === 1 ? matches[0] : undefined;
+  const match = configurationMatch(recipe, origin, report);
+  return "candidate" in match ? match.candidate : undefined;
 }
 export function cleanupDays(value: unknown): value is CleanupDays {
   return value === 7 || value === 30 || value === 90;

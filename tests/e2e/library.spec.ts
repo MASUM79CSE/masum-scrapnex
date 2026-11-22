@@ -565,3 +565,169 @@ test("library transaction scale and concurrent capacity checks use the actual Ch
   }, small);
   expect(cap).toEqual({ saved: 20, limited: 5, listed: 20 });
 });
+
+test("advanced portable configuration and redacted diagnostics use real local downloads", async () => {
+  const local = await extensionFixture(true),
+    server = await fixtureServer();
+  const context = await local.launch();
+  try {
+    const worker = await background(context);
+    const panel = await openPanel(
+      context,
+      `chrome-extension://${new URL(worker.url()).host}`,
+    );
+    const source = await openSource(
+      context,
+      panel,
+      `${server.origin}/inventory?private=do-not-share`,
+    );
+    await invoke(panel, "Analyze page");
+    await panel.getByText("Extraction diagnostics", { exact: true }).click();
+    const [diagnostics] = await Promise.all([
+      panel.waitForEvent("download"),
+      panel.getByRole("button", { name: "Download diagnostics" }).click(),
+    ]);
+    const raw = await readFile(await diagnostics.path(), "utf8");
+    expect(JSON.parse(raw)).toMatchObject({
+      status: "complete",
+      candidateCount: 1,
+      candidates: [{ kind: "table", observed: 3, columns: 2 }],
+    });
+    expect(raw).not.toMatch(/do-not-share|127\.0\.0\.1|Field lamp|Quantity/);
+    await panel
+      .getByText("Save extraction configuration", { exact: true })
+      .click();
+    await panel.getByLabel("Configuration name").fill("Portable example");
+    await invoke(panel, "Save configuration");
+    await expect(
+      panel.getByText("Saved configuration “Portable example”."),
+    ).toBeVisible();
+    await panel
+      .getByRole("button", { name: "Local history", exact: true })
+      .click();
+    const [config] = await Promise.all([
+      panel.waitForEvent("download"),
+      panel
+        .getByRole("button", {
+          name: "Download configuration Portable example",
+        })
+        .click(),
+    ]);
+    const data = await readFile(await config.path());
+    expect(data.toString("utf8")).not.toMatch(
+      /do-not-share|Field lamp|savedAt/,
+    );
+    acceptDialog(panel);
+    await invoke(panel, "Delete configuration Portable example");
+    await expect(panel.getByText("No saved configurations yet.")).toBeVisible();
+    await panel.getByText("Import configuration", { exact: true }).click();
+    const input = panel.getByLabel("Configuration JSON file");
+    await input.setInputFiles({
+      name: "invalid.json",
+      mimeType: "application/json",
+      buffer: Buffer.from('{"version":9}'),
+    });
+    await expect(panel.getByRole("alert")).toContainText(
+      "Unsupported configuration file format or version",
+    );
+    await input.setInputFiles({
+      name: "portable.json",
+      mimeType: "application/json",
+      buffer: data,
+    });
+    await expect(panel.getByText(/Review “Portable example”/)).toBeVisible();
+    await expect(panel.getByText("No saved configurations yet.")).toBeVisible();
+    await invoke(panel, "Confirm configuration import");
+    await expect(
+      panel.getByText("Imported configuration “Portable example”."),
+    ).toBeVisible();
+    await expect(
+      panel.getByRole("button", {
+        name: "Download configuration Portable example",
+      }),
+    ).toBeEnabled();
+    await expect(
+      panel.getByRole("heading", { name: "Working dataset" }),
+    ).toHaveCount(0);
+    await expect(source).toHaveURL(
+      `${server.origin}/inventory?private=do-not-share`,
+    );
+  } finally {
+    await context.close();
+    await server.close();
+    await local.dispose();
+  }
+});
+
+test("advanced URL queue only opens on explicit action and tracks accepted exact-page captures", async () => {
+  const local = await extensionFixture(true),
+    server = await fixtureServer();
+  const context = await local.launch();
+  try {
+    const worker = await background(context);
+    const panel = await openPanel(
+      context,
+      `chrome-extension://${new URL(worker.url()).host}`,
+    );
+    const url = `${server.origin}/inventory?queued=1`;
+    const next = `${server.origin}/inventory?queued=2`;
+    await panel.getByText("Multi-URL queue", { exact: true }).click();
+    await panel
+      .getByLabel("One absolute HTTP(S) URL per line")
+      .fill(`${url}\n${next}`);
+    await invoke(panel, "Prepare URL queue");
+    await expect(panel.getByText("Waiting", { exact: true })).toHaveCount(2);
+    expect(
+      context.pages().some((tab) => tab.url().startsWith(server.origin)),
+    ).toBe(false);
+    const [first] = await Promise.all([
+      context.waitForEvent("page"),
+      invoke(panel, "Open next queued page"),
+    ]);
+    await expect(first).toHaveURL(url);
+    await expect(
+      panel.getByText("Opened · waiting for capture", { exact: true }),
+    ).toBeVisible();
+    await expect(panel.getByRole("table")).toHaveCount(0);
+    await first.goto(`${server.origin}/inventory?different=1`);
+    await first.bringToFront();
+    await invoke(panel, "Analyze page");
+    await expect(
+      panel.getByRole("table", { name: "HTML table preview" }),
+    ).toBeVisible();
+    await invoke(panel, "Collect records");
+    await expect(
+      panel.getByRole("heading", { name: "Working dataset" }),
+    ).toBeVisible();
+    await expect(
+      panel.getByText("Opened · waiting for capture", { exact: true }),
+    ).toBeVisible();
+    acceptDialog(panel);
+    await panel.getByRole("button", { name: "Discard dataset" }).click();
+    await first.goto(url);
+    await first.bringToFront();
+    await invoke(panel, "Analyze page");
+    await expect(
+      panel.getByRole("table", { name: "HTML table preview" }),
+    ).toBeVisible();
+    await invoke(panel, "Collect records");
+    await expect(panel.getByText("Collected", { exact: true })).toBeVisible();
+    await expect(
+      panel.getByRole("button", { name: "Open next queued page" }),
+    ).toBeDisabled();
+    expect(context.pages().some((tab) => tab.url() === next)).toBe(false);
+    acceptDialog(panel);
+    await panel.getByRole("button", { name: "Discard dataset" }).click();
+    const [second] = await Promise.all([
+      context.waitForEvent("page"),
+      invoke(panel, "Open next queued page"),
+    ]);
+    await expect(second).toHaveURL(next);
+    await invoke(panel, "Skip queued page");
+    await expect(panel.getByText("Skipped", { exact: true })).toBeVisible();
+  } finally {
+    await context.close();
+    await server.close();
+    await local.dispose();
+  }
+});
