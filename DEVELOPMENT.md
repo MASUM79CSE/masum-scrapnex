@@ -16,15 +16,16 @@ Load `.output/chrome-mv3` via `chrome://extensions` → Developer mode → Load 
 
 ## Scripts
 
-| Script                                                        | Purpose                                               |
-| ------------------------------------------------------------- | ----------------------------------------------------- |
-| `npm run dev`                                                 | WXT dev server with hot reload                        |
-| `npm run build`                                               | Production MV3 build                                  |
-| `npm run zip`                                                 | Packaged archive for distribution                     |
-| `npm run typecheck` / `npm run lint` / `npm run format:check` | Static gates                                          |
-| `npm test`                                                    | Unit and component tests (Vitest)                     |
-| `npm run test:e2e`                                            | Build, then Playwright against the packaged extension |
-| `npm run preview:ui`                                          | Standalone UI preview with sample data                |
+| Script                                                        | Purpose                                                                         |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`                                                 | WXT dev server with hot reload                                                  |
+| `npm run build`                                               | Production MV3 build                                                            |
+| `npm run zip`                                                 | Packaged archive for distribution                                               |
+| `npm run typecheck` / `npm run lint` / `npm run format:check` | Static gates                                                                    |
+| `npm test`                                                    | Unit and component tests (Vitest)                                               |
+| `npm run test:e2e`                                            | Build, then Playwright against the packaged extension                           |
+| `npm run preview:ui`                                          | Standalone UI preview with sample data                                          |
+| `npm run verify:folder`                                       | Load the delivered folder in Chrome and assert the current design is live in it |
 
 ## Architecture in one screen
 
@@ -60,6 +61,23 @@ copy; the shipped manifest is asserted clean in the same suite and in CI.
 - No telemetry and no network egress for collected data.
 - Prefer fixtures over live sites; prefer measured numbers over adjectives.
 - Each phase ends with evidence, then **stops** for approval.
+
+## Updating a loaded extension folder
+
+Copying a new build over an existing unpacked folder leaves the previous build's hashed assets
+(`assets/brand-*.css`, `chunks/*.js`) behind. The folder still loads, but it is no longer the build
+you think you shipped, and the stale CSS is a tempting explanation for any visual oddity that
+follows.
+
+Replace the folder instead of merging into it:
+
+```sh
+rm -rf path/to/extension && mkdir -p path/to/extension
+cp -r .output/chrome-mv3/. path/to/extension/
+npm run verify:folder path/to/extension   # loads it in Chrome, screenshots it, prints the computed design tokens
+```
+
+Then press the reload arrow on the extension card in `chrome://extensions`.
 
 ## Release procedure
 
